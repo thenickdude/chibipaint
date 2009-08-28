@@ -36,6 +36,8 @@ public class CPControllerApplet extends CPController {
 	private ChibiPaint applet;
 	private JFrame floatingFrame;
 	private String postUrl, exitUrl, exitUrlTarget;
+	
+	private boolean hasUnsavedChanges=true;
 
 	public CPControllerApplet(ChibiPaint applet) {
 		this.applet = applet;
@@ -97,7 +99,7 @@ public class CPControllerApplet extends CPController {
 		int choice = JOptionPane
 				.showConfirmDialog(
 						getDialogParent(),
-						"You're about to send your oekaki to the server and end your ChibiPaint session.\n\nWould you like to send the layers file as well?\nAdditional upload size: "
+						"You're about to save your drawing and end your ChibiPaint session.\n\nWould you like to send the layers file as well?\nAdditional upload size: "
 								+ chibiData.length
 								/ 1024
 								+ " KB \nTotal upload size:"
@@ -195,6 +197,7 @@ public class CPControllerApplet extends CPController {
 	}
 
 	public void goToExitUrl() {
+		hasUnsavedChanges=false;
 		if (exitUrl != null && !exitUrl.equals("")) {
 			try {
 				applet.getAppletContext().showDocument(new URL(applet.getDocumentBase(), exitUrl), exitUrlTarget);
@@ -206,5 +209,9 @@ public class CPControllerApplet extends CPController {
 					JOptionPane.INFORMATION_MESSAGE);
 			// new CPMessageBox(this, CPMessageBox.CP_OK_MSGBOX, "The oekaki was successfully sent", "Send Oekaki");
 		}
+	}
+
+	public boolean hasUnsavedChanges() {
+		return hasUnsavedChanges;
 	}
 }
