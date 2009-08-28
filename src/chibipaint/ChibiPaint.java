@@ -212,8 +212,4 @@ public class ChibiPaint extends JApplet {
 		return controller.hasUnsavedChanges();
 		
 	}
-	
-	public String foo() {
-		return "LOL: "+controller.hasUnsavedChanges();
-	}
 }
