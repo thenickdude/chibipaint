@@ -1,6 +1,9 @@
 package chibipaint.gui;
 
 import java.applet.Applet;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -10,8 +13,14 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URL;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
@@ -22,7 +31,10 @@ public class CPSendDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 
 	private JProgressBar progress = new JProgressBar();
-
+	private JButton btnCancel = new JButton("Cancel");
+	private JLabel lblStatus = new JLabel();
+	private JPanel pnlBottom = new JPanel();
+	
 	/** URL to post the images to */
 	private URL postUrl;
 
@@ -38,6 +50,9 @@ public class CPSendDialog extends JDialog {
 		this.chibiData = chibiData;
 
 		progress.setIndeterminate(true);
+		lblStatus.setText("Contacting server...");
+		
+		pnlBottom.add(progress);	
 	}
 
 	/*
@@ -49,8 +64,19 @@ public class CPSendDialog extends JDialog {
 		/*
 		 * Do the quick parts in this thread (preparing the message to be sent)
 		 */
-
+		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
+		getContentPane().add(lblStatus);
 		getContentPane().add(progress);
+
+		JPanel buttonPane = new JPanel();
+		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+		buttonPane.add(Box.createHorizontalGlue());
+		buttonPane.add(btnCancel);
+
+		getContentPane().add(buttonPane);
+		
+		setMinimumSize(new Dimension(600,400));
 		pack();
 		setVisible(true);
 		
@@ -119,6 +145,7 @@ public class CPSendDialog extends JDialog {
 							progress.setMaximum(data.length);
 							progress.setValue(0);
 							progress.setIndeterminate(false);
+							lblStatus.setText("Sending drawing...");
 						}
 					});
 
