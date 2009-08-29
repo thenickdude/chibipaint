@@ -42,8 +42,10 @@ public class CPTablet {
 
 	public CPTablet() {
 		try {
+			System.err.println("Loading JTablet...");
 			Class tabletClass = Class.forName("cello.tablet.JTablet");
 			tablet = tabletClass.newInstance();
+			System.err.println("Loaded");
 
 			mPoll = tabletClass.getMethod("poll", (Class[]) null);
 			mGetPressure = tabletClass.getMethod("getPressure", (Class[]) null);
@@ -54,8 +56,8 @@ public class CPTablet {
 			// tablet_getButtons = jtablet.getMethod("getButtons",null);
 
 			tabletOK = true;
-		} catch (Exception e) {
-			System.out.print(e.toString());
+		} catch (Throwable e) {
+			System.err.println(e.toString());
 		}
 	}
 
