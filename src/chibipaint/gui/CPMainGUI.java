@@ -101,7 +101,7 @@ public class CPMainGUI {
 		if (controller.isRunningAsApplet()) {
 			menuItem = new JMenuItem("Save Oekaki", KeyEvent.VK_S);
 			menuItem.getAccessibleContext().setAccessibleDescription(
-					"Sends the oekaki to the server and exits ChibiPaint");
+					"Saves the oekaki to the server");
 			menuItem.setActionCommand("CPSend");
 			menuItem.addActionListener(listener);
 			menu.add(menuItem);

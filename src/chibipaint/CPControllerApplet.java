@@ -36,7 +36,12 @@ public class CPControllerApplet extends CPController {
 
 	private ChibiPaint applet;
 	private JFrame floatingFrame;
-	private String postUrl, exitUrl, exitUrlTarget;
+	private String postUrl;
+
+	/** Where to go if we decide to "post" our oekaki */
+	private String postedUrl, postedUrlTarget;
+	/** Where to go if we decide to stop drawing */
+	private String exitUrl, exitUrlTarget;
 
 	private boolean hasUnsavedChanges = true;
 
@@ -67,6 +72,8 @@ public class CPControllerApplet extends CPController {
 
 	public void getAppletParams() {
 		postUrl = applet.getParameter("postUrl");
+		postedUrl = applet.getParameter("postedUrl");
+		postedUrlTarget = applet.getParameter("postedUrlTarget");
 		exitUrl = applet.getParameter("exitUrl");
 		exitUrlTarget = applet.getParameter("exitUrlTarget");
 	}
@@ -74,22 +81,24 @@ public class CPControllerApplet extends CPController {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("CPFloat")) {
 			applet.floatingMode();
-		}
-
-		if (e.getActionCommand().equals("CPSend")) {
-			sendImage();
-			/*
-			 * if (sendPng()) { goToExitUrl(); }
-			 */
+		} else if (e.getActionCommand().equals("CPSend")) {
+			sendOekaki();
+		} else if (e.getActionCommand().equals("CPPost")) {
+			goToPostedUrl();
+		} else if (e.getActionCommand().equals("CPExit")) {
+			goToExitUrl();
 		}
 
 		super.actionPerformed(e);
 	}
 
-	public void sendImage() {
+	/**
+	 * Send the oekaki to the server
+	 */
+	public void sendOekaki() {
 		// First creates the PNG data
 		byte[] pngData = getPngData(canvas.img); // FIXME: verify canvas.img is
-													// always updated
+		// always updated
 
 		// The ChibiPaint file data
 		ByteArrayOutputStream chibiFileStream = new ByteArrayOutputStream(1024);
@@ -97,8 +106,8 @@ public class CPControllerApplet extends CPController {
 		byte[] chibiData = chibiFileStream.toByteArray();
 
 		try {
-			CPSendDialog sendDialog = new CPSendDialog(new URL(applet
-					.getDocumentBase(), postUrl), pngData, chibiData);
+			CPSendDialog sendDialog = new CPSendDialog(applet, this, new URL(
+					applet.getDocumentBase(), postUrl), pngData, chibiData);
 
 			sendDialog.sendImage();
 		} catch (Exception e) {
@@ -113,18 +122,33 @@ public class CPControllerApplet extends CPController {
 		hasUnsavedChanges = false;
 		if (exitUrl != null && !exitUrl.equals("")) {
 			try {
-				applet.getAppletContext().showDocument(
-						new URL(applet.getDocumentBase(), exitUrl),
-						exitUrlTarget);
+				if (exitUrlTarget != null)
+					applet.getAppletContext().showDocument(
+							new URL(applet.getDocumentBase(), exitUrl),
+							exitUrlTarget);
+				else
+					applet.getAppletContext().showDocument(
+							new URL(applet.getDocumentBase(), exitUrl));
 			} catch (Exception e) {
 				// FIXME: do something
 			}
-		} else {
-			JOptionPane.showMessageDialog(getDialogParent(),
-					"The oekaki was successfully sent", "Send Oekaki",
-					JOptionPane.INFORMATION_MESSAGE);
-			// new CPMessageBox(this, CPMessageBox.CP_OK_MSGBOX,
-			// "The oekaki was successfully sent", "Send Oekaki");
+		}
+	}
+
+	public void goToPostedUrl() {
+		hasUnsavedChanges = false;
+		if (postedUrl != null && !postedUrl.equals("")) {
+			try {
+				if (postedUrlTarget != null)
+					applet.getAppletContext().showDocument(
+							new URL(applet.getDocumentBase(), postedUrl),
+							postedUrlTarget);
+				else
+					applet.getAppletContext().showDocument(
+							new URL(applet.getDocumentBase(), postedUrl));
+			} catch (Exception e) {
+				// FIXME: do something
+			}
 		}
 	}
 
