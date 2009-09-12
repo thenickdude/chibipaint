@@ -97,21 +97,29 @@ public class CPControllerApplet extends CPController {
 	 * Send the oekaki to the server
 	 */
 	public void sendOekaki() {
-		
+
 		// First creates the PNG data
 		byte[] pngData = getPngData(canvas.img);
 		// FIXME: verify canvas.img is
 		// always updated
 
 		// The ChibiPaint file data
-		ByteArrayOutputStream chibiFileStream = new ByteArrayOutputStream(1024);
-		CPChibiFile.write(chibiFileStream, artwork);
-		byte[] chibiData = chibiFileStream.toByteArray();
+		byte[] chibiData;
+
+		if (artwork.getLayers().length > 1) {
+			ByteArrayOutputStream chibiFileStream = new ByteArrayOutputStream(
+					1024);
+			CPChibiFile.write(chibiFileStream, artwork);
+			chibiData = chibiFileStream.toByteArray();
+		} else {
+			//Don't need to send multiple layers if we only have one
+			chibiData = null;
+		}
 
 		try {
 			CPSendDialog sendDialog = new CPSendDialog(applet, this, new URL(
 					applet.getDocumentBase(), postUrl), pngData, chibiData,
-					exitUrl==null || exitUrl.length()==0);
+					exitUrl == null || exitUrl.length() == 0);
 
 			sendDialog.sendImage();
 		} catch (Exception e) {
@@ -124,9 +132,9 @@ public class CPControllerApplet extends CPController {
 
 	public void goToExitUrl() {
 		hasUnsavedChanges = false;
-		if (exitUrl != null && exitUrl.length()>0) {
+		if (exitUrl != null && exitUrl.length() > 0) {
 			try {
-				if (exitUrlTarget != null && exitUrlTarget.length()>0)
+				if (exitUrlTarget != null && exitUrlTarget.length() > 0)
 					applet.getAppletContext().showDocument(
 							new URL(applet.getDocumentBase(), exitUrl),
 							exitUrlTarget);
@@ -141,9 +149,9 @@ public class CPControllerApplet extends CPController {
 
 	public void goToPostedUrl() {
 		hasUnsavedChanges = false;
-		if (postedUrl != null && postedUrl.length()>0) {
+		if (postedUrl != null && postedUrl.length() > 0) {
 			try {
-				if (postedUrlTarget != null && postedUrlTarget.length()>0)
+				if (postedUrlTarget != null && postedUrlTarget.length() > 0)
 					applet.getAppletContext().showDocument(
 							new URL(applet.getDocumentBase(), postedUrl),
 							postedUrlTarget);

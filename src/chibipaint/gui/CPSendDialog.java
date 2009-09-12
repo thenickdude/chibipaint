@@ -228,8 +228,6 @@ public class CPSendDialog extends JDialog implements ActionListener {
 							if (cancel)
 								break;
 
-							Thread.sleep(1000);
-
 							/* Last chunk can be smaller than the others */
 							int this_chunk = Math.min(data.length - chunk_pos,
 									CHUNK_SIZE);
@@ -241,9 +239,12 @@ public class CPSendDialog extends JDialog implements ActionListener {
 
 							SwingUtilities.invokeLater(new Runnable() {
 								public void run() {
-									lblStatus.setText("Saving drawing... ("
-											+ (progress_pos / 1024) + "kB/"
-											+ (data.length / 1024) + "kB done)");
+									lblStatus
+											.setText("Saving drawing... ("
+													+ (progress_pos / 1024)
+													+ "kB/"
+													+ (data.length / 1024)
+													+ "kB done)");
 									progress.setValue(progress_pos);
 								}
 							});
@@ -297,7 +298,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 											int chosen = JOptionPane
 													.showOptionDialog(
 															parent,
-															"Your oekaki has been updated, would you like to view it on the forum now?",
+															"Your oekaki has been saved, would you like to view it on the forum now?",
 															"Oekaki saved",
 															JOptionPane.YES_NO_OPTION,
 															JOptionPane.QUESTION_MESSAGE,
@@ -358,19 +359,25 @@ public class CPSendDialog extends JDialog implements ActionListener {
 					} finally {
 						dos.close();
 					}
-				} catch (Exception e) {
-					lblStatus
-							.setText("<html>Error: "
-									+ e.getMessage()
-									+ "<br><br>Your drawing has not been saved.</html>");
-					btnCancel.setActionCommand("close");
-					btnCancel.setText("Close");
+				} catch (final Exception e) {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							progress.setVisible(false);
+							lblStatus
+									.setText("<html>Error: "
+											+ e.getMessage()
+											+ "<br><br>Your drawing has not been saved.</html>");
+							btnCancel.setActionCommand("close");
+							btnCancel.setText("Close");
+						}
+					});
 					/*
 					 * JOptionPane.showMessageDialog(getDialogParent(),
 					 * "Error while sending the oekaki..." + e.getMessage() +
 					 * response, "Error", JOptionPane.ERROR_MESSAGE);
 					 */
 				}
+
 			}
 		}).start();
 	}
