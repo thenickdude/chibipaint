@@ -47,9 +47,6 @@ public class CPSendDialog extends JDialog implements ActionListener {
 	/** URL to post the images to */
 	private URL postUrl;
 
-	/** Send the .chi file along with the png? */
-	private boolean sendLayers;
-
 	/** Image data to send to server */
 	private byte[] pngData, chibiData;
 
@@ -59,14 +56,34 @@ public class CPSendDialog extends JDialog implements ActionListener {
 
 	private ActionListener notifyCompleted;
 
-	public CPSendDialog(Component parent,
-			ActionListener notifyCompleted, URL postUrl,
-			byte[] pngData, byte[] chibiData) {
+	private boolean alreadyPosted;
+
+	/**
+	 * 
+	 * @param parent
+	 *            Parent for dialog in windowing hierachy
+	 * @param notifyCompleted
+	 *            Listener to notify if URLs need to be jumped to afterwards
+	 * @param postUrl
+	 *            URL to post image data to
+	 * @param pngData
+	 *            PNG image to post
+	 * @param chibiData
+	 *            CHI image to post (or null if you don't want layers)
+	 * @param alreadyPosted
+	 *            True if the image has already been posted to the forum and we
+	 *            shouldn't offer to "leave without posting"
+	 */
+	public CPSendDialog(Component parent, ActionListener notifyCompleted,
+			URL postUrl, byte[] pngData, byte[] chibiData, boolean alreadyPosted) {
 		this.postUrl = postUrl;
 		this.pngData = pngData;
 		this.chibiData = chibiData;
 		this.parent = parent;
 		this.notifyCompleted = notifyCompleted;
+		this.alreadyPosted = alreadyPosted;
+
+		setTitle("Saving oekaki...");
 
 		Container contentPane = getContentPane();
 
@@ -144,7 +161,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 		bos.write(pngData, 0, pngData.length);
 		bos.writeBytes("\r\n");
 
-		if (sendLayers) {
+		if (chibiData != null) {
 			bos.writeBytes("--" + boundary + "\r\n");
 			bos
 					.writeBytes("Content-Disposition: form-data; name=\"chibifile\"; filename=\"chibipaint.chi\"\r\n");
@@ -196,7 +213,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 								progress.setMaximum(data.length);
 								progress.setValue(0);
 								progress.setIndeterminate(false);
-								lblStatus.setText("Sending drawing...");
+								lblStatus.setText("Saving drawing...");
 							}
 						});
 
@@ -211,6 +228,8 @@ public class CPSendDialog extends JDialog implements ActionListener {
 							if (cancel)
 								break;
 
+							Thread.sleep(1000);
+
 							/* Last chunk can be smaller than the others */
 							int this_chunk = Math.min(data.length - chunk_pos,
 									CHUNK_SIZE);
@@ -222,15 +241,29 @@ public class CPSendDialog extends JDialog implements ActionListener {
 
 							SwingUtilities.invokeLater(new Runnable() {
 								public void run() {
+									lblStatus.setText("Saving drawing... ("
+											+ (progress_pos / 1024) + "kB/"
+											+ (data.length / 1024) + "kB done)");
 									progress.setValue(progress_pos);
 								}
 							});
 
 						}
 
+						SwingUtilities.invokeAndWait(new Runnable() {
+							public void run() {
+								progress.setVisible(false);
+							};
+						});
+
 						if (cancel) {
-							lblStatus.setText("Save cancelled");
-							btnCancel.setText("Close");
+							SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									lblStatus.setText("Save cancelled");
+									btnCancel.setText("Close");
+									btnCancel.setActionCommand("close");
+								}
+							});
 						} else {
 							// Read the answer from the server and verifies it's
 							// OK
@@ -250,39 +283,74 @@ public class CPSendDialog extends JDialog implements ActionListener {
 								if (!line.startsWith("CHIBIOK")) {
 									throw new RuntimeException(
 											"Unexpected answer from the server: "
-													+ line + "<br>");
+													+ line);
 								}
 
 								// Sweet, it saved!
-								SwingUtilities.invokeLater(new Runnable() {
-									public void run() {
-										setVisible(false);
-										Object[] options = {
-												"Yes, post it now",
-												"No, keep drawing",
-												"Stop drawing for now, I'll finish it later" };
-										int chosen = JOptionPane
-												.showOptionDialog(
-														parent,
-														"Your oekaki has been saved, would you like post it to the forum now?",
-														"Oekaki saved",
-														JOptionPane.YES_NO_CANCEL_OPTION,
-														JOptionPane.QUESTION_MESSAGE,
-														null, options,
-														options[0]);
-										switch (chosen) {
-										case JOptionPane.YES_OPTION:
-											notifyCompleted.actionPerformed(new ActionEvent(this, 0, "CPPost"));
-											break;
-										case JOptionPane.NO_OPTION:
-											notifyCompleted.actionPerformed(new ActionEvent(this, 0, "CPExit"));
-											break;
-										case JOptionPane.CLOSED_OPTION:
-										case JOptionPane.CANCEL_OPTION:
+								if (alreadyPosted) {
+									SwingUtilities.invokeLater(new Runnable() {
+										public void run() {
+											setVisible(false);
+											Object[] options = {
+													"Yes, view the post",
+													"No, keep drawing" };
+											int chosen = JOptionPane
+													.showOptionDialog(
+															parent,
+															"Your oekaki has been updated, would you like to view it on the forum now?",
+															"Oekaki saved",
+															JOptionPane.YES_NO_OPTION,
+															JOptionPane.QUESTION_MESSAGE,
+															null, options,
+															options[0]);
+											switch (chosen) {
+											case JOptionPane.YES_OPTION:
+												notifyCompleted
+														.actionPerformed(new ActionEvent(
+																this, 0,
+																"CPPost"));
+												break;
+											case JOptionPane.NO_OPTION:
+											case JOptionPane.CLOSED_OPTION:
+											}
 										}
-									}
-								});
-
+									});
+								} else {
+									SwingUtilities.invokeLater(new Runnable() {
+										public void run() {
+											setVisible(false);
+											Object[] options = {
+													"Yes, post it now",
+													"No, keep drawing",
+													"No, I'll finish it later" };
+											int chosen = JOptionPane
+													.showOptionDialog(
+															parent,
+															"Your oekaki has been saved, would you like to post it to the forum now?",
+															"Oekaki saved",
+															JOptionPane.YES_NO_CANCEL_OPTION,
+															JOptionPane.QUESTION_MESSAGE,
+															null, options,
+															options[0]);
+											switch (chosen) {
+											case JOptionPane.YES_OPTION:
+												notifyCompleted
+														.actionPerformed(new ActionEvent(
+																this, 0,
+																"CPPost"));
+												break;
+											case JOptionPane.CANCEL_OPTION:
+												notifyCompleted
+														.actionPerformed(new ActionEvent(
+																this, 0,
+																"CPExit"));
+												break;
+											case JOptionPane.NO_OPTION:
+											case JOptionPane.CLOSED_OPTION:
+											}
+										}
+									});
+								}
 							} finally {
 								rd.close();
 							}
@@ -291,8 +359,10 @@ public class CPSendDialog extends JDialog implements ActionListener {
 						dos.close();
 					}
 				} catch (Exception e) {
-					lblStatus.setText("<html>Error: " + e.getMessage()
-							+ ". Your drawing has not been saved.</html>");
+					lblStatus
+							.setText("<html>Error: "
+									+ e.getMessage()
+									+ "<br><br>Your drawing has not been saved.</html>");
 					btnCancel.setActionCommand("close");
 					btnCancel.setText("Close");
 					/*

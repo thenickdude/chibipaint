@@ -1,4 +1,4 @@
-cd ../../bin/
+cd ../../bin
 pwd
 jar -mcf ../build/scripts/main-class.txt ../build/release/chibi.jar chibipaint/
 

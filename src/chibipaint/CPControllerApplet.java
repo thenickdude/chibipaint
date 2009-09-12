@@ -36,8 +36,9 @@ public class CPControllerApplet extends CPController {
 
 	private ChibiPaint applet;
 	private JFrame floatingFrame;
-	private String postUrl;
 
+	/** URL to send our image data to */
+	private String postUrl;
 	/** Where to go if we decide to "post" our oekaki */
 	private String postedUrl, postedUrlTarget;
 	/** Where to go if we decide to stop drawing */
@@ -96,8 +97,10 @@ public class CPControllerApplet extends CPController {
 	 * Send the oekaki to the server
 	 */
 	public void sendOekaki() {
+		
 		// First creates the PNG data
-		byte[] pngData = getPngData(canvas.img); // FIXME: verify canvas.img is
+		byte[] pngData = getPngData(canvas.img);
+		// FIXME: verify canvas.img is
 		// always updated
 
 		// The ChibiPaint file data
@@ -107,7 +110,8 @@ public class CPControllerApplet extends CPController {
 
 		try {
 			CPSendDialog sendDialog = new CPSendDialog(applet, this, new URL(
-					applet.getDocumentBase(), postUrl), pngData, chibiData);
+					applet.getDocumentBase(), postUrl), pngData, chibiData,
+					exitUrl==null || exitUrl.length()==0);
 
 			sendDialog.sendImage();
 		} catch (Exception e) {
@@ -120,9 +124,9 @@ public class CPControllerApplet extends CPController {
 
 	public void goToExitUrl() {
 		hasUnsavedChanges = false;
-		if (exitUrl != null && !exitUrl.equals("")) {
+		if (exitUrl != null && exitUrl.length()>0) {
 			try {
-				if (exitUrlTarget != null)
+				if (exitUrlTarget != null && exitUrlTarget.length()>0)
 					applet.getAppletContext().showDocument(
 							new URL(applet.getDocumentBase(), exitUrl),
 							exitUrlTarget);
@@ -137,9 +141,9 @@ public class CPControllerApplet extends CPController {
 
 	public void goToPostedUrl() {
 		hasUnsavedChanges = false;
-		if (postedUrl != null && !postedUrl.equals("")) {
+		if (postedUrl != null && postedUrl.length()>0) {
 			try {
-				if (postedUrlTarget != null)
+				if (postedUrlTarget != null && postedUrlTarget.length()>0)
 					applet.getAppletContext().showDocument(
 							new URL(applet.getDocumentBase(), postedUrl),
 							postedUrlTarget);
