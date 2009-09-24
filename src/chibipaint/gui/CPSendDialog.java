@@ -251,15 +251,10 @@ public class CPSendDialog extends JDialog implements ActionListener {
 
 						}
 
-						SwingUtilities.invokeAndWait(new Runnable() {
-							public void run() {
-								progress.setVisible(false);
-							};
-						});
-
 						if (cancel) {
 							SwingUtilities.invokeLater(new Runnable() {
 								public void run() {
+									progress.setVisible(false);
 									lblStatus.setText("Save cancelled");
 									btnCancel.setText("Close");
 									btnCancel.setActionCommand("close");
