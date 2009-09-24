@@ -40,7 +40,7 @@ public class ChibiPaint extends JApplet {
 	boolean floatingMode = false;
 	JPanel floatingPlaceholder;
 	JFrame floatingFrame;
-	
+
 	public void init() {
 		try {
 			SwingUtilities.invokeAndWait(new Runnable() {
@@ -206,10 +206,5 @@ public class ChibiPaint extends JApplet {
 				}
 			});
 		}
-	}
-	
-	public boolean hasUnsavedChanges() {
-		return controller.hasUnsavedChanges();
-		
 	}
 }
