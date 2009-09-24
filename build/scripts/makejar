@@ -18,7 +18,7 @@ pwd
 rm chibipaint15.jar
 rm chibipaint.jar
 REM mv chibi.jar chibipaint15.jar
-java -jar ../../../proguard/lib/proguard.jar @ ../scripts/chibipaint.pro -verbose
+java -jar ../../proguard/lib/proguard.jar @ ../scripts/chibipaint.pro -verbose
 rm chibi.jar
 
-java -jar "../../../retrotranslator/retrotranslator-transformer-1.2.8.jar" -srcjar chibipaint15.jar -destjar chibipaint.jar
+java -jar "../../retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibipaint15.jar -destjar chibipaint.jar

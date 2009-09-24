@@ -1,7 +1,7 @@
 -injars ../release/chibi.jar
 -outjars ../release/chibipaint15.jar
 
--libraryjars 'C:\Program Files\Java\jre1.5.0_09\lib\rt.jar'
+-libraryjars 'C:\Program Files (x86)\Java\jre1.5.0_12\lib\rt.jar'
 
 -verbose
 
