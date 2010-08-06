@@ -82,7 +82,7 @@ public class CPBrushPalette extends CPPalette implements CPController.ICPToolLis
 		tipCombo = new JComboBox(tipNames);
 		tipCombo.addActionListener(this);
 		tipCombo.setLocation(5, 5);
-		tipCombo.setSize(120, 16);
+		tipCombo.setSize(130, 16);
 		add(tipCombo);
 
 		resatSlider = new CPSlider(100) {

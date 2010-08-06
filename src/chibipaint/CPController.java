@@ -326,6 +326,7 @@ public abstract class CPController implements ActionListener {
 			JOptionPane.showMessageDialog(getDialogParent(), "ChibiPaint by Codexus\n" + "Version "
 					+ VERSION_STRING + "\n\n" + "Copyright (c) 2006-2008 Marc Schefer. All Rights Reserved.\n"
 					+ "Modifications by Nicholas Sherlock\n"
+					+ "Includes icons from the Tango Desktop Project\n"
 					+ "ChibiPaint is free software: you can redistribute it and/or modify\n"
 					+ "it under the terms of the GNU General Public License as published by\n"
 					+ "the Free Software Foundation, either version 3 of the License, or\n"

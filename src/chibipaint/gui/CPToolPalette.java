@@ -24,6 +24,8 @@ package chibipaint.gui;
 import java.awt.*;
 import java.awt.event.*;
 
+import javax.swing.ToolTipManager;
+
 import chibipaint.*;
 
 public class CPToolPalette extends CPPalette implements ActionListener {
@@ -31,34 +33,36 @@ public class CPToolPalette extends CPPalette implements ActionListener {
 	public CPToolPalette(CPController controller) {
 		super(controller);
 
+		ToolTipManager.sharedInstance().setInitialDelay(600);
+		
 		title = "Tools";
 		setLayout(new FlowLayout());
 
 		Image icons = controller.loadImage("icons.png");
 		CPIconButton button;
 
-		button = new CPIconButton(icons, 32, 32, 0, 1);
+		button = new CPIconButton(icons, 32, 32, 0, 1, "Marquee");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPRectSelection");
 
-		button = new CPIconButton(icons, 32, 32, 1, 1);
+		button = new CPIconButton(icons, 32, 32, 1, 1, "Move tool");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPMoveTool");
 
-		button = new CPIconButton(icons, 32, 32, 2, 1);
+		button = new CPIconButton(icons, 32, 32, 2, 1, "Flood fill");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPFloodFill");
 
-		button = new CPIconButton(icons, 32, 32, 29, 1);
+		button = new CPIconButton(icons, 32, 32, 29, 1, "Rotate canvas");
 		add(button);
 
 		button.addCPActionListener(controller);
@@ -66,14 +70,14 @@ public class CPToolPalette extends CPPalette implements ActionListener {
 		button.setCPActionCommand("CPRotateCanvas");
 		button.setCPActionCommandDouble("CPResetCanvasRotation");
 
-		button = new CPIconButton(icons, 32, 32, 5, 1);
+		button = new CPIconButton(icons, 32, 32, 5, 1, "Pencil");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPPencil");
 
-		button = new CPIconButton(icons, 32, 32, 6, 1);
+		button = new CPIconButton(icons, 32, 32, 6, 1, "");
 		add(button);
 
 		button.addCPActionListener(controller);
@@ -81,7 +85,7 @@ public class CPToolPalette extends CPPalette implements ActionListener {
 		button.setCPActionCommand("CPPen");
 		button.setSelected(true);
 
-		button = new CPIconButton(icons, 32, 32, 7, 1);
+		button = new CPIconButton(icons, 32, 32, 7, 1, "Airbrush");
 		add(button);
 
 		button.addCPActionListener(controller);
@@ -95,56 +99,56 @@ public class CPToolPalette extends CPPalette implements ActionListener {
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPWater");
 
-		button = new CPIconButton(icons, 32, 32, 8, 1);
+		button = new CPIconButton(icons, 32, 32, 8, 1, "Eraser");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPEraser");
 
-		button = new CPIconButton(icons, 32, 32, 9, 1);
+		button = new CPIconButton(icons, 32, 32, 9, 1, "Soft eraser");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPSoftEraser");
 
-		button = new CPIconButton(icons, 32, 32, 24, 1);
+		button = new CPIconButton(icons, 32, 32, 24, 1, "Smudge");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPSmudge");
 
-		button = new CPIconButton(icons, 32, 32, 28, 1);
+		button = new CPIconButton(icons, 32, 32, 28, 1, "");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPBlender");
 
-		button = new CPIconButton(icons, 32, 32, 16, 1);
+		button = new CPIconButton(icons, 32, 32, 16, 1, "");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPDodge");
 
-		button = new CPIconButton(icons, 32, 32, 17, 1);
+		button = new CPIconButton(icons, 32, 32, 17, 1, "");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPBurn");
 
-		button = new CPIconButton(icons, 32, 32, 23, 1);
+		button = new CPIconButton(icons, 32, 32, 23, 1, "Blur");
 		add(button);
 
 		button.addCPActionListener(controller);
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPBlur");
 
-		button = new CPIconButton(icons, 32, 32, 30, 1);
+		button = new CPIconButton(icons, 32, 32, 30, 1, "Color picker");
 		add(button);
 
 		button.addCPActionListener(controller);
