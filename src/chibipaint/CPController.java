@@ -83,7 +83,8 @@ public abstract class CPController implements ActionListener {
 	public static final int M_RECT_SELECTION = 2;
 	public static final int M_MOVE_TOOL = 3;
 	public static final int M_ROTATE_CANVAS = 4;
-	public static final int M_MAX = 5;
+	public static final int M_COLOR_PICKER = 5;
+	public static final int M_MAX = 6;
 
 	// Image loader cache
 	private Map<String, Image> imageCache = new HashMap<String, Image>();
@@ -302,6 +303,10 @@ public abstract class CPController implements ActionListener {
 			setMode(M_ROTATE_CANVAS);
 		}
 
+		if (e.getActionCommand().equals("CPColorPicker")) {
+			setMode(M_COLOR_PICKER);
+		}
+
 		// Stroke modes
 
 		if (e.getActionCommand().equals("CPFreeHand")) {
@@ -319,7 +324,8 @@ public abstract class CPController implements ActionListener {
 
 		if (e.getActionCommand().equals("CPAbout")) {
 			JOptionPane.showMessageDialog(getDialogParent(), "ChibiPaint by Codexus\n" + "Version "
-					+ VERSION_STRING + "\n\n" + "Copyright (c) 2006-2008 Marc Schefer. All Rights Reserved.\n\n"
+					+ VERSION_STRING + "\n\n" + "Copyright (c) 2006-2008 Marc Schefer. All Rights Reserved.\n"
+					+ "Modifications by Nicholas Sherlock\n"
 					+ "ChibiPaint is free software: you can redistribute it and/or modify\n"
 					+ "it under the terms of the GNU General Public License as published by\n"
 					+ "the Free Software Foundation, either version 3 of the License, or\n"

@@ -144,6 +144,12 @@ public class CPToolPalette extends CPPalette implements ActionListener {
 		button.addCPActionListener(this);
 		button.setCPActionCommand("CPBlur");
 
+		button = new CPIconButton(icons, 32, 32, 30, 1);
+		add(button);
+
+		button.addCPActionListener(controller);
+		button.addCPActionListener(this);
+		button.setCPActionCommand("CPColorPicker");
 	}
 
 	public void actionPerformed(ActionEvent e) {

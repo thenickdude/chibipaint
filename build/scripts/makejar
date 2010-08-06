@@ -15,9 +15,8 @@ jar -uf ../build/release/chibi.jar license.txt
 
 cd ../build/release/
 pwd
-rm chibipaint15.jar
-rm chibipaint.jar
-REM mv chibi.jar chibipaint15.jar
+rm -f chibipaint15.jar
+rm -f chibipaint.jar
 java -jar ../../proguard/lib/proguard.jar @ ../scripts/chibipaint.pro -verbose
 rm chibi.jar
 

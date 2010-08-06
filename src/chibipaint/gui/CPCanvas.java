@@ -689,6 +689,10 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 		case CPController.M_ROTATE_CANVAS:
 			curSelectedMode = rotateCanvasMode;
 			break;
+
+		case CPController.M_COLOR_PICKER:
+			curSelectedMode = colorPickerMode;
+			break;
 		}
 	}
 
