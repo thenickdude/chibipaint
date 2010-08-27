@@ -120,7 +120,7 @@ class CPColorSelect extends JComponent implements MouseListener,
 		for (int j = 0; j < h; j++) {
 			col.setValue(255 - (j * 255) / h);
 			for (int i = 0; i < w; i++) {
-				col.setSaturation(255 - (i * 255) / w);
+				col.setSaturation((i * 255) / w);
 				data[i + j * w] = 0xff000000 | col.rgb;
 			}
 		}
@@ -138,7 +138,7 @@ class CPColorSelect extends JComponent implements MouseListener,
 		img.flush();
 		g.drawImage(img, 0, 0, Color.red, null);
 
-		int x = (255 - color.getSaturation()) * w / 255;
+		int x = color.getSaturation() * w / 255;
 		int y = (255 - color.getValue()) * h / 255;
 		g.setColor(Color.white);
 		g.setXORMode(Color.black);
@@ -146,7 +146,7 @@ class CPColorSelect extends JComponent implements MouseListener,
 	}
 
 	public void mouseSelect(MouseEvent e) {
-		int sat = 255 - e.getX() * 255 / w;
+		int sat = e.getX() * 255 / w;
 		int value = 255 - e.getY() * 255 / h;
 
 		color.setSaturation(Math.max(0, Math.min(255, sat)));
