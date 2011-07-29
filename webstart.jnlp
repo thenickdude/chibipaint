@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<jnlp 
+  spec="1.0+" 
+  codebase="http://nickscomputer.no-ip.org/oekaki/" 
+  > 
+  <information> 
+    <title>ChibiPaint - Chicken Smoothie</title> 
+    <vendor>Chicken Smoothie</vendor> 
+    <description>ChibiPaint drawing editor</description> 
+    <offline-allowed/> 
+  </information> 
+  <resources> 
+    <j2se version="1.6+"/>
+    <jar href="chibi/splash.jar" download="eager" main="true" /> 
+    <jar href="chibi/chibi.jar" download="lazy" part="chibi" /> 
+  </resources> 
+  <applet-desc name="Chibi Paint" width="1024" height="800" document-base="http://nickscomputer.no-ip.org/oekaki/" main-class="splash.Loader">
+  	<param name="canvasWidth" value="600"/> 
+  	<param name="canvasHeight" value="400"/>
+  	<param name="postUrl" value="http://nickscomputer.no-ip.org/oekaki/post.php?ok_sessionid=94a990f4-b8f9-11e0-92ee-1c6f65373aee&amp;sid=0f43a8114da0535cbad55b17838fc21a" /> 
+    <param name="postedUrl" value="http://nickscomputer.no-ip.org/oekaki/postdone.php?f=30&amp;ok_sessionid=94a990f4-b8f9-11e0-92ee-1c6f65373aee&amp;sid=0f43a8114da0535cbad55b17838fc21a" /> 
+    <param name="exitUrl" value="./viewforum.php?f=30&amp;sid=0f43a8114da0535cbad55b17838fc21a" /> 
+    <param name="loadImage" value="image/image.php?id=137863&amp;size=original&amp;format=png&amp;rev=1&amp;sid=0f43a8114da0535cbad55b17838fc21a" />  
+    <param name="loadChibiFile" value="image/image.php?id=137858&amp;size=original&amp;format=chi&amp;rev=1&amp;sid=5ad102a00536f575c83b35c7b6b57352" /> 
+  </applet-desc> 
+</jnlp>

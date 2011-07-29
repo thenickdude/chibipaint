@@ -34,7 +34,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.Border;
 
 import chibipaint.CPControllerApplet;
-import chibipaint.ChibiPaint;
+import chibipaint.ChibiApplet;
 
 public class CPSendDialog extends JDialog implements ActionListener {
 

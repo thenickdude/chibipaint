@@ -24,6 +24,7 @@ package chibipaint;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.io.InputStream;
 import java.net.*;
 
 import javax.imageio.*;
@@ -32,8 +33,8 @@ import javax.swing.*;
 import chibipaint.engine.*;
 import chibipaint.gui.*;
 
-public class ChibiPaint extends JApplet {
-
+public class ChibiApplet {
+	
 	CPControllerApplet controller;
 	CPMainGUI mainGUI;
 
@@ -41,16 +42,25 @@ public class ChibiPaint extends JApplet {
 	JPanel floatingPlaceholder;
 	JFrame floatingFrame;
 
-	public void init() {
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
+	private JApplet applet;
+	
+	public ChibiApplet(JApplet applet, InputStream layers) {
+		this.applet = applet;
 
-				public void run() {
-					createApplet();
-				}
-			});
-		} catch (Exception e) {
-		}
+		controller = new CPControllerApplet(this, applet);
+		controller.setArtwork(createArtwork(layers));
+
+		// FIXME: set a default tool so that we can start drawing
+		controller.setTool(CPController.T_PEN);
+
+		createFloatingPlaceholder();
+
+		mainGUI = new CPMainGUI(controller);
+
+		applet.setContentPane(mainGUI.getGUI());
+		applet.setJMenuBar(mainGUI.getMenuBar());
+
+		applet.validate(); // calling validate is recommended to ensure compatibility
 	}
 	
 	public void destroy() {
@@ -62,8 +72,8 @@ public class ChibiPaint extends JApplet {
 		// to the rest of ChibiPaint so that they can be
 		// garbage collected normally.
 		
-		setContentPane(new JPanel());
-		setJMenuBar(null);
+		applet.setContentPane(new JPanel());
+		applet.setJMenuBar(null);
 
 		floatingPlaceholder = null;
 		floatingFrame = null;
@@ -71,42 +81,21 @@ public class ChibiPaint extends JApplet {
 		mainGUI = null;
 	}
 
-	private void createApplet() {
-		controller = new CPControllerApplet(this);
-		controller.setArtwork(createArtwork());
-
-		// FIXME: set a default tool so that we can start drawing
-		controller.setTool(CPController.T_PEN);
-
-		createFloatingPlaceholder();
-
-		mainGUI = new CPMainGUI(controller);
-
-		setContentPane(mainGUI.getGUI());
-		setJMenuBar(mainGUI.getMenuBar());
-
-		validate(); // calling validate is recommended to ensure compatibility
-	}
-
-	private CPArtwork createArtwork() {
+	private CPArtwork createArtwork(InputStream layers) {
 		CPArtwork artwork = null;
 		int w = -1, h = -1;
+		Image loadImage = null;
 
-		if ((w < 1 || h < 1) && getParameter("loadChibiFile") != null) {
+		if (layers != null) {
 			try {
-				URL url = new URL(getDocumentBase(), getParameter("loadChibiFile"));
-				URLConnection connec = url.openConnection();
-				connec.setUseCaches(false); // Bypassing the cache is important
-
-				artwork = CPChibiFile.read(connec.getInputStream());
+				artwork = CPChibiFile.read(layers);
 				w = artwork.width;
 				h = artwork.height;
 			} catch (Exception ignored) {
 			}
 		}
 
-		Image loadImage = null;
-		if ((w < 1 || h < 1) && getParameter("loadImage") != null) {
+	/*	if ((w < 1 || h < 1) && getParameter("loadImage") != null) {
 
 			// NOTE: loads the image using a URLConnection
 			// to be able to bypass the cache that was causing problems
@@ -132,7 +121,7 @@ public class ChibiPaint extends JApplet {
 				w = 320;
 				h = 240;
 			}
-		}
+		}*/
 		w = Math.max(1, Math.min(1024, w));
 		h = Math.max(1, Math.min(1024, h));
 
@@ -168,8 +157,8 @@ public class ChibiPaint extends JApplet {
 			floatingFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			floatingFrame.setSize(800, 600);
 
-			setContentPane(floatingPlaceholder);
-			setJMenuBar(null);
+			applet.setContentPane(floatingPlaceholder);
+			applet.setJMenuBar(null);
 			floatingPlaceholder.revalidate();
 			floatingMode = true;
 
@@ -189,13 +178,15 @@ public class ChibiPaint extends JApplet {
 			floatingMode = false;
 
 			// restore the applet
-			setContentPane(mainGUI.getGUI());
-			setJMenuBar(mainGUI.getMenuBar());
-			validate();
+			applet.setContentPane(mainGUI.getGUI());
+			applet.setJMenuBar(mainGUI.getMenuBar());
+			applet.validate();
 		}
 	}
 
 	public class CPFloatingFrame extends JFrame {
+
+		private static final long serialVersionUID = 1L;
 
 		public CPFloatingFrame() {
 			super("ChibiPaint");
@@ -206,5 +197,10 @@ public class ChibiPaint extends JApplet {
 				}
 			});
 		}
+	}
+	
+	public boolean hasUnsavedChanges() {
+		return controller.hasUnsavedChanges();
+		
 	}
 }

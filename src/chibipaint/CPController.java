@@ -29,6 +29,7 @@ import java.net.*;
 import java.util.*;
 
 import javax.imageio.*;
+import javax.jnlp.DownloadService;
 import javax.swing.*;
 
 import chibipaint.engine.*;
@@ -51,11 +52,11 @@ public abstract class CPController implements ActionListener {
 	int curBrush = T_PENCIL;
 	int curMode = M_DRAW;
 
-	private LinkedList<ICPColorListener> colorListeners = new LinkedList();
-	private LinkedList<ICPToolListener> toolListeners = new LinkedList();
-	private LinkedList<ICPModeListener> modeListeners = new LinkedList();
-	private LinkedList<ICPViewListener> viewListeners = new LinkedList();
-	private LinkedList<ICPEventListener> cpEventListeners = new LinkedList();
+	private LinkedList<ICPColorListener> colorListeners = new LinkedList<ICPColorListener>();
+	private LinkedList<ICPToolListener> toolListeners = new LinkedList<ICPToolListener>();
+	private LinkedList<ICPModeListener> modeListeners = new LinkedList<ICPModeListener>();
+	private LinkedList<ICPViewListener> viewListeners = new LinkedList<ICPViewListener>();
+	private LinkedList<ICPEventListener> cpEventListeners = new LinkedList<ICPEventListener>();
 
 	//
 	// Definition of all the standard tools available
