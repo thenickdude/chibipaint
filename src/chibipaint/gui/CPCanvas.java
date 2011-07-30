@@ -429,6 +429,8 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 			zoomOnPoint(getZoom() * factor, offsetX + (int) (artwork.width * zoom / 2), offsetY
 					+ (int) (artwork.height * zoom / 2));
 		}
+		
+		e.consume();
 		// FIXME: clean the above code, some coordinates get transformed multiple times for nothing
 	}
 
