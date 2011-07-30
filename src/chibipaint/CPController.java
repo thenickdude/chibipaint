@@ -470,6 +470,10 @@ public abstract class CPController implements ActionListener {
 			mainGUI.togglePalettes();
 		}
 
+		if (e.getActionCommand().equals("CPArrangePalettes")) {
+			mainGUI.arrangePalettes();
+		}
+		
 		callCPEventListeners();
 	}
 

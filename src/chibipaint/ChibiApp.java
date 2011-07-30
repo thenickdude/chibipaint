@@ -21,6 +21,8 @@
 
 package chibipaint;
 
+import java.awt.Dimension;
+
 import javax.swing.*;
 
 import chibipaint.engine.*;
@@ -45,22 +47,21 @@ public class ChibiApp extends JFrame {
 
 		setContentPane(mainGUI.getGUI());
 		setJMenuBar(mainGUI.getMenuBar());
-	}
 
-	private static void createChibiApp() {
-		JFrame frame = new ChibiApp();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setPreferredSize(new Dimension(900, 600));
 
-		frame.setSize(800, 600);
-		frame.validate();
-		frame.setVisible(true);
+		pack();
+		setVisible(true);
+		
+		mainGUI.arrangePalettes();
 	}
 
 	public static void main(String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				createChibiApp();
+				new ChibiApp();
 			}
 		});
 	}

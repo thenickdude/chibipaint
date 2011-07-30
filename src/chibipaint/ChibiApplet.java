@@ -44,11 +44,11 @@ public class ChibiApplet {
 
 	private JApplet applet;
 	
-	public ChibiApplet(JApplet applet, InputStream layers) {
+	public ChibiApplet(JApplet applet, InputStream layers, InputStream flat) {
 		this.applet = applet;
 
 		controller = new CPControllerApplet(this, applet);
-		controller.setArtwork(createArtwork(layers));
+		controller.setArtwork(createArtwork(layers, flat));
 
 		// FIXME: set a default tool so that we can start drawing
 		controller.setTool(CPController.T_PEN);
@@ -61,6 +61,8 @@ public class ChibiApplet {
 		applet.setJMenuBar(mainGUI.getMenuBar());
 
 		applet.validate(); // calling validate is recommended to ensure compatibility
+		
+		mainGUI.arrangePalettes();
 	}
 	
 	public void destroy() {
@@ -81,7 +83,14 @@ public class ChibiApplet {
 		mainGUI = null;
 	}
 
-	private CPArtwork createArtwork(InputStream layers) {
+	/**
+	 * Create an image from one of the provided sources (any of which may be null)
+	 * 
+	 * @param layers
+	 * @param flat
+	 * @return
+	 */
+	private CPArtwork createArtwork(InputStream layers, InputStream flat) {
 		CPArtwork artwork = null;
 		int w = -1, h = -1;
 		Image loadImage = null;
@@ -95,17 +104,9 @@ public class ChibiApplet {
 			}
 		}
 
-	/*	if ((w < 1 || h < 1) && getParameter("loadImage") != null) {
-
-			// NOTE: loads the image using a URLConnection
-			// to be able to bypass the cache that was causing problems
-
+		if ((w < 1 || h < 1) && flat != null) {
 			try {
-				URL url = new URL(getDocumentBase(), getParameter("loadImage"));
-				URLConnection connec = url.openConnection();
-				connec.setUseCaches(false); // Bypassing the cache is important
-
-				loadImage = ImageIO.read(connec.getInputStream());
+				loadImage = ImageIO.read(flat);
 				w = loadImage.getWidth(null);
 				h = loadImage.getHeight(null);
 			} catch (Exception ignored) {
@@ -114,14 +115,14 @@ public class ChibiApplet {
 
 		if (w < 1 || h < 1) {
 			loadImage = null;
-			if (getParameter("canvasWidth") != null && getParameter("canvasHeight") != null) {
-				w = Integer.parseInt(getParameter("canvasWidth"));
-				h = Integer.parseInt(getParameter("canvasHeight"));
+			if (applet.getParameter("canvasWidth") != null && applet.getParameter("canvasHeight") != null) {
+				w = Integer.parseInt(applet.getParameter("canvasWidth"));
+				h = Integer.parseInt(applet.getParameter("canvasHeight"));
 			} else {
 				w = 320;
 				h = 240;
 			}
-		}*/
+		}
 		w = Math.max(1, Math.min(1024, w));
 		h = Math.max(1, Math.min(1024, h));
 
@@ -201,6 +202,5 @@ public class ChibiApplet {
 	
 	public boolean hasUnsavedChanges() {
 		return controller.hasUnsavedChanges();
-		
 	}
 }

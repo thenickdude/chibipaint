@@ -21,6 +21,8 @@
 
 package chibipaint.gui;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.*;
 import java.util.*;
 
@@ -33,12 +35,21 @@ public class CPPaletteManager implements ContainerListener {
 	CPController controller;
 	JDesktopPane jdp;
 
-	Map<String, CPPalette> palettes = new HashMap();
-	List<CPPaletteFrame> paletteFrames = new Vector();
-	List<CPPaletteFrame> hiddenFrames = new Vector();
+	Map<String, CPPalette> palettes = new HashMap<String, CPPalette>();
+	List<CPPaletteFrame> paletteFrames = new Vector<CPPaletteFrame>();
+	List<CPPaletteFrame> hiddenFrames = new Vector<CPPaletteFrame>();
+	private CPPalette palTextures, palMisc, palSwatches, palTool, palStroke,
+			palLayers, palBrush, palColor;
 
 	interface ICPPaletteContainer {
+		public void setLocation(int x, int y);
 
+		public void setSize(int w, int h);
+		
+		public int getX();
+		
+		public int getY();
+		
 		public void addPalette(CPPalette palette);
 
 		public void removePalette(CPPalette palette);
@@ -50,8 +61,10 @@ public class CPPaletteManager implements ContainerListener {
 
 	class CPPaletteFrame extends JInternalFrame implements ICPPaletteContainer {
 
-		private List<CPPalette> list = new Vector();
+		private static final long serialVersionUID = 1L;
 
+		private List<CPPalette> list = new Vector<CPPalette>();
+		
 		public CPPaletteFrame(CPPalette palette) {
 			super("", true, true, false, false); // resizable/closable frame
 			putClientProperty("JInternalFrame.isPalette", Boolean.TRUE);
@@ -74,7 +87,7 @@ public class CPPaletteManager implements ContainerListener {
 		}
 
 		public List<CPPalette> getPalettesList() {
-			return new Vector(list);
+			return new Vector<CPPalette>(list);
 		}
 	}
 
@@ -86,105 +99,113 @@ public class CPPaletteManager implements ContainerListener {
 
 		// Color Palette
 
-		CPPalette palette = new CPColorPalette(controller);
-		palettes.put("color", palette);
+		palColor = new CPColorPalette(controller);
+		{
+			palettes.put("color", palColor);
 
-		CPPaletteFrame frame = new CPPaletteFrame(palette);
-		paletteFrames.add(frame);
+			CPPaletteFrame frame = new CPPaletteFrame(palColor);
+			paletteFrames.add(frame);
 
-		frame.pack();
-		frame.setSize(175, 175);
-		frame.setLocation(0, 385);
-		desktop.add(frame);
+			frame.pack();
+			frame.setSize(175, 175);
+			desktop.add(frame);
+		}
 
 		// Brush Palette
 
-		palette = new CPBrushPalette(controller);
-		palettes.put("brush", palette);
+		palBrush = new CPBrushPalette(controller);
+		{
+			palettes.put("brush", palBrush);
 
-		frame = new CPPaletteFrame(palette);
-		paletteFrames.add(frame);
+			CPPaletteFrame frame = new CPPaletteFrame(palBrush);
+			paletteFrames.add(frame);
 
-		frame.pack();
-		frame.setLocation(638, 3);
-		desktop.add(frame);
+			frame.pack();
+			desktop.add(frame);
+		}
 
 		// Layers Palette
 
-		palette = new CPLayersPalette(controller);
-		palettes.put("layers", palette);
+		palLayers = new CPLayersPalette(controller);
+		{
+			palettes.put("layers", palLayers);
 
-		frame = new CPPaletteFrame(palette);
-		paletteFrames.add(frame);
+			CPPaletteFrame frame = new CPPaletteFrame(palLayers);
+			paletteFrames.add(frame);
 
-		frame.pack();
-		frame.setSize(170, 300);
-		frame.setLocation(629, 253);
-		desktop.add(frame);
+			frame.pack();
+			frame.setSize(170, 300);
+			desktop.add(frame);
+		}
 
 		// Stroke Palette
 
-		palette = new CPStrokePalette(controller);
-		palettes.put("stroke", palette);
+		palStroke = new CPStrokePalette(controller);
+		{
+			palettes.put("stroke", palStroke);
 
-		frame = new CPPaletteFrame(palette);
-		paletteFrames.add(frame);
+			CPPaletteFrame frame = new CPPaletteFrame(palStroke);
+			paletteFrames.add(frame);
 
-		frame.pack();
-		frame.setLocation(110, 64);
-		desktop.add(frame);
+			frame.pack();
+			desktop.add(frame);
+		}
 
 		// Tool Palette
 
-		palette = new CPToolPalette(controller);
-		palettes.put("tool", palette);
+		palTool = new CPToolPalette(controller);
+		{
+			palTool.setSize(new Dimension(90, 1));
+			palettes.put("tool", palTool);
 
-		frame = new CPPaletteFrame(palette);
-		paletteFrames.add(frame);
+			CPPaletteFrame frame = new CPPaletteFrame(palTool);
+			frame.pack();
 
-		frame.pack();
-		frame.setSize(90, 390);
-		frame.setLocation(0, 0);
-		desktop.add(frame);
+			paletteFrames.add(frame);
+			desktop.add(frame);
+		}
 
 		// Swatches Palette
 
-		palette = new CPSwatchesPalette(controller);
-		palettes.put("swatches", palette);
+		palSwatches = new CPSwatchesPalette(controller);
+		{
+			palettes.put("swatches", palSwatches);
 
-		frame = new CPPaletteFrame(palette);
-		paletteFrames.add(frame);
+			CPPaletteFrame frame = new CPPaletteFrame(palSwatches);
+			paletteFrames.add(frame);
 
-		frame.pack();
-		frame.setSize(111, 125);
-		frame.setLocation(512, 5);
-		desktop.add(frame);
-
-		// Misc Palette
-
-		palette = new CPMiscPalette(controller);
-		palettes.put("misc", palette);
-
-		frame = new CPPaletteFrame(palette);
-		paletteFrames.add(frame);
-
-		frame.pack();
-		// frame.setSize(111, 125);
-		frame.setLocation(110, 0);
-		desktop.add(frame);
+			frame.pack();
+			frame.setSize(111, 125);
+			desktop.add(frame);
+		}
 
 		// Misc Palette
 
-		palette = new CPTexturePalette(controller);
-		palettes.put("textures", palette);
+		palMisc = new CPMiscPalette(controller);
+		{
+			palettes.put("misc", palMisc);
 
-		frame = new CPPaletteFrame(palette);
-		paletteFrames.add(frame);
+			CPPaletteFrame frame = new CPPaletteFrame(palMisc);
+			paletteFrames.add(frame);
 
-		frame.pack();
-		frame.setSize(400, 220);
-		frame.setLocation(190, 340);
-		desktop.add(frame);
+			frame.pack();
+			// frame.setSize(111, 125);
+			desktop.add(frame);
+		}
+
+		// Textures Palette
+
+		palTextures = new CPTexturePalette(controller);
+		{
+			palettes.put("textures", palTextures);
+
+			CPPaletteFrame frame = new CPPaletteFrame(palTextures);
+			paletteFrames.add(frame);
+
+			frame.pack();
+			frame.setSize(400, 220);
+			desktop.add(frame);
+		}
 	}
 
 	public void showPalette(String paletteName, boolean show) {
@@ -223,7 +244,8 @@ public class CPPaletteManager implements ContainerListener {
 		if (e.getChild() instanceof CPPaletteFrame) {
 			CPPaletteFrame frame = (CPPaletteFrame) e.getChild();
 			for (CPPalette palette : frame.getPalettesList()) {
-				controller.getMainGUI().setPaletteMenuItem(palette.title, false);
+				controller.getMainGUI()
+						.setPaletteMenuItem(palette.title, false);
 			}
 		}
 	}
@@ -248,6 +270,27 @@ public class CPPaletteManager implements ContainerListener {
 			}
 			hiddenFrames.clear();
 		}
+	}
+
+	public void arrangePalettes() {
+		int windowWidth = jdp.getWidth();
+		int windowHeight = jdp.getHeight();
+
+		palBrush.getContainer().setLocation(
+				windowWidth - palBrush.getWidth() - 20, 0);
+		palLayers.getContainer().setLocation(
+				windowWidth - palLayers.getWidth() - 20,
+				palBrush.getY() + palBrush.getHeight());
+		palLayers.getContainer().setSize(palLayers.getWidth(), Math.min(palLayers.getHeight(), windowHeight - palLayers.getHeight()));
+		palTool.getContainer().setLocation(0, 0);
+		palSwatches.getContainer().setLocation(palBrush.getContainer().getX() - palSwatches.getWidth() - 10, 0);
+		palMisc.getContainer().setLocation(110, 0);
+		palStroke.getContainer().setLocation(palMisc.getContainer().getX()+palMisc.getWidth()+10, 0);
+		palTextures.getContainer().setLocation(
+				palColor.getX() + palColor.getWidth() + 4,
+				windowHeight - palTextures.getHeight() - 15);
+		palColor.getContainer().setLocation(0,
+				Math.max(palTextures.getContainer().getY(), palTool.getContainer().getY()+palTool.getHeight()+15));
 	}
 
 }

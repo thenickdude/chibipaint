@@ -49,7 +49,7 @@ public class CPColorPalette extends CPPalette implements
 		title = "Color";
 		// setBounds(getInnerDimensions());
 
-		setLayout(new FlowLayout());
+		setLayout(new WrapLayout());
 		colorSelect = new CPColorSelect(controller);
 		add(colorSelect);
 		colorSlider = new CPColorSlider(colorSelect);

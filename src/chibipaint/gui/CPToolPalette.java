@@ -36,7 +36,7 @@ public class CPToolPalette extends CPPalette implements ActionListener {
 		ToolTipManager.sharedInstance().setInitialDelay(600);
 		
 		title = "Tools";
-		setLayout(new FlowLayout());
+		setLayout(new WrapLayout());
 
 		Image icons = controller.loadImage("icons.png");
 		CPIconButton button;

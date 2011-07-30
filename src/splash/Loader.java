@@ -17,9 +17,9 @@ public class Loader extends JApplet implements LoadingListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private LoadingGUI loadingGUI;
+	private LoadingGUI loadingGUI = new LoadingGUI();
 
-	private URL layersUrl;
+	private URL layersUrl, flatUrl;
 
 	enum LoadingStage {
 		JARS, LAYERS_FILE, FLAT_FILE
@@ -27,9 +27,7 @@ public class Loader extends JApplet implements LoadingListener {
 
 	private LoadingStage stage = LoadingStage.JARS;
 
-	ResourceLoader loader = new ResourceLoader(Loader.this);
-
-	private URL flatUrl;
+	private ResourceLoader loader = new ResourceLoader(Loader.this);
 
 	public void loadingProgress(final String message, final Double loaded) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -91,7 +89,6 @@ public class Loader extends JApplet implements LoadingListener {
 					System.err.println("Starting...");
 
 					getContentPane().remove(loadingGUI);
-					loadingGUI = null;
 
 					Constructor<?> c;
 					try {
@@ -106,21 +103,17 @@ public class Loader extends JApplet implements LoadingListener {
 						return;
 					}
 
+					Resource layers = loader.resources.remove(layersUrl);
+					Resource flat = loader.resources.remove(flatUrl);
+
 					try {
-						BasicService basic = null;
-
-						try {
-							basic = (BasicService) ServiceManager
-									.lookup("javax.jnlp.BasicService");
-						} catch (UnavailableServiceException ex) {
-						}
-
-						Resource layersFile = loader.resources.get(layersUrl);
-
 						c.newInstance(
 								appletThis,
-								layersFile.contents != null ? new ByteArrayInputStream(
-										layersFile.contents) : null);
+								layers != null && layers.contents != null ? new ByteArrayInputStream(
+										layers.contents) : null,
+								flat != null && flat.contents != null ? new ByteArrayInputStream(
+										flat.contents) : null
+								);
 					} catch (InvocationTargetException ex) {
 						ex.printStackTrace();
 					} catch (IllegalArgumentException ex) {
@@ -161,26 +154,20 @@ public class Loader extends JApplet implements LoadingListener {
 							"Your drawing could not be loaded, please try again later.\nThe error returned was:\n"
 									+ message);
 			break;
+		case JARS:
 		default:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					loadingGUI.setMessageProgress(message, 1);
-					loadingDone();
+					loadingGUI.setMessage(message);
 				}
 			});
 		}
-	}
-
-	// Called from the Swing event dispatcher thread
-	public Loader() {
-		super();
 	}
 
 	public void init() {
 		try {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				public void run() {
-					loadingGUI = new LoadingGUI();
 					getContentPane().add(loadingGUI,
 							java.awt.BorderLayout.CENTER);
 

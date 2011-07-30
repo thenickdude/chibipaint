@@ -1,14 +1,17 @@
 package splash;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-import javax.jnlp.*;
-
-import chibipaint.engine.CPChibiFile;
+import javax.jnlp.DownloadService;
+import javax.jnlp.DownloadServiceListener;
+import javax.jnlp.ServiceManager;
+import javax.jnlp.UnavailableServiceException;
 
 public class ResourceLoader implements DownloadServiceListener {
 
@@ -84,13 +87,17 @@ public class ResourceLoader implements DownloadServiceListener {
 							listener.loadingProgress("Loading "
 									+ resource.friendlyName
 									+ (length != -1 ? " (0%)" : "") + "...",
-									null);
-
-							System.out.println(length);
+									new Double(0));
 							
 							InputStream in = connection.getInputStream();
 							byte[] chunk = new byte[16 * 1024];
 							int len = 0;
+							
+							try {
+								Thread.sleep(1500);
+							} catch (InterruptedException e) {
+							}
+
 
 							while ((len = in.read(chunk)) >= 0) {
 								outBuf.write(chunk, 0, len);
