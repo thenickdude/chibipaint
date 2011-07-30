@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.image.*;
 import javax.swing.*;
 
-public class LoadingScreen extends JComponent implements ImageObserver {
+public class LoadingGUI extends JComponent implements ImageObserver {
 
 	private static final long serialVersionUID = 1L;
 
@@ -47,6 +47,12 @@ public class LoadingScreen extends JComponent implements ImageObserver {
 		this.progress = Math.min(Math.max(progress, 0), 1);
 		repaint();
 	}
+	
+	public void setMessageProgress(String message, double progress) {
+		this.message = message;
+		this.progress = Math.min(Math.max(progress, 0), 1);
+		repaint();
+	}
 
 	private String getMessage() {
 		return message;
@@ -56,7 +62,7 @@ public class LoadingScreen extends JComponent implements ImageObserver {
 		return progress;
 	}
 
-	public LoadingScreen() {
+	public LoadingGUI() {
 		super();
 
 		setOpaque(true); // we paint all our bits
@@ -71,9 +77,10 @@ public class LoadingScreen extends JComponent implements ImageObserver {
 	@Override
 	protected void paintComponent(Graphics graphics) {
 
-		Graphics2D g2d = (Graphics2D) graphics.create(); // make a copy to
-		// keep graphics
-		// state the same
+		/*
+		 * make a copy to keep graphics state the same
+		 */
+		Graphics2D g2d = (Graphics2D) graphics.create();
 
 		g2d.setColor(Color.white);
 		g2d.fillRect(0, 0, getWidth(), getHeight());

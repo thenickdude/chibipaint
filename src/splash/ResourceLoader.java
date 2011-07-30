@@ -1,6 +1,7 @@
 package splash;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
@@ -69,53 +70,62 @@ public class ResourceLoader implements DownloadServiceListener {
 							ResourceLoader.this);
 
 					for (Resource resource : resources.values()) {
-						URLConnection connection = resource.url
+						HttpURLConnection connection = (HttpURLConnection) resource.url
 								.openConnection();
-						connection.setUseCaches(false); // Bypassing the cache
-														// is important
+						try {
+							connection.setUseCaches(false); // Bypassing the
+															// cache
+															// is important
 
-						ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+							ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
 
-						InputStream in = connection.getInputStream();
+							int length = connection.getContentLength();
 
-						int length = connection.getContentLength();
-
-						byte[] chunk = new byte[16 * 1024];
-						int len = 0;
-
-						System.out.println(length);
-						
-						if (length == -1)
 							listener.loadingProgress("Loading "
-									+ resource.friendlyName + "...", null);
+									+ resource.friendlyName
+									+ (length != -1 ? " (0%)" : "") + "...",
+									null);
 
-						while ((len = in.read(chunk)) >= 0) {
-							outBuf.write(chunk, 0, len);
+							System.out.println(length);
 							
-							try {
-								Thread.sleep(5);
-							} catch (InterruptedException e) {
+							InputStream in = connection.getInputStream();
+							byte[] chunk = new byte[16 * 1024];
+							int len = 0;
+
+							while ((len = in.read(chunk)) >= 0) {
+								outBuf.write(chunk, 0, len);
+
+								try {
+									Thread.sleep(100);
+								} catch (InterruptedException e) {
+								}
+
+								if (length != -1) {
+									double progress = (double) outBuf.size()
+											/ length;
+
+									listener.loadingProgress("Loading "
+											+ resource.friendlyName + " ("
+											+ (int) (progress * 100) + "%)...",
+											progress);
+								}
 							}
 
-							if (length != -1) {
-								double progress = (double) outBuf.size()
-										/ length;
-
-								listener.loadingProgress("Loading "
-										+ resource.friendlyName + " ("
-										+ (int) (progress * 100) + "%)...",
-										progress);
-							}
+							resource.contents = outBuf.toByteArray();
+						} catch (IOException ex) {
+							listener.loadingFail(connection.getResponseCode()
+									+ " " + connection.getResponseMessage());
+							return;
 						}
 
-						resource.contents = outBuf.toByteArray();
 					}
-				} catch (IOException ex) {
-					listener.loadingFail("Unknown error, " + ex.getMessage());
-					return;
-				}
 
-				listener.loadingDone();
+					listener.loadingDone();
+					parts.clear();
+				} catch (IOException ex) {
+					listener.loadingFail("Couldn't open connection "
+							+ ex.getMessage());
+				}
 			}
 		}).start();
 	}

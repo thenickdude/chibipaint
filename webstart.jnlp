@@ -14,7 +14,7 @@
     <jar href="chibi/splash.jar" download="eager" main="true" /> 
     <jar href="chibi/chibi.jar" download="lazy" part="chibi" /> 
   </resources> 
-  <applet-desc name="Chibi Paint" width="1024" height="800" document-base="http://nickscomputer.no-ip.org/oekaki/" main-class="splash.Loader">
+  <applet-desc width="1024" height="768" name="Chibi Paint" document-base="http://nickscomputer.no-ip.org/oekaki/" main-class="splash.Loader">
   	<param name="canvasWidth" value="600"/> 
   	<param name="canvasHeight" value="400"/>
   	<param name="postUrl" value="http://nickscomputer.no-ip.org/oekaki/post.php?ok_sessionid=94a990f4-b8f9-11e0-92ee-1c6f65373aee&amp;sid=0f43a8114da0535cbad55b17838fc21a" /> 
