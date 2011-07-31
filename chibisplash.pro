@@ -1,10 +1,9 @@
--injars ../release/chibi.jar
--outjars ../release/chibipaint15.jar
+-injars splash.in.jar
+-outjars splash.out.jar
 
--libraryjars 'C:\Program Files (x86)\Java\jre1.5.0_12\lib\rt.jar'
+-libraryjars 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\rt.jar'; 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\javaws.jar'
 
 -verbose
-
 
 # Keep - Applications. Keep all application classes that have a main method.
 -keepclasseswithmembers public class * {

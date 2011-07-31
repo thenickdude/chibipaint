@@ -155,11 +155,11 @@ public class CPControllerApplet extends CPController {
 			try {
 				if (postedUrlTarget != null && postedUrlTarget.length() > 0)
 					applet.getAppletContext().showDocument(
-							new URL(applet.getDocumentBase(), postedUrl),
+							new URL(applet.getCodeBase(), postedUrl),
 							postedUrlTarget);
 				else
 					applet.getAppletContext().showDocument(
-							new URL(applet.getDocumentBase(), postedUrl));
+							new URL(applet.getCodeBase(), postedUrl));
 			} catch (Exception e) {
 				// FIXME: do something
 			}

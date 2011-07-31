@@ -17,11 +17,12 @@ public class Loader extends JApplet implements LoadingListener {
 
 	private URL layersUrl, flatUrl;
 
-	enum LoadingStage {
-		JARS, LAYERS_FILE, FLAT_FILE
-	}
+	static final int JARS=0;
+	static final int LAYERS_FILE=1;
+	static final int FLAT_FILE=2;
 
-	private LoadingStage stage;
+	//Loading stage
+	private int stage;
 
 	private ResourceLoader loader = new ResourceLoader(Loader.this);
 
@@ -48,7 +49,7 @@ public class Loader extends JApplet implements LoadingListener {
 				String flatParam = getParameter("loadImage");
 
 				if (chibiParam != null && chibiParam.length() > 0) {
-					stage = LoadingStage.LAYERS_FILE;
+					stage = LAYERS_FILE;
 
 					layersUrl = new URL(getCodeBase(), chibiParam);
 
@@ -58,7 +59,7 @@ public class Loader extends JApplet implements LoadingListener {
 				} else {
 					// Fall back to flat image
 					if (flatParam != null && flatParam.length() > 0) {
-						stage = LoadingStage.FLAT_FILE;
+						stage = FLAT_FILE;
 
 						flatUrl = new URL(getCodeBase(), flatParam);
 
@@ -67,7 +68,7 @@ public class Loader extends JApplet implements LoadingListener {
 						loader.start();
 					} else {
 						// Nothing to load
-						stage = LoadingStage.FLAT_FILE;
+						stage = FLAT_FILE;
 						loadingDone();
 						return;
 					}
@@ -148,7 +149,7 @@ public class Loader extends JApplet implements LoadingListener {
 	public void init() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				stage = LoadingStage.JARS;
+				stage = JARS;
 
 				setContentPane(loadingGUI);
 

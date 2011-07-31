@@ -35,6 +35,8 @@ public class ResourceLoader implements DownloadServiceListener {
 
 	private DownloadService downloadService;
 	private LoadingListener listener;
+	
+	private static final boolean debug = true; 
 
 	public void queuePart(String fileName, String partName, String friendlyName) {
 		parts.add(partName);
@@ -91,19 +93,12 @@ public class ResourceLoader implements DownloadServiceListener {
 							byte[] chunk = new byte[16 * 1024];
 							int len = 0;
 
-							try {
-								Thread.sleep(1500);
-							} catch (InterruptedException e) {
-							}
-
-
+							debugSleep(1500);
+							
 							while ((len = in.read(chunk)) >= 0) {
 								outBuf.write(chunk, 0, len);
 
-								try {
-									Thread.sleep(100);
-								} catch (InterruptedException e) {
-								}
+								debugSleep(100);
 
 								if (length != -1) {
 									double progress = (double) outBuf.size()
@@ -148,13 +143,8 @@ public class ResourceLoader implements DownloadServiceListener {
 
 	public void progress(java.net.URL url, java.lang.String version,
 			long readSoFar, long total, int overallPercent) {
-		try {
-			Thread.sleep(5);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		debugSleep(5);
 		if (url == null) {
-			listener.loadingProgress("Downloading...", null);
 			return;
 		}
 		String fn = getURLFilename(url);
@@ -165,6 +155,15 @@ public class ResourceLoader implements DownloadServiceListener {
 		else
 			listener.loadingProgress("Loading " + friendlyNames.get(fn) + " ("
 					+ overallPercent + "%)...", (double) overallPercent / 100);
+	}
+
+	private static void debugSleep(int millis) {
+		if (debug)
+			try {
+				Thread.sleep(millis);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 	}
 
 	public void upgradingArchive(java.net.URL url, java.lang.String version,

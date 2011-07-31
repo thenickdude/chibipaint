@@ -13,7 +13,7 @@ public class LoadingGUI extends JComponent implements ImageObserver {
 
 	private Image loadingImage;
 
-	private Integer imgWidth, imgHeight;
+	private int imgWidth = -1, imgHeight = -1;
 
 	// Note, access only through getters/setters for synchronization
 	private double progress = 0;
@@ -153,7 +153,7 @@ public class LoadingGUI extends JComponent implements ImageObserver {
 			imgHeight = height;
 		}
 
-		if (imgWidth != null && imgHeight != null) {
+		if (imgWidth != -1 && imgHeight != -1) {
 			loadingImage = img;
 			repaint();
 			return true;
