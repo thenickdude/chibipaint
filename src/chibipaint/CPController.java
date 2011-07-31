@@ -29,7 +29,6 @@ import java.net.*;
 import java.util.*;
 
 import javax.imageio.*;
-import javax.jnlp.DownloadService;
 import javax.swing.*;
 
 import chibipaint.engine.*;
@@ -473,7 +472,7 @@ public abstract class CPController implements ActionListener {
 		if (e.getActionCommand().equals("CPArrangePalettes")) {
 			mainGUI.arrangePalettes();
 		}
-		
+
 		callCPEventListeners();
 	}
 

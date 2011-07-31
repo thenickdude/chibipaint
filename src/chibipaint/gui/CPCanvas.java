@@ -92,11 +92,11 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 	CPMode curDrawMode = drawingModes[CPBrushInfo.SM_FREEHAND];
 	CPMode curSelectedMode = curDrawMode;
 	CPMode activeMode = defaultMode;
-	
+
 	// Container with scrollbars
 	JPanel container;
 	JScrollBar horizScroll, vertScroll;
-	
+
 	public CPCanvas(CPController ctrl) {
 		this.controller = ctrl;
 		artwork = ctrl.getArtwork();
@@ -139,7 +139,7 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 		/*
 		 * KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false); Action escapeAction = new
 		 * AbstractAction() { public void actionPerformed(ActionEvent e) { controller.setAlpha((int)(.5f*255)); } };
-		 * 
+		 *
 		 * getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW). put(escapeKeyStroke, "SPACE"); getActionMap().put("SPACE",
 		 * escapeAction);
 		 */
@@ -170,12 +170,12 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 	// //////////////////////////////////////////////////////////////////////////////////////
 	// Container and ScrollBars
 	// //////////////////////////////////////////////////////////////////////////////////////
-	
+
 	public JPanel getContainer() {
 		if (container != null) {
 			return container;
 		}
-		
+
 		container = new JPanel();
 		container.setLayout(new GridBagLayout());
 
@@ -184,7 +184,7 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 		gbc.weightx = 1.;
 		gbc.weighty = 1.;
 		container.add(this, gbc);
-		
+
 		vertScroll = new JScrollBar(JScrollBar.VERTICAL);
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.VERTICAL;
@@ -195,9 +195,9 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 		gbc.gridx = 0;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		container.add(horizScroll, gbc);
-		
+
 		updateScrollBars();
-		
+
 		horizScroll.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				Point p = getOffset();
@@ -205,7 +205,7 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 				setOffset(p);
 			}
 		});
-		
+
 		vertScroll.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				Point p = getOffset();
@@ -213,36 +213,36 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 				setOffset(p);
 			}
 		});
-		
+
 		return container;
 	}
-	
+
 	void updateScrollBars() {
 		if (horizScroll == null || vertScroll == null
 		 || horizScroll.getValueIsAdjusting() || vertScroll.getValueIsAdjusting() ) {
 			return;
 		}
-		
+
 		if (img == null) {
 			horizScroll.setEnabled(false);
 			vertScroll.setEnabled(false);
 		}
-		
+
 		Rectangle visibleRect = getRefreshArea(new CPRect(img.getWidth(null), img.getHeight(null)));
 		updateScrollBar(horizScroll, visibleRect.x, visibleRect.width, getWidth(), -getOffset().x);
 		updateScrollBar(vertScroll, visibleRect.y, visibleRect.height, getHeight(), -getOffset().y);
 	}
-		
-	
+
+
 	void updateScrollBar(JScrollBar scroll, int visMin, int visWidth, int viewSize, int offset) {
 		if (visMin >= 0 && visMin + visWidth < viewSize) {
 			scroll.setEnabled(false);
 		} else {
 			scroll.setEnabled(true);
-			
+
 			int xMin = Math.min(0, (visMin - viewSize / 4));
 			int xMax = Math.max(viewSize, visMin + visWidth + viewSize / 4);
-			
+
 			scroll.setValues(offset, viewSize, xMin + offset, xMax + offset);
 			scroll.setBlockIncrement(Math.max(1, (int) (viewSize * .66)));
 			scroll.setUnitIncrement(Math.max(1, (int) (viewSize * .05)));
@@ -259,7 +259,7 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		
+
 		g2d.setColor(new Color(0x606060));
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 
@@ -429,7 +429,7 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 			zoomOnPoint(getZoom() * factor, offsetX + (int) (artwork.width * zoom / 2), offsetY
 					+ (int) (artwork.height * zoom / 2));
 		}
-		
+
 		e.consume();
 		// FIXME: clean the above code, some coordinates get transformed multiple times for nothing
 	}
@@ -1422,7 +1422,7 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 
 	/*
 	 * // // mode //
-	 * 
+	 *
 	 * class CPMode extends CPMode { public void mousePressed(MouseEvent e) {} public void mouseDragged(MouseEvent e) {}
 	 * public void mouseReleased(MouseEvent e) {} }
 	 */

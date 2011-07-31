@@ -4,6 +4,7 @@ import java.net.*;
 
 import java.awt.*;
 import java.awt.image.*;
+
 import javax.swing.*;
 
 public class LoadingGUI extends JComponent implements ImageObserver {
@@ -34,7 +35,7 @@ public class LoadingGUI extends JComponent implements ImageObserver {
 
 	/**
 	 * Only call from within the Swing event dispatcher thread!
-	 * 
+	 *
 	 * @param message
 	 *            Message to display on the loading bar.
 	 */
@@ -47,7 +48,7 @@ public class LoadingGUI extends JComponent implements ImageObserver {
 		this.progress = Math.min(Math.max(progress, 0), 1);
 		repaint();
 	}
-	
+
 	public void setMessageProgress(String message, double progress) {
 		this.message = message;
 		this.progress = Math.min(Math.max(progress, 0), 1);
@@ -67,11 +68,17 @@ public class LoadingGUI extends JComponent implements ImageObserver {
 
 		setOpaque(true); // we paint all our bits
 
+		//Start loading the splash screen in the background...
 		URL url = this.getClass().getResource("loadingscreen.png");
-		Image temp = Toolkit.getDefaultToolkit().getImage(url);
+		Image image = Toolkit.getDefaultToolkit().getImage(url);
 
-		temp.getWidth(this);
-		temp.getHeight(this);
+		imgWidth = image.getWidth(this);
+		imgHeight = image.getHeight(this);
+
+		if (imgWidth!=-1 && imgHeight!=-1) {
+			//We've loaded this image already
+			loadingImage = image;
+		}
 	}
 
 	@Override

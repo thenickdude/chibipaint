@@ -28,10 +28,10 @@ import javax.swing.*;
 /*
  * This allows the creation of a FlowLayout panel that wraps around based on the current width but can be scrolled
  * vertically when needed.
- * 
+ *
  * It's based on a forum post by JayDS (http://forum.java.sun.com/thread.jspa?forumID=57&threadID=701797&start=2)
  * Thanks Jay!
- * 
+ *
  */
 
 public class CPScrollableFlowPanel extends JPanel implements Scrollable {
@@ -39,12 +39,12 @@ public class CPScrollableFlowPanel extends JPanel implements Scrollable {
 	public CPScrollableFlowPanel() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 	}
-	
+
 	public JScrollPane wrapInScrollPane() {
 		return new JScrollPane(this, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
-	
+
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, getParent().getWidth(), height);
 	}

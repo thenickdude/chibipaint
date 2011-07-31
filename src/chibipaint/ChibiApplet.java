@@ -25,8 +25,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.InputStream;
-import java.net.*;
-
 import javax.imageio.*;
 import javax.swing.*;
 
@@ -34,7 +32,7 @@ import chibipaint.engine.*;
 import chibipaint.gui.*;
 
 public class ChibiApplet {
-	
+
 	CPControllerApplet controller;
 	CPMainGUI mainGUI;
 
@@ -43,7 +41,7 @@ public class ChibiApplet {
 	JFrame floatingFrame;
 
 	private JApplet applet;
-	
+
 	public ChibiApplet(JApplet applet, InputStream layers, InputStream flat) {
 		this.applet = applet;
 
@@ -61,10 +59,10 @@ public class ChibiApplet {
 		applet.setJMenuBar(mainGUI.getMenuBar());
 
 		applet.validate(); // calling validate is recommended to ensure compatibility
-		
+
 		mainGUI.arrangePalettes();
 	}
-	
+
 	public void destroy() {
 
 		// The following bit of voodoo prevents the Java plugin
@@ -73,7 +71,7 @@ public class ChibiApplet {
 		// So have to make sure that we remove references
 		// to the rest of ChibiPaint so that they can be
 		// garbage collected normally.
-		
+
 		applet.setContentPane(new JPanel());
 		applet.setJMenuBar(null);
 
@@ -85,7 +83,7 @@ public class ChibiApplet {
 
 	/**
 	 * Create an image from one of the provided sources (any of which may be null)
-	 * 
+	 *
 	 * @param layers
 	 * @param flat
 	 * @return
@@ -199,7 +197,7 @@ public class ChibiApplet {
 			});
 		}
 	}
-	
+
 	public boolean hasUnsavedChanges() {
 		return controller.hasUnsavedChanges();
 	}

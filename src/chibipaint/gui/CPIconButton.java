@@ -39,11 +39,11 @@ public class CPIconButton extends JComponent implements MouseListener {
 
 	public CPIconButton(Image icons, int iconW, int iconH, int iconIndex, int border, String tooltip) {
 		this(icons, iconW, iconH, iconIndex, border);
-		
+
 		setToolTipText(tooltip);
 	}
 
-	
+
 	public CPIconButton(Image icons, int iconW, int iconH, int iconIndex, int border) {
 		this.icons = icons;
 		this.iconW = iconW;

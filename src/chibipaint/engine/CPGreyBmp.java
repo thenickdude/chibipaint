@@ -30,14 +30,14 @@ public class CPGreyBmp extends CPBitmap {
 		super(width, height);
 		this.data = new byte[width * height];
 	}
-	
+
 	public CPGreyBmp(CPGreyBmp original) {
 		super(original.width, original.height);
 		this.data = new byte[width * height];
-		
+
 		System.arraycopy(original.data, 0, data, 0, width*height);
 	}
-	
+
 	public void inverse() {
 		for (int i=0, size=width*height; i<size; i++) {
 			data[i] = (byte) (255 - data[i]);
@@ -46,16 +46,16 @@ public class CPGreyBmp extends CPBitmap {
 
 	public void mirrorHorizontally() {
 		byte[] newData = new byte[width*height];
-		
+
 		for (int j=0; j<height; j++) {
 			for (int i=0; i<width; i++) {
 				newData[j*width + i] = data[j*width + width-i-1];
 			}
 		}
-		
+
 		data = newData;
 	}
-	
+
 	public void applyLUT(CPLookUpTable lut) {
 		for (int i=0, size=width*height; i<size; i++) {
 			data[i] = (byte) lut.table[data[i] & 0xff];

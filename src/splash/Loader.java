@@ -2,13 +2,9 @@ package splash;
 
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.*;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.jnlp.*;
-
-import java.awt.*;
 import javax.swing.*;
 
 import splash.ResourceLoader.Resource;
@@ -25,13 +21,15 @@ public class Loader extends JApplet implements LoadingListener {
 		JARS, LAYERS_FILE, FLAT_FILE
 	}
 
-	private LoadingStage stage = LoadingStage.JARS;
+	private LoadingStage stage;
 
 	private ResourceLoader loader = new ResourceLoader(Loader.this);
 
 	public void loadingProgress(final String message, final Double loaded) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+				System.out.println(System.currentTimeMillis() + " - " + message);
+
 				loadingGUI.setMessage(message);
 				if (loaded != null)
 					loadingGUI.setProgress(loaded);
@@ -88,18 +86,16 @@ public class Loader extends JApplet implements LoadingListener {
 					loadingGUI.setProgress(1);
 					System.err.println("Starting...");
 
-					getContentPane().remove(loadingGUI);
-
 					Constructor<?> c;
 					try {
-						c = Class.forName("chibipaint.ChibiApplet")
-								.getConstructors()[0];
+						c = Class.forName("chibipaint.ChibiApplet").getConstructors()[0];
 					} catch (ClassNotFoundException ex1) {
+						loadingGUI.setMessage("Class not found, ChibiApplet");
 						System.err.println("Class not found, ChibiApplet");
 						return;
 					} catch (SecurityException ex1) {
-						System.err
-								.println("Security exception loading ChibiApplet");
+						loadingGUI.setMessage("Security exception loading ChibiApplet");
+						System.err.println("Security exception loading ChibiApplet");
 						return;
 					}
 
@@ -107,20 +103,11 @@ public class Loader extends JApplet implements LoadingListener {
 					Resource flat = loader.resources.remove(flatUrl);
 
 					try {
-						c.newInstance(
-								appletThis,
-								layers != null && layers.contents != null ? new ByteArrayInputStream(
-										layers.contents) : null,
-								flat != null && flat.contents != null ? new ByteArrayInputStream(
-										flat.contents) : null
-								);
-					} catch (InvocationTargetException ex) {
-						ex.printStackTrace();
-					} catch (IllegalArgumentException ex) {
-						ex.printStackTrace();
-					} catch (IllegalAccessException ex) {
-						ex.printStackTrace();
-					} catch (InstantiationException ex) {
+						c.newInstance(appletThis, layers != null && layers.contents != null ? new ByteArrayInputStream(
+								layers.contents) : null,
+								flat != null && flat.contents != null ? new ByteArrayInputStream(flat.contents) : null);
+					} catch (Exception ex) {
+						loadingGUI.setMessage(ex.getMessage());
 						ex.printStackTrace();
 					}
 				}
@@ -133,26 +120,20 @@ public class Loader extends JApplet implements LoadingListener {
 		case LAYERS_FILE:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					loadingGUI.setMessageProgress(
-							"Couldn't load your drawing's layers.", 0.1);
+					loadingGUI.setMessageProgress("Couldn't load your drawing's layers.", 0.1);
 				}
 			});
-			JOptionPane
-					.showMessageDialog(getContentPane(),
-							"Your drawing's layers could not be loaded, please try again later.");
+			JOptionPane.showMessageDialog(getContentPane(),
+					"Your drawing's layers could not be loaded, please try again later.");
 			break;
 		case FLAT_FILE:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					loadingGUI
-							.setMessageProgress("Couldn't load your drawing.", 0.1);
+					loadingGUI.setMessageProgress("Couldn't load your drawing.", 0.1);
 				}
 			});
-			JOptionPane
-					.showMessageDialog(
-							getContentPane(),
-							"Your drawing could not be loaded, please try again later.\nThe error returned was:\n"
-									+ message);
+			JOptionPane.showMessageDialog(getContentPane(),
+					"Your drawing could not be loaded, please try again later.\nThe error returned was:\n" + message);
 			break;
 		case JARS:
 		default:
@@ -165,24 +146,16 @@ public class Loader extends JApplet implements LoadingListener {
 	}
 
 	public void init() {
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				public void run() {
-					getContentPane().add(loadingGUI,
-							java.awt.BorderLayout.CENTER);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				stage = LoadingStage.JARS;
 
-					validate();
+				setContentPane(loadingGUI);
 
-					loader.queuePart("chibi.jar", "chibi", "Chibi Paint");
-
-					loader.start();
-				}
-			});
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
+				loader.queuePart("chibi.jar", "chibi", "Chibi Paint");
+				loader.start();
+			}
+		});
 	}
 
 	public static void main(String[] args) {

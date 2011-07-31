@@ -345,7 +345,7 @@ public class CPColorBmp extends CPBitmap {
 			} while (left <= line.x2);
 		}
 	}
-	
+
 	//
 	// Box Blur algorithm
 	//
@@ -375,7 +375,7 @@ public class CPColorBmp extends CPBitmap {
 			copyArrayToColumn(i, rect.top, h, dst);
 		}
 	}
-	
+
 	public void multiplyAlpha(int[] buffer, int len) {
 		for (int i = 0; i < len; i++) {
 			buffer[i] = buffer[i] & 0xff000000 | ((buffer[i] >>> 24) * (buffer[i] >>> 16 & 0xff) / 255) << 16

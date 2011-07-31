@@ -37,10 +37,8 @@ public class ResourceLoader implements DownloadServiceListener {
 	private LoadingListener listener;
 
 	public void queuePart(String fileName, String partName, String friendlyName) {
-		if (!downloadService.isPartCached(partName)) {
-			parts.add(partName);
-			friendlyNames.put(fileName, friendlyName);
-		}
+		parts.add(partName);
+		friendlyNames.put(fileName, friendlyName);
 	}
 
 	public void queueResource(URL url, String friendlyName) {
@@ -88,11 +86,11 @@ public class ResourceLoader implements DownloadServiceListener {
 									+ resource.friendlyName
 									+ (length != -1 ? " (0%)" : "") + "...",
 									new Double(0));
-							
+
 							InputStream in = connection.getInputStream();
 							byte[] chunk = new byte[16 * 1024];
 							int len = 0;
-							
+
 							try {
 								Thread.sleep(1500);
 							} catch (InterruptedException e) {

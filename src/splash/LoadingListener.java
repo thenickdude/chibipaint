@@ -8,7 +8,7 @@ public interface LoadingListener {
 
 	/**
 	 * Called to give a progress update on the loading of resources.
-	 * 
+	 *
 	 * @param message
 	 *            Loading message
 	 * @param loaded

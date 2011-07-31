@@ -1,6 +1,5 @@
 package chibipaint.gui;
 
-import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -10,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -31,10 +29,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import javax.swing.border.Border;
-
-import chibipaint.CPControllerApplet;
-import chibipaint.ChibiApplet;
 
 public class CPSendDialog extends JDialog implements ActionListener {
 
@@ -59,7 +53,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 	private boolean alreadyPosted;
 
 	/**
-	 * 
+	 *
 	 * @param parent
 	 *            Parent for dialog in windowing hierachy
 	 * @param notifyCompleted
@@ -174,6 +168,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 		bos.flush();
 
 		final byte[] data = buffer.toByteArray();
+		buffer = null;
 
 		/*
 		 * Now do the parts that might block (server communication) in a child
@@ -357,7 +352,8 @@ public class CPSendDialog extends JDialog implements ActionListener {
 				} catch (final Exception e) {
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
-							progress.setVisible(false);
+							progress.setIndeterminate(false);
+							progress.setValue(0);
 							lblStatus
 									.setText("<html>Error: "
 											+ e.getMessage()

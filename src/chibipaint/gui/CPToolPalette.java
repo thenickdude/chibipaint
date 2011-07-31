@@ -34,7 +34,7 @@ public class CPToolPalette extends CPPalette implements ActionListener {
 		super(controller);
 
 		ToolTipManager.sharedInstance().setInitialDelay(600);
-		
+
 		title = "Tools";
 		setLayout(new WrapLayout());
 

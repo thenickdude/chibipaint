@@ -60,7 +60,7 @@ public class CPMainGUI {
 
 	private void createGUI() {
 		mainPanel = new JPanel(new BorderLayout());
-		
+
 		jdp = new CPDesktop();
 		paletteManager = new CPPaletteManager(controller, jdp);
 
@@ -390,7 +390,7 @@ public class CPMainGUI {
 		menuItem.setActionCommand("CPArrangePalettes");
 		menuItem.addActionListener(listener);
 		submenu.add(menuItem);
-		
+
 		menuItem = new JMenuItem("Toggle Palettes", KeyEvent.VK_P);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Hides or shows all palettes");
@@ -505,8 +505,8 @@ public class CPMainGUI {
 			});
 		}
 	}
-	
+
 	public void arrangePalettes() {
-		paletteManager.arrangePalettes();		
+		paletteManager.arrangePalettes();
 	}
 }

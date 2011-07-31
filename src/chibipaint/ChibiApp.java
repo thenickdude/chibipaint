@@ -53,7 +53,7 @@ public class ChibiApp extends JFrame {
 
 		pack();
 		setVisible(true);
-		
+
 		mainGUI.arrangePalettes();
 	}
 

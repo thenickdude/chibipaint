@@ -52,7 +52,7 @@ public class CPControllerApplet extends CPController {
 		this.applet = applet;
 		getAppletParams();
 	}
-	
+
 	public Applet getApplet() {
 		return applet;
 	}
@@ -119,8 +119,8 @@ public class CPControllerApplet extends CPController {
 		}
 
 		try {
-			CPSendDialog sendDialog = new CPSendDialog(applet, this, new URL(
-					applet.getDocumentBase(), postUrl), pngData, chibiData,
+			CPSendDialog sendDialog = new CPSendDialog(chibipaint.mainGUI.getGUI(), this, new URL(
+					applet.getCodeBase(), postUrl), pngData, chibiData,
 					exitUrl == null || exitUrl.length() == 0);
 
 			sendDialog.sendImage();

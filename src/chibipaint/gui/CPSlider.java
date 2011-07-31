@@ -34,7 +34,7 @@ class CPSlider extends JComponent implements MouseListener, MouseMotionListener 
 
 	boolean dragNormal = false, dragPrecise = false;
 	int dragPreciseX;
-	
+
 	boolean centerMode = false;
 
 	public CPSlider(int valueRange) {

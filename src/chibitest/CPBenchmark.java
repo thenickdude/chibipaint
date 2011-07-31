@@ -24,7 +24,6 @@ package chibitest;
 import java.util.*;
 
 import chibipaint.engine.*;
-import chibipaint.engine.CPBrushManager.*;
 import chibipaint.util.*;
 
 public class CPBenchmark {
