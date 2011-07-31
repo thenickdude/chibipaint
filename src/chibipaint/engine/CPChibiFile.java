@@ -145,7 +145,7 @@ public class CPChibiFile {
 				}
 			}
 
-			a.setActiveLayer(0);
+			a.setActiveLayer(a.getTopmostVisibleLayer());
 			return a;
 
 		} catch (IOException e) {

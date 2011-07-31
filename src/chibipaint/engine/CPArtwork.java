@@ -2163,4 +2163,16 @@ public class CPArtwork {
 
 	}
 
+	/*
+	 * Get the index of the topmost visible layer, or 0.
+	 */
+	public int getTopmostVisibleLayer() {
+		for (int i = layers.size() - 1; i >= 0; i--) {
+			if (layers.get(i).visible) {
+				return i;
+			}
+		}
+		return 0;
+	}
+
 }
