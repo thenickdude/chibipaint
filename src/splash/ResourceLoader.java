@@ -138,12 +138,18 @@ public class ResourceLoader implements DownloadServiceListener {
 	public String getURLFilename(java.net.URL url) {
 		String fn = url.getFile();
 		fn = fn.substring(fn.lastIndexOf('/') + 1);
+		
+		if (fn.indexOf('?') != -1) {
+			fn = fn.substring(0, fn.indexOf('?'));
+		}
+		
 		return fn;
 	}
 
 	public void progress(java.net.URL url, java.lang.String version,
 			long readSoFar, long total, int overallPercent) {
-		debugSleep(5);
+		debugSleep(150);
+		
 		if (url == null) {
 			return;
 		}
