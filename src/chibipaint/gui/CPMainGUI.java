@@ -57,6 +57,10 @@ public class CPMainGUI {
 	public JMenuBar getMenuBar() {
 		return menuBar;
 	}
+	
+	public CPSwatchesPalette getSwatchesPalette() {
+		return paletteManager.palSwatches;
+	}
 
 	private void createGUI() {
 		mainPanel = new JPanel(new BorderLayout());

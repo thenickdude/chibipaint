@@ -31,6 +31,8 @@ import chibipaint.util.*;
 
 public class CPArtwork {
 
+	private boolean hasUnsavedChanges = false;
+	
 	public int width, height;
 
 	Vector<CPLayer> layers;
@@ -51,7 +53,7 @@ public class CPArtwork {
 		void layerChange(CPArtwork artwork);
 	}
 
-	private LinkedList<ICPArtworkListener> artworkListeners = new LinkedList();
+	private LinkedList<ICPArtworkListener> artworkListeners = new LinkedList<ICPArtworkListener>();
 
 	// Clipboard
 
@@ -102,7 +104,7 @@ public class CPArtwork {
 		this.width = width;
 		this.height = height;
 
-		layers = new Vector();
+		layers = new Vector<CPLayer>();
 
 		CPLayer defaultLayer = new CPLayer(width, height);
 		defaultLayer.name = getDefaultLayerName();
@@ -122,8 +124,8 @@ public class CPArtwork {
 
 		fusion = new CPLayer(width, height);
 
-		undoList = new LinkedList();
-		redoList = new LinkedList();
+		undoList = new LinkedList<CPUndo>();
+		redoList = new LinkedList<CPUndo>();
 	}
 
 	public long getDocMemoryUsed() {
@@ -686,7 +688,7 @@ public class CPArtwork {
 								dstRect.getWidth() * 2 / 6)), Math.max(1, Math.min(wxMaxSampleRadius, dstRect
 								.getHeight() * 2 / 6)));
 
-				previousSamples = new LinkedList();
+				previousSamples = new LinkedList<CPColorFloat>();
 				for (int i = 0; i < wcMemory; i++) {
 					previousSamples.addLast(startColor);
 				}
@@ -1124,6 +1126,8 @@ public class CPArtwork {
 	}
 
 	private void addUndo(CPUndo undo) {
+		hasUnsavedChanges = true;
+		
 		if (undoList.isEmpty() || !(undoList.getFirst()).merge(undo)) {
 			if (undoList.size() >= maxUndo) {
 				undoList.removeLast();
@@ -1137,13 +1141,13 @@ public class CPArtwork {
 			}
 		}
 		if (!redoList.isEmpty()) {
-			redoList = new LinkedList();
+			redoList = new LinkedList<CPUndo>();
 		}
 	}
 
 	public void clearHistory() {
-		undoList = new LinkedList();
-		redoList = new LinkedList();
+		undoList = new LinkedList<CPUndo>();
+		redoList = new LinkedList<CPUndo>();
 
 		Runtime r = Runtime.getRuntime();
 		r.gc();
@@ -2173,6 +2177,14 @@ public class CPArtwork {
 			}
 		}
 		return 0;
+	}
+	
+	public boolean hasUnsavedChanges() {
+		return hasUnsavedChanges;
+	}
+
+	public void setHasUnsavedChanges(boolean b) {
+		hasUnsavedChanges = b;
 	}
 
 }

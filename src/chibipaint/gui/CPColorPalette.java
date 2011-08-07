@@ -44,10 +44,7 @@ public class CPColorPalette extends CPPalette implements
 	public CPColorPalette(CPController controller) {
 		super(controller);
 
-		// setSize(175, 185);
-
 		title = "Color";
-		// setBounds(getInnerDimensions());
 
 		setLayout(new WrapLayout());
 		colorSelect = new CPColorSelect(controller);

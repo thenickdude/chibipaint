@@ -11,14 +11,17 @@ chibi.jar: chibi.out.jar
 	mv chibi.out.jar chibi.jar
 #	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibi.out.jar -destjar chibi.jar
 
-splash.out.jar: bin/splash/*
+splash.out.jar: bootstrap.jar bin/splash/*
 	jar -cf splash.in.jar -C bin/ splash/
 	java -jar proguard/lib/proguard.jar @ chibisplash.pro -verbose
 	
-chibi.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
+chibi.out.jar: bootstrap.jar ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -cf chibi.in.jar -C bin/ chibipaint/
 	jar -uf chibi.in.jar -C bin/ images/
 	java -jar proguard/lib/proguard.jar @ chibipaint.pro -verbose
+
+bootstrap.jar: bin/bootstrap/*
+	jar -cf bootstrap.jar -C bin/ bootstrap/
 
 clean:
 	rm -f splash.jar

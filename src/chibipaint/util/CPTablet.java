@@ -42,8 +42,10 @@ public class CPTablet {
 
 	public CPTablet() {
 		try {
+			System.err.println("Loading JTablet...");
 			Class tabletClass = Class.forName("cello.tablet.JTablet");
 			tablet = tabletClass.newInstance();
+			System.err.println("Loaded");
 
 			mPoll = tabletClass.getMethod("poll", (Class[]) null);
 			mGetPressure = tabletClass.getMethod("getPressure", (Class[]) null);
@@ -55,7 +57,7 @@ public class CPTablet {
 
 			tabletOK = true;
 		} catch (Throwable e) {
-			System.out.print(e.toString());
+			System.err.println(e.toString());
 		}
 	}
 
@@ -73,10 +75,10 @@ public class CPTablet {
 	}
 
 	public float getPressure() {
-		getTabletInfo();
 		if (!tabletOK) {
 			return 1.f;
 		} else {
+			getTabletInfo();
 			return (float) pressure / pressureExtent;
 		}
 	}

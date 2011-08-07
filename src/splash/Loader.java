@@ -1,30 +1,36 @@
 package splash;
 
 import java.io.ByteArrayInputStream;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.*;
+import javax.swing.JApplet;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import splash.ResourceLoader.Resource;
+import bootstrap.IChibiApplet;
 
-public class Loader extends JApplet implements LoadingListener {
+public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 
 	private static final long serialVersionUID = 1L;
 
 	private LoadingGUI loadingGUI = new LoadingGUI();
 
-	private URL layersUrl, flatUrl;
+	private URL layersUrl, flatUrl, swatchesUrl;
 
-	static final int JARS=0;
-	static final int LAYERS_FILE=1;
-	static final int FLAT_FILE=2;
+	private static final int JARS = 0;
+	private static final int LAYERS_FILE = 1;
+	private static final int FLAT_FILE = 2;
+	private static final int SWATCHES = 3;
 
-	//Loading stage
+	// Loading stage
 	private int stage;
 
 	private ResourceLoader loader = new ResourceLoader(Loader.this);
+
+	private IChibiApplet chibipaint;
 
 	public void loadingProgress(final String message, final Double loaded) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -41,6 +47,8 @@ public class Loader extends JApplet implements LoadingListener {
 	public void loadingDone() {
 
 		final JApplet appletThis = this;
+
+		Resource layers = null, flat = null;
 
 		switch (stage) {
 		case JARS:
@@ -81,6 +89,29 @@ public class Loader extends JApplet implements LoadingListener {
 
 		case LAYERS_FILE:
 		case FLAT_FILE:
+			stage = SWATCHES;
+
+			layers = loader.resources.remove(layersUrl);
+			flat = loader.resources.remove(flatUrl);
+
+			String swatchesParam = getParameter("loadSwatches");
+
+			if (swatchesParam != null && swatchesParam.length() > 0) {
+				try {
+					swatchesUrl = new URL(getCodeBase(), swatchesParam);
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+					return;
+				}
+				loader.queueResource(swatchesUrl, "Swatches");
+				loader.start();
+			} else {
+				loadingDone();
+			}
+
+			break;
+		case SWATCHES:
+			final Resource layersFinal = layers, flatFinal = flat;
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					loadingGUI.setMessage("Starting...");
@@ -100,13 +131,15 @@ public class Loader extends JApplet implements LoadingListener {
 						return;
 					}
 
-					Resource layers = loader.resources.remove(layersUrl);
-					Resource flat = loader.resources.remove(flatUrl);
+					Resource swatches = loader.resources.remove(swatchesUrl);
 
 					try {
-						c.newInstance(appletThis, layers != null && layers.contents != null ? new ByteArrayInputStream(
-								layers.contents) : null,
-								flat != null && flat.contents != null ? new ByteArrayInputStream(flat.contents) : null);
+						chibipaint = (IChibiApplet) c.newInstance(appletThis,
+								layersFinal != null && layersFinal.contents != null ? new ByteArrayInputStream(layersFinal.contents)
+										: null, flatFinal != null && flatFinal.contents != null ? new ByteArrayInputStream(
+										flatFinal.contents) : null,
+								swatches != null && swatches.contents != null ? new ByteArrayInputStream(
+										swatches.contents) : null);
 					} catch (Exception ex) {
 						loadingGUI.setMessage(ex.getMessage());
 						ex.printStackTrace();
@@ -163,4 +196,12 @@ public class Loader extends JApplet implements LoadingListener {
 		new Loader();
 	}
 
+	/**
+	 * Pass through to ChibiApplet.hasUnsavedChanges()
+	 * 
+	 * @return
+	 */
+	public boolean hasUnsavedChanges() {
+		return chibipaint != null ? chibipaint.hasUnsavedChanges() : false;
+	}
 }

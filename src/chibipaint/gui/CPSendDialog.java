@@ -43,7 +43,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 	private URL postUrl;
 
 	/** Image data to send to server */
-	private byte[] pngData, chibiData;
+	private byte[] pngData, chibiData, swatchData;
 
 	private Component parent;
 
@@ -70,10 +70,11 @@ public class CPSendDialog extends JDialog implements ActionListener {
 	 *            shouldn't offer to "leave without posting"
 	 */
 	public CPSendDialog(Component parent, ActionListener notifyCompleted, URL postUrl, byte[] pngData,
-			byte[] chibiData, boolean alreadyPosted) {
+			byte[] chibiData, byte[] swatchData, boolean alreadyPosted) {
 		this.postUrl = postUrl;
 		this.pngData = pngData;
 		this.chibiData = chibiData;
+		this.swatchData = swatchData;
 		this.parent = parent;
 		this.notifyCompleted = notifyCompleted;
 		this.alreadyPosted = alreadyPosted;
@@ -162,6 +163,16 @@ public class CPSendDialog extends JDialog implements ActionListener {
 			bos.write(chibiData, 0, chibiData.length);
 			bos.writeBytes("\r\n");
 		}
+
+		//Swatches
+		{
+			bos.writeBytes("--" + boundary + "\r\n");
+			bos.writeBytes("Content-Disposition: form-data; name=\"swatches\"; filename=\"chibipaint.aco\"\r\n");
+			bos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
+			bos.write(swatchData, 0, swatchData.length);
+			bos.writeBytes("\r\n");
+		}
+		
 		bos.writeBytes("--" + boundary + "--\r\n");
 
 		bos.flush();
@@ -174,7 +185,6 @@ public class CPSendDialog extends JDialog implements ActionListener {
 		 * thread so that we don't block the GUI.
 		 */
 		new Thread(new Runnable() {
-
 			public void run() {
 				try {
 					SwingUtilities.invokeAndWait(new Runnable() {
@@ -275,6 +285,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 										break;
 									case JOptionPane.NO_OPTION:
 									case JOptionPane.CLOSED_OPTION:
+										notifyCompleted.actionPerformed(new ActionEvent(this, 0, "CPSaved"));
 									}
 								}
 							});
@@ -297,6 +308,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 										break;
 									case JOptionPane.NO_OPTION:
 									case JOptionPane.CLOSED_OPTION:
+										notifyCompleted.actionPerformed(new ActionEvent(this, 0, "CPSaved"));
 									}
 								}
 							});

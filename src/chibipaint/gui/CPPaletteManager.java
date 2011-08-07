@@ -37,8 +37,11 @@ public class CPPaletteManager implements ContainerListener {
 	Map<String, CPPalette> palettes = new HashMap<String, CPPalette>();
 	List<CPPaletteFrame> paletteFrames = new Vector<CPPaletteFrame>();
 	List<CPPaletteFrame> hiddenFrames = new Vector<CPPaletteFrame>();
-	private CPPalette palTextures, palMisc, palSwatches, palTool, palStroke, palLayers, palBrush, palColor;
 
+	private CPPalette palTextures, palMisc, palTool, palStroke, palLayers, palBrush, palColor;
+
+	public CPSwatchesPalette palSwatches;
+	
 	interface ICPPaletteContainer {
 		public void setLocation(int x, int y);
 
@@ -177,7 +180,6 @@ public class CPPaletteManager implements ContainerListener {
 			paletteFrames.add(frame);
 
 			frame.pack();
-			frame.setSize(111, 125);
 			desktop.add(frame);
 		}
 

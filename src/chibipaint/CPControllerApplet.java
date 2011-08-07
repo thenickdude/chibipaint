@@ -31,6 +31,7 @@ import javax.swing.*;
 
 import chibipaint.engine.*;
 import chibipaint.gui.CPSendDialog;
+import chibipaint.gui.CPSwatchesPalette;
 
 public class CPControllerApplet extends CPController {
 
@@ -44,7 +45,6 @@ public class CPControllerApplet extends CPController {
 	/** Where to go if we decide to stop drawing */
 	private String exitUrl, exitUrlTarget;
 
-	private boolean hasUnsavedChanges = true;
 	private Applet applet;
 
 	public CPControllerApplet(ChibiApplet chibipaint, Applet applet) {
@@ -87,9 +87,13 @@ public class CPControllerApplet extends CPController {
 		} else if (e.getActionCommand().equals("CPSend")) {
 			sendOekaki();
 		} else if (e.getActionCommand().equals("CPPost")) {
+			setHasUnsavedChanges(false);
 			goToPostedUrl();
 		} else if (e.getActionCommand().equals("CPExit")) {
+			setHasUnsavedChanges(false);
 			goToExitUrl();
+		} else if (e.getActionCommand().equals("CPSaved")) {
+			setHasUnsavedChanges(false);
 		}
 
 		super.actionPerformed(e);
@@ -100,49 +104,52 @@ public class CPControllerApplet extends CPController {
 	 */
 	public void sendOekaki() {
 
-		// First creates the PNG data
-		byte[] pngData = getPngData(canvas.img);
-		// FIXME: verify canvas.img is
-		// always updated
-
-		// The ChibiPaint file data
-		byte[] chibiData;
-
-		if (artwork.getLayers().length > 1) {
-			ByteArrayOutputStream chibiFileStream = new ByteArrayOutputStream(
-					1024);
-			CPChibiFile.write(chibiFileStream, artwork);
-			chibiData = chibiFileStream.toByteArray();
-		} else {
-			//Don't need to send multiple layers if we only have one
-			chibiData = null;
-		}
-
 		try {
-			CPSendDialog sendDialog = new CPSendDialog(chibipaint.mainGUI.getGUI(), this, new URL(
-					applet.getCodeBase(), postUrl), pngData, chibiData,
-					exitUrl == null || exitUrl.length() == 0);
+			byte[] pngData = getPngData(canvas.img);
+			// FIXME: verify canvas.img is
+			// always updated
+
+			byte[] chibiData, swatchData;
+
+			ByteArrayOutputStream bufferStream;
+
+			if (artwork.getLayers().length > 1) {
+				bufferStream = new ByteArrayOutputStream(1024);
+
+				CPChibiFile.write(bufferStream, artwork);
+				chibiData = bufferStream.toByteArray();
+			} else {
+				// Don't need to send multiple layers if we only have one
+				chibiData = null;
+			}
+
+			CPSwatchesPalette swatchesPal = chibipaint.mainGUI.getSwatchesPalette();
+
+			bufferStream = new ByteArrayOutputStream(1024);
+
+			int[] swatches = swatchesPal.getSwatches();
+			AdobeColorTable.write(bufferStream, swatches);
+
+			swatchData = bufferStream.toByteArray();
+
+			CPSendDialog sendDialog = new CPSendDialog(chibipaint.mainGUI.getGUI(), this, new URL(applet.getCodeBase(),
+					postUrl), pngData, chibiData, swatchData, exitUrl == null || exitUrl.length() == 0);
 
 			sendDialog.sendImage();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(getDialogParent(),
-					"Error while sending the oekaki..." + e.getMessage(),
+			JOptionPane.showMessageDialog(getDialogParent(), "Error while sending the oekaki..." + e.getMessage(),
 					"Error", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 	}
 
 	public void goToExitUrl() {
-		hasUnsavedChanges = false;
 		if (exitUrl != null && exitUrl.length() > 0) {
 			try {
 				if (exitUrlTarget != null && exitUrlTarget.length() > 0)
-					applet.getAppletContext().showDocument(
-							new URL(applet.getDocumentBase(), exitUrl),
-							exitUrlTarget);
+					applet.getAppletContext().showDocument(new URL(applet.getDocumentBase(), exitUrl), exitUrlTarget);
 				else
-					applet.getAppletContext().showDocument(
-							new URL(applet.getDocumentBase(), exitUrl));
+					applet.getAppletContext().showDocument(new URL(applet.getDocumentBase(), exitUrl));
 			} catch (Exception e) {
 				// FIXME: do something
 			}
@@ -150,23 +157,15 @@ public class CPControllerApplet extends CPController {
 	}
 
 	public void goToPostedUrl() {
-		hasUnsavedChanges = false;
 		if (postedUrl != null && postedUrl.length() > 0) {
 			try {
 				if (postedUrlTarget != null && postedUrlTarget.length() > 0)
-					applet.getAppletContext().showDocument(
-							new URL(applet.getCodeBase(), postedUrl),
-							postedUrlTarget);
+					applet.getAppletContext().showDocument(new URL(applet.getCodeBase(), postedUrl), postedUrlTarget);
 				else
-					applet.getAppletContext().showDocument(
-							new URL(applet.getCodeBase(), postedUrl));
+					applet.getAppletContext().showDocument(new URL(applet.getCodeBase(), postedUrl));
 			} catch (Exception e) {
 				// FIXME: do something
 			}
 		}
-	}
-
-	public boolean hasUnsavedChanges() {
-		return hasUnsavedChanges;
 	}
 }

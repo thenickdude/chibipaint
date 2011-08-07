@@ -24,14 +24,17 @@ package chibipaint;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.*;
 import javax.swing.*;
 
+import bootstrap.IChibiApplet;
+
 import chibipaint.engine.*;
 import chibipaint.gui.*;
 
-public class ChibiApplet {
+public class ChibiApplet implements IChibiApplet {
 
 	CPControllerApplet controller;
 	CPMainGUI mainGUI;
@@ -42,7 +45,7 @@ public class ChibiApplet {
 
 	private JApplet applet;
 
-	public ChibiApplet(JApplet applet, InputStream layers, InputStream flat) {
+	public ChibiApplet(JApplet applet, InputStream layers, InputStream flat, InputStream swatchStream) {
 		this.applet = applet;
 
 		controller = new CPControllerApplet(this, applet);
@@ -54,6 +57,11 @@ public class ChibiApplet {
 		createFloatingPlaceholder();
 
 		mainGUI = new CPMainGUI(controller);
+
+		int[] swatches = AdobeColorTable.read(swatchStream);
+		if (swatches != null) {
+			mainGUI.getSwatchesPalette().setSwatches(swatches);
+		}
 
 		applet.setContentPane(mainGUI.getGUI());
 		applet.setJMenuBar(mainGUI.getMenuBar());
@@ -82,8 +90,9 @@ public class ChibiApplet {
 	}
 
 	/**
-	 * Create an image from one of the provided sources (any of which may be null)
-	 *
+	 * Create an image from one of the provided sources (any of which may be
+	 * null)
+	 * 
 	 * @param layers
 	 * @param flat
 	 * @return
@@ -140,7 +149,10 @@ public class ChibiApplet {
 	}
 
 	void createFloatingPlaceholder() {
-		// Build the panel that will be displayed in the applet when user switches to floating mode
+		/*
+		 * Build the panel that will be displayed in the applet when user
+		 * switches to floating mode
+		 */
 		floatingPlaceholder = new JPanel(new BorderLayout());
 		JLabel label = new JLabel("ChibiPaint is running in floating mode.\n\nDO NOT CLOSE THIS WINDOW!", JLabel.CENTER);
 		label.setFont(new Font("Serif", Font.PLAIN, 16));

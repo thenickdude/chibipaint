@@ -1,7 +1,7 @@
 -injars chibi.in.jar
 -outjars chibi.out.jar
 
--libraryjars 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\rt.jar'; 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\javaws.jar'
+-libraryjars 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\rt.jar'; 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\javaws.jar'; 'bootstrap.jar'
 
 -verbose
 
@@ -22,7 +22,7 @@
 
 -keep public class chibipaint.ChibiApplet {
 	public boolean hasUnsavedChanges();
-	public ChibiApplet(javax.swing.JApplet,java.io.InputStream,java.io.InputStream);
+	public ChibiApplet(javax.swing.JApplet,java.io.InputStream,java.io.InputStream,java.io.InputStream);
 }
 
 # Keep names - Native method names. Keep all native class/method names.

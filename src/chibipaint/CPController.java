@@ -520,7 +520,7 @@ public abstract class CPController implements ActionListener {
 		}
 	}
 
-	byte[] getPngData(Image img) {
+	byte[] getPngData(Image img) throws IOException {
 		int imageType = artwork.hasAlpha() ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
 
 		// FIXME: Wouldn't it be better to use a BufferedImage and avoid this anyway?
@@ -530,13 +530,9 @@ public abstract class CPController implements ActionListener {
 		bg.dispose();
 
 		ByteArrayOutputStream pngFileStream = new ByteArrayOutputStream(1024);
-		try {
-			ImageIO.write(bi, "png", pngFileStream);
-		} catch (IOException e) {
-		}
-		byte[] pngData = pngFileStream.toByteArray();
-
-		return pngData;
+		ImageIO.write(bi, "png", pngFileStream);
+		
+		return pngFileStream.toByteArray();
 	}
 
 	public Image loadImage(String imageName) {
@@ -621,5 +617,13 @@ public abstract class CPController implements ActionListener {
 
 	public boolean isRunningAsApplet() {
 		return this instanceof CPControllerApplet;
+	}
+
+	public boolean hasUnsavedChanges() {
+		return artwork.hasUnsavedChanges();
+	}
+
+	protected void setHasUnsavedChanges(boolean hasUnsaved) {
+		artwork.setHasUnsavedChanges(hasUnsaved);		
 	}
 }
