@@ -44,9 +44,13 @@ public class CPScrollableFlowPanel extends JPanel implements Scrollable {
 		setLayout(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
 	}
 	
-	public JScrollPane wrapInScrollPane() {
-		return new JScrollPane(this, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+	public JScrollPane wrapInScrollPane(boolean forceVert) {
+		return new JScrollPane(this, forceVert ? JScrollPane.VERTICAL_SCROLLBAR_ALWAYS : JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	}
+	
+	public JScrollPane wrapInScrollPane() {
+		return wrapInScrollPane(false);
 	}
 
 	public void setBounds(int x, int y, int width, int height) {

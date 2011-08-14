@@ -32,6 +32,8 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 
 	private IChibiApplet chibipaint;
 
+	Resource layers = null, flat = null;
+
 	public void loadingProgress(final String message, final Double loaded) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -47,8 +49,6 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 	public void loadingDone() {
 
 		final JApplet appletThis = this;
-
-		Resource layers = null, flat = null;
 
 		switch (stage) {
 		case JARS:
@@ -158,7 +158,7 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 				}
 			});
 			JOptionPane.showMessageDialog(getContentPane(),
-					"Your drawing's layers could not be loaded, please try again later.");
+					"Your drawing's layers could not be loaded, please try again later.\nThe error returned was:\n" + message);
 			break;
 		case FLAT_FILE:
 			SwingUtilities.invokeLater(new Runnable() {
@@ -173,7 +173,7 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 		default:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					loadingGUI.setMessage(message);
+					loadingGUI.setMessage("Error loading " + stage + ": " + message);
 				}
 			});
 		}

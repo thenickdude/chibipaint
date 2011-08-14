@@ -25,11 +25,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.jnlp.DownloadService;
 import javax.jnlp.FileContents;
+import javax.jnlp.FileOpenService;
 import javax.jnlp.FileSaveService;
 import javax.jnlp.ServiceManager;
 import javax.jnlp.UnavailableServiceException;
@@ -37,17 +40,18 @@ import javax.swing.*;
 
 import chibipaint.*;
 import chibipaint.engine.AdobeColorTable;
+import chibipaint.gui.CPPaletteManager.CPPaletteFrame;
 import chibipaint.util.*;
 
 public class CPSwatchesPalette extends CPPalette implements ActionListener {
 
-	int initColors[] = { 0xffffff, 0x000000, 0xff0000, 0x00ff00, 0x0000ff };
+	private int initColors[] = { 0xffffff, 0x000000, 0xff0000, 0x00ff00, 0x0000ff, 0xffff00 };
 
 	public boolean modified = false;
 
-	private CPScrollableFlowPanel swatchPanel;
+	private JPanel swatchPanel;
 
-	private JButton btnAdd, btnSettings;
+	private CPIconButton btnSettings, btnAdd;
 
 	public CPSwatchesPalette(CPController controller) {
 		super(controller);
@@ -56,31 +60,35 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 
 		setLayout(new BorderLayout());
 
-		swatchPanel = new CPScrollableFlowPanel(0, 0);
+		swatchPanel = new JPanel();
+		swatchPanel.setLayout(new WrapLayout(FlowLayout.LEFT, 0, 0));
 		{
 			for (int color : initColors) {
 				swatchPanel.add(new CPColorSwatch(color));
 			}
 
-			add(swatchPanel.wrapInScrollPane(), BorderLayout.CENTER);
+			add(new JScrollPane(swatchPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		}
+
+		Image icons = controller.loadImage("smallicons.png");
 
 		JPanel buttonPanel = new JPanel();
 		{
-			btnAdd = new JButton("+");
-			{
-				btnAdd.setMargin(new Insets(0, 2, 0, 2));
-				btnAdd.addActionListener(this);
+			buttonPanel.setPreferredSize(new Dimension(19, 50));
 
-				buttonPanel.add(btnAdd);
-			}
-
-			btnSettings = new JButton("O");
+			btnSettings = new CPIconButton(icons, 16, 16, 2, 1);
 			{
-				btnSettings.setMargin(new Insets(0, 2, 0, 2));
-				btnSettings.addActionListener(this);
+				btnSettings.addCPActionListener(this);
 
 				buttonPanel.add(btnSettings);
+			}
+
+			btnAdd = new CPIconButton(icons, 16, 16, 0, 1);
+			{
+				btnAdd.addCPActionListener(this);
+
+				buttonPanel.add(btnAdd);
 			}
 
 			add(buttonPanel, BorderLayout.EAST);
@@ -89,7 +97,7 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension((int) (super.getPreferredSize() != null ? super.getPreferredSize().getWidth() : 200), 90);
+		return new Dimension(160, 65);
 	}
 
 	public class CPColorSwatch extends JComponent implements MouseListener {
@@ -99,9 +107,10 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 		public CPColorSwatch(int color) {
 			addMouseListener(this);
 			setColor(color);
+			setOpaque(true);
 		}
 
-		public void paint(Graphics g) {
+		public void paintComponent(Graphics g) {
 			Dimension d = getSize();
 			if (color != null) {
 				g.setColor(new Color(color.getRgb()));
@@ -116,7 +125,6 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 			}
 			g.setColor(Color.black);
 			g.drawRect(0, 0, d.width - 2, d.height - 2);
-
 		}
 
 		private void setColor(int color) {
@@ -149,16 +157,33 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 		}
 
 		public void mouseClicked(MouseEvent e) {
-			if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0 && color != null) {
+			if (e.getButton() == MouseEvent.BUTTON1 && color != null) {
 				controller.setCurColor(color);
-			} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+			} else if (e.getButton() == MouseEvent.BUTTON3) {
 				JPopupMenu menu = new JPopupMenu();
 
-				menu.add(new JMenuItem("Remove"));
+				JMenuItem mnuRemove = new JMenuItem("Remove");
+				mnuRemove.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						swatchPanel.remove(CPColorSwatch.this);
+
+						swatchPanel.revalidate();
+						swatchPanel.repaint();
+					}
+				});
+				menu.add(mnuRemove);
+
+				JMenuItem mnuSetToCurrent = new JMenuItem("Replace with current color");
+				mnuSetToCurrent.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						CPColorSwatch.this.setColor(controller.getCurColor().getRgb());
+
+					}
+				});
+				menu.add(mnuSetToCurrent);
 
 				menu.show(this, e.getX(), e.getY());
 			}
-
 		}
 
 		public void mouseReleased(MouseEvent e) {
@@ -167,8 +192,7 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnAdd) {
-			addSwatch(controller.getCurColor().rgb);
-			swatchPanel.validate();
+			addSwatch(controller.getCurColor().getRgb());
 		} else if (e.getSource() == btnSettings) {
 			JPopupMenu menu = new JPopupMenu();
 
@@ -186,7 +210,7 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 		} else if (e.getActionCommand().equals("save")) {
 			try {
 				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		
+
 				AdobeColorTable.write(buffer, getSwatches());
 
 				try {
@@ -208,19 +232,53 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(this, "The swatches could not be saved.");
 			}
-
 		} else if (e.getActionCommand().equals("load")) {
+
+			InputStream in;
+			try {
+				try {
+					FileOpenService openService = (FileOpenService) ServiceManager.lookup("javax.jnlp.FileOpenService");
+					FileContents file = openService.openFileDialog(null, new String[] { "aco" });
+
+					if (file != null) {
+						in = file.getInputStream();
+					} else {
+						return;
+					}
+				} catch (UnavailableServiceException ex) {
+					JFileChooser fileChooser = new JFileChooser();
+					if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+						in = new FileInputStream(fileChooser.getSelectedFile());
+					} else {
+						return;
+					}
+				}
+			} catch (IOException exx) {
+				JOptionPane.showMessageDialog(this, "The swatches could not be read.");
+				return;
+			}
+
+			int[] swatches = AdobeColorTable.read(in);
+
+			if (swatches != null && swatches.length > 0)
+				setSwatches(swatches);
+			else
+				JOptionPane.showMessageDialog(this, "The swatches could not be read.");
+
 		}
 	}
 
 	public void clearSwatches() {
 		swatchPanel.removeAll();
+		swatchPanel.revalidate();
 	}
 
 	private void addSwatch(int color) {
 		CPColorSwatch swatch = new CPColorSwatch(color);
 
 		swatchPanel.add(swatch);
+
+		swatch.revalidate();
 	}
 
 	public int[] getSwatches() {
@@ -234,11 +292,11 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 	}
 
 	public void setSwatches(int[] swatches) {
-		swatchPanel.removeAll();
-		
+		clearSwatches();
+
 		for (int swatch : swatches) {
 			addSwatch(swatch);
 		}
-		swatchPanel.validate();
+		swatchPanel.revalidate();
 	}
 }

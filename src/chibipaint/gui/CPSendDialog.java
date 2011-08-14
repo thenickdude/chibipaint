@@ -43,7 +43,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 	private URL postUrl;
 
 	/** Image data to send to server */
-	private byte[] pngData, chibiData, swatchData;
+	private byte[] flatData, layersData, swatchData;
 
 	private Component parent;
 
@@ -61,19 +61,19 @@ public class CPSendDialog extends JDialog implements ActionListener {
 	 *            Listener to notify if URLs need to be jumped to afterwards
 	 * @param postUrl
 	 *            URL to post image data to
-	 * @param pngData
+	 * @param flatData
 	 *            PNG image to post
-	 * @param chibiData
+	 * @param layersData
 	 *            CHI image to post (or null if you don't want layers)
 	 * @param alreadyPosted
 	 *            True if the image has already been posted to the forum and we
 	 *            shouldn't offer to "leave without posting"
 	 */
-	public CPSendDialog(Component parent, ActionListener notifyCompleted, URL postUrl, byte[] pngData,
-			byte[] chibiData, byte[] swatchData, boolean alreadyPosted) {
+	public CPSendDialog(Component parent, ActionListener notifyCompleted, URL postUrl, byte[] flatData,
+			byte[] layersData, byte[] swatchData, boolean alreadyPosted) {
 		this.postUrl = postUrl;
-		this.pngData = pngData;
-		this.chibiData = chibiData;
+		this.flatData = flatData;
+		this.layersData = layersData;
 		this.swatchData = swatchData;
 		this.parent = parent;
 		this.notifyCompleted = notifyCompleted;
@@ -153,14 +153,14 @@ public class CPSendDialog extends JDialog implements ActionListener {
 		bos.writeBytes("--" + boundary + "\r\n");
 		bos.writeBytes("Content-Disposition: form-data; name=\"picture\"; filename=\"chibipaint.png\"\r\n");
 		bos.writeBytes("Content-Type: image/png\r\n\r\n");
-		bos.write(pngData, 0, pngData.length);
+		bos.write(flatData, 0, flatData.length);
 		bos.writeBytes("\r\n");
 
-		if (chibiData != null) {
+		if (layersData != null) {
 			bos.writeBytes("--" + boundary + "\r\n");
 			bos.writeBytes("Content-Disposition: form-data; name=\"chibifile\"; filename=\"chibipaint.chi\"\r\n");
 			bos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
-			bos.write(chibiData, 0, chibiData.length);
+			bos.write(layersData, 0, layersData.length);
 			bos.writeBytes("\r\n");
 		}
 

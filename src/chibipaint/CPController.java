@@ -29,6 +29,8 @@ import java.net.*;
 import java.util.*;
 
 import javax.imageio.*;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
 
 import chibipaint.engine.*;
@@ -520,7 +522,7 @@ public abstract class CPController implements ActionListener {
 		}
 	}
 
-	byte[] getPngData(Image img) throws IOException {
+	byte[] getImageAsPNG(Image img) throws IOException {
 		int imageType = artwork.hasAlpha() ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
 
 		// FIXME: Wouldn't it be better to use a BufferedImage and avoid this anyway?
@@ -535,6 +537,46 @@ public abstract class CPController implements ActionListener {
 		return pngFileStream.toByteArray();
 	}
 
+	/**
+	 * Encode the given image as a JPEG and return the JPEG file as an array of bytes.
+	 *  
+	 * @param img
+	 * @return The JPEG file, or null if the image could not be saved.
+	 * @throws IOException
+	 */
+	byte[] getImageAsJPG(Image img) throws IOException {
+		BufferedImage bi = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+		Graphics bg = bi.getGraphics();
+		bg.drawImage(img, 0, 0, null);
+		bg.dispose();
+
+		ByteArrayOutputStream writeBuffer = new ByteArrayOutputStream(1024);
+		
+        ImageWriter writer = null;
+        Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpg");
+        if (iter.hasNext()) {
+            writer = iter.next();
+        } else {
+        	return null;
+        }
+
+        ImageOutputStream imageStream = ImageIO.createImageOutputStream(writeBuffer);
+        
+		writer.setOutput(imageStream);
+
+        JPEGImageWriteParam iwparam = new JPEGImageWriteParam(null);
+        iwparam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT) ;
+        iwparam.setCompressionQuality((float) 0.95);
+
+        // Write the image
+        writer.write(null, new IIOImage(bi, null, null), iwparam);		
+		
+        imageStream.flush();
+        imageStream.close();
+        
+		return writeBuffer.toByteArray();
+	}
+	
 	public Image loadImage(String imageName) {
 		Image img = imageCache.get(imageName);
 		if (img == null) {

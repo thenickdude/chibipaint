@@ -105,24 +105,35 @@ public class CPControllerApplet extends CPController {
 	public void sendOekaki() {
 
 		try {
-			byte[] pngData = getPngData(canvas.img);
 			// FIXME: verify canvas.img is
 			// always updated
 
-			byte[] chibiData, swatchData;
+			byte[] flatData, layersData, swatchData;
 
 			ByteArrayOutputStream bufferStream;
 
-			if (artwork.getLayers().length > 1) {
+			if (isSimpleDrawing()) {
+				// Don't need to send layers, just send the flat version
+				layersData = null;
+				flatData = getImageAsPNG(canvas.img);
+			} else {
+				// We must send layers
 				bufferStream = new ByteArrayOutputStream(1024);
 
 				CPChibiFile.write(bufferStream, artwork);
-				chibiData = bufferStream.toByteArray();
-			} else {
-				// Don't need to send multiple layers if we only have one
-				chibiData = null;
+				
+				layersData = bufferStream.toByteArray();
+				
+				/* As editing this drawing later will use the layers, we don't need a high-quality
+				 * flat version. Save it as a JPEG.
+				 */
+				flatData = getImageAsJPG(canvas.img);
+				
+				//If we're unable to encode jpegs, fall back
+				if (flatData == null)
+					flatData = getImageAsPNG(canvas.img);
 			}
-
+				
 			CPSwatchesPalette swatchesPal = chibipaint.mainGUI.getSwatchesPalette();
 
 			bufferStream = new ByteArrayOutputStream(1024);
@@ -133,7 +144,7 @@ public class CPControllerApplet extends CPController {
 			swatchData = bufferStream.toByteArray();
 
 			CPSendDialog sendDialog = new CPSendDialog(chibipaint.mainGUI.getGUI(), this, new URL(applet.getCodeBase(),
-					postUrl), pngData, chibiData, swatchData, exitUrl == null || exitUrl.length() == 0);
+					postUrl), flatData, layersData, swatchData, exitUrl == null || exitUrl.length() == 0);
 
 			sendDialog.sendImage();
 		} catch (Exception e) {
@@ -141,6 +152,14 @@ public class CPControllerApplet extends CPController {
 					"Error", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Returns true if this drawing can be exactly represented as a simple transparent PNG
+	 * (i.e. doesn't have multiple layers, and base layer is 100% opaque). 
+	 */
+	private boolean isSimpleDrawing() {
+		return artwork.getLayers().length == 1 && artwork.getLayer(0).getAlpha() == 100;
 	}
 
 	public void goToExitUrl() {
