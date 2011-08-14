@@ -1101,7 +1101,8 @@ public class CPArtwork {
 		if (!canUndo()) {
 			return;
 		}
-
+		hasUnsavedChanges = true;
+		
 		CPUndo undo = undoList.removeFirst();
 		undo.undo();
 		redoList.addFirst(undo);
@@ -1111,6 +1112,7 @@ public class CPArtwork {
 		if (!canRedo()) {
 			return;
 		}
+		hasUnsavedChanges = true;
 
 		CPUndo redo = redoList.removeFirst();
 		redo.redo();
