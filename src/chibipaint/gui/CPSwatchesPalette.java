@@ -21,8 +21,16 @@
 
 package chibipaint.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -30,24 +38,28 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.jnlp.DownloadService;
 import javax.jnlp.FileContents;
 import javax.jnlp.FileOpenService;
 import javax.jnlp.FileSaveService;
 import javax.jnlp.ServiceManager;
 import javax.jnlp.UnavailableServiceException;
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 
-import chibipaint.*;
+import chibipaint.CPController;
 import chibipaint.engine.AdobeColorTable;
-import chibipaint.gui.CPPaletteManager.CPPaletteFrame;
-import chibipaint.util.*;
+import chibipaint.util.CPColor;
 
 public class CPSwatchesPalette extends CPPalette implements ActionListener {
 
 	private int initColors[] = { 0xffffff, 0x000000, 0xff0000, 0x00ff00, 0x0000ff, 0xffff00 };
 
-	public boolean modified = false;
+	private boolean modified = false;
 
 	private JPanel swatchPanel;
 
@@ -169,6 +181,8 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 
 						swatchPanel.revalidate();
 						swatchPanel.repaint();
+						
+						CPSwatchesPalette.this.modified = true;
 					}
 				});
 				menu.add(mnuRemove);
@@ -177,7 +191,8 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 				mnuSetToCurrent.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						CPColorSwatch.this.setColor(controller.getCurColor().getRgb());
-
+						
+						CPSwatchesPalette.this.modified = true;
 					}
 				});
 				menu.add(mnuSetToCurrent);
@@ -193,6 +208,7 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnAdd) {
 			addSwatch(controller.getCurColor().getRgb());
+			modified = true;			
 		} else if (e.getSource() == btnSettings) {
 			JPopupMenu menu = new JPopupMenu();
 
@@ -260,9 +276,10 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 
 			int[] swatches = AdobeColorTable.read(in);
 
-			if (swatches != null && swatches.length > 0)
+			if (swatches != null && swatches.length > 0) {
 				setSwatches(swatches);
-			else
+				modified = true;
+			} else
 				JOptionPane.showMessageDialog(this, "The swatches could not be read.");
 
 		}
@@ -298,5 +315,9 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 			addSwatch(swatch);
 		}
 		swatchPanel.revalidate();
+	}
+	
+	public boolean isModified() {
+		return modified;
 	}
 }

@@ -165,7 +165,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 		}
 
 		//Swatches
-		{
+		if (swatchData != null) {
 			bos.writeBytes("--" + boundary + "\r\n");
 			bos.writeBytes("Content-Disposition: form-data; name=\"swatches\"; filename=\"chibipaint.aco\"\r\n");
 			bos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");

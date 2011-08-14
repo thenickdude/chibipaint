@@ -138,10 +138,15 @@ public class CPControllerApplet extends CPController {
 
 			bufferStream = new ByteArrayOutputStream(1024);
 
-			int[] swatches = swatchesPal.getSwatches();
-			AdobeColorTable.write(bufferStream, swatches);
-
-			swatchData = bufferStream.toByteArray();
+			if (swatchesPal.isModified()) {
+				int[] swatches = swatchesPal.getSwatches();
+				AdobeColorTable.write(bufferStream, swatches);
+				
+				swatchData = bufferStream.toByteArray();
+			} else {
+				//Swatches unchanged
+				swatchData = null;
+			}
 
 			CPSendDialog sendDialog = new CPSendDialog(chibipaint.mainGUI.getGUI(), this, new URL(applet.getCodeBase(),
 					postUrl), flatData, layersData, swatchData, exitUrl == null || exitUrl.length() == 0);
