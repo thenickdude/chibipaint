@@ -278,7 +278,6 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 
 			if (swatches != null && swatches.length > 0) {
 				setSwatches(swatches);
-				modified = true;
 			} else
 				JOptionPane.showMessageDialog(this, "The swatches could not be read.");
 
@@ -315,6 +314,8 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 			addSwatch(swatch);
 		}
 		swatchPanel.revalidate();
+		
+		modified = true;
 	}
 	
 	public boolean isModified() {
