@@ -5,11 +5,12 @@ import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.jnlp.ServiceManager;
+import javax.jnlp.UnavailableServiceException;
 import javax.swing.JApplet;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import splash.ResourceLoader.Resource;
 import bootstrap.IChibiApplet;
 
 public class Loader extends JApplet implements LoadingListener, IChibiApplet {
@@ -28,7 +29,7 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 	// Loading stage
 	private int stage;
 
-	private ResourceLoader loader = new ResourceLoader(Loader.this);
+	private IResourceLoader loader;
 
 	private IChibiApplet chibipaint;
 
@@ -91,8 +92,8 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 		case FLAT_FILE:
 			stage = SWATCHES;
 
-			layers = loader.resources.remove(layersUrl);
-			flat = loader.resources.remove(flatUrl);
+			layers = loader.removeResource(layersUrl);
+			flat = loader.removeResource(flatUrl);
 
 			String swatchesParam = getParameter("loadSwatches");
 
@@ -111,7 +112,8 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 
 			break;
 		case SWATCHES:
-			final Resource layersFinal = layers, flatFinal = flat;
+			final Resource layersFinal = layers,
+			flatFinal = flat;
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					loadingGUI.setMessage("Starting...");
@@ -131,12 +133,13 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 						return;
 					}
 
-					Resource swatches = loader.resources.remove(swatchesUrl);
+					Resource swatches = loader.removeResource(swatchesUrl);
 
 					try {
 						chibipaint = (IChibiApplet) c.newInstance(appletThis,
-								layersFinal != null && layersFinal.contents != null ? new ByteArrayInputStream(layersFinal.contents)
-										: null, flatFinal != null && flatFinal.contents != null ? new ByteArrayInputStream(
+								layersFinal != null && layersFinal.contents != null ? new ByteArrayInputStream(
+										layersFinal.contents) : null,
+								flatFinal != null && flatFinal.contents != null ? new ByteArrayInputStream(
 										flatFinal.contents) : null,
 								swatches != null && swatches.contents != null ? new ByteArrayInputStream(
 										swatches.contents) : null);
@@ -158,7 +161,8 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 				}
 			});
 			JOptionPane.showMessageDialog(getContentPane(),
-					"Your drawing's layers could not be loaded, please try again later.\nThe error returned was:\n" + message);
+					"Your drawing's layers could not be loaded, please try again later.\nThe error returned was:\n"
+							+ message);
 			break;
 		case FLAT_FILE:
 			SwingUtilities.invokeLater(new Runnable() {
@@ -194,6 +198,20 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 
 	public static void main(String[] args) {
 		new Loader();
+	}
+
+	public Loader() {
+
+		try {
+			ServiceManager.lookup("javax.jnlp.BasicService");
+
+			System.out.println("Loading by JNLP");
+			loader = new ResourceLoaderJNLP(Loader.this);
+		} catch (UnavailableServiceException e) {
+			System.out.println("Loading by old loader");
+			loader = new ResourceLoaderOld(Loader.this);
+		}
+
 	}
 
 	/**

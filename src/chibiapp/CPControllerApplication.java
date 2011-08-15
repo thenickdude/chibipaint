@@ -19,11 +19,13 @@
 
  */
 
-package chibipaint;
+package chibiapp;
 
 import java.awt.*;
 
 import javax.swing.*;
+
+import chibipaint.CPController;
 
 public class CPControllerApplication extends CPController {
 

@@ -19,12 +19,13 @@
 
  */
 
-package chibipaint;
+package chibiapp;
 
 import java.awt.Dimension;
 
 import javax.swing.*;
 
+import chibipaint.CPController;
 import chibipaint.engine.*;
 import chibipaint.gui.*;
 
@@ -49,7 +50,7 @@ public class ChibiApp extends JFrame {
 		setJMenuBar(mainGUI.getMenuBar());
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setPreferredSize(new Dimension(900, 600));
+		setSize(900, 600);
 
 		pack();
 		setVisible(true);

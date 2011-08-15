@@ -21,18 +21,25 @@
 
 package chibipaint;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.io.IOException;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.PixelGrabber;
 import java.io.InputStream;
-import javax.imageio.*;
-import javax.swing.*;
+
+import javax.imageio.ImageIO;
+import javax.swing.JApplet;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import bootstrap.IChibiApplet;
-
-import chibipaint.engine.*;
-import chibipaint.gui.*;
+import chibipaint.engine.AdobeColorTable;
+import chibipaint.engine.CPArtwork;
+import chibipaint.engine.CPChibiFile;
+import chibipaint.gui.CPMainGUI;
 
 public class ChibiApplet implements IChibiApplet {
 

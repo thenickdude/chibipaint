@@ -3,6 +3,8 @@
 
 -libraryjars 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\rt.jar'; 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\javaws.jar'
 
+-dontoptimize
+
 -verbose
 
 -keep public class bootstrap.IChibiApplet {

@@ -13,41 +13,34 @@ import javax.jnlp.DownloadServiceListener;
 import javax.jnlp.ServiceManager;
 import javax.jnlp.UnavailableServiceException;
 
-public class ResourceLoader implements DownloadServiceListener {
-
-	public class Resource {
-		URL url;
-		String friendlyName;
-
-		byte[] contents;
-
-		public Resource(URL url, String friendlyName) {
-			super();
-			this.url = url;
-			this.friendlyName = friendlyName;
-		}
-	}
+public class ResourceLoaderJNLP implements DownloadServiceListener, IResourceLoader {
 
 	private HashMap<String, String> friendlyNames = new HashMap<String, String>();
 
 	private ArrayList<String> parts = new ArrayList<String>();
-	HashMap<URL, Resource> resources = new HashMap<URL, Resource>();
+	private HashMap<URL, Resource> resources = new HashMap<URL, Resource>();
 
 	private DownloadService downloadService;
 	private LoadingListener listener;
 
 	private static final boolean debug = true;
 
+	/* (non-Javadoc)
+	 * @see splash.IResourceLoader#queuePart(java.lang.String, java.lang.String, java.lang.String)
+	 */
 	public void queuePart(String fileName, String partName, String friendlyName) {
 		parts.add(partName);
 		friendlyNames.put(fileName, friendlyName);
 	}
 
+	/* (non-Javadoc)
+	 * @see splash.IResourceLoader#queueResource(java.net.URL, java.lang.String)
+	 */
 	public void queueResource(URL url, String friendlyName) {
 		resources.put(url, new Resource(url, friendlyName));
 	}
 
-	public ResourceLoader(LoadingListener listener) {
+	public ResourceLoaderJNLP(LoadingListener listener) {
 		this.listener = listener;
 
 		try {
@@ -59,15 +52,14 @@ public class ResourceLoader implements DownloadServiceListener {
 		}
 	}
 
-	/**
-	 * Start downloading the queued resources and return immediately (notifying
-	 * listener of progress events).
+	/* (non-Javadoc)
+	 * @see splash.IResourceLoader#start()
 	 */
 	public void start() {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					downloadService.loadPart(parts.toArray(new String[0]), ResourceLoader.this);
+					downloadService.loadPart(parts.toArray(new String[0]), ResourceLoaderJNLP.this);
 
 					for (Resource resource : resources.values()) {
 						HttpURLConnection connection = (HttpURLConnection) resource.url.openConnection();
@@ -98,7 +90,7 @@ public class ResourceLoader implements DownloadServiceListener {
 									double progress = (double) outBuf.size() / length;
 
 									listener.loadingProgress("Loading " + resource.friendlyName + " ("
-											+ (int) (progress * 100) + "%)...", progress);
+											+ (int) (progress * 100) + "%)...", new Double(progress));
 								}
 							}
 
@@ -123,6 +115,9 @@ public class ResourceLoader implements DownloadServiceListener {
 		listener.loadingFail("Loading failed, couldn't download '" + url.toString() + "'.");
 	}
 
+	/* (non-Javadoc)
+	 * @see splash.IResourceLoader#getURLFilename(java.net.URL)
+	 */
 	public String getURLFilename(java.net.URL url) {
 		String fn = url.getFile();
 		fn = fn.substring(fn.lastIndexOf('/') + 1);
@@ -146,7 +141,7 @@ public class ResourceLoader implements DownloadServiceListener {
 			listener.loadingProgress("Loading " + friendlyNames.get(fn) + "...", null);
 		else
 			listener.loadingProgress("Loading " + friendlyNames.get(fn) + " (" + overallPercent + "%)...",
-					(double) overallPercent / 100);
+					new Double((double) overallPercent / 100));
 	}
 
 	private static void debugSleep(int millis) {
@@ -175,6 +170,10 @@ public class ResourceLoader implements DownloadServiceListener {
 			listener.loadingProgress("Verifying " + friendlyNames.get(fn) + "...", null);
 		else
 			listener.loadingProgress("Verifying " + friendlyNames.get(fn) + " (" + overallPercent + "%)...",
-					(double) overallPercent / 100);
+					new Double((double) overallPercent / 100));
+	}
+
+	public Resource removeResource(URL url) {
+		return resources.remove(url);
 	}
 }
