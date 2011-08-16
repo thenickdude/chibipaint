@@ -18,16 +18,14 @@ chibipaint.jar: chibipaint.out.jar
 
 splash.out.jar: bootstrap.jar bin/splash/*
 	jar -cf splash.in.jar -C bin/ splash/
-#	jar -cf splash.in.jar -C bin/ bootstrap/
 #	mv splash.in.jar splash.out.jar
-	java -jar proguard/lib/proguard.jar @ chibisplash.pro -verbose
+	java -jar proguard/lib/proguard.jar @ splash.pro -verbose
 	
 chibi.out.jar: bootstrap.jar ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -cf chibi.in.jar -C bin/ chibipaint/
 	jar -uf chibi.in.jar -C bin/ images/
-#	jar -cf chibi.in.jar -C bin/ bootstrap/
 #	mv chibi.in.jar chibi.out.jar
-	java -jar proguard/lib/proguard.jar @ chibipaint.pro -verbose
+	java -jar proguard/lib/proguard.jar @ chibi.pro -verbose
 
 chibipaint.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -cf chibipaint.in.jar -C bin/ chibipaint/
@@ -35,7 +33,7 @@ chibipaint.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -uf chibipaint.in.jar -C bin/ splash/
 	jar -uf chibipaint.in.jar -C bin/ bootstrap/
 	jar -uf chibipaint.in.jar -C bin/ javax/
-	java -jar proguard/lib/proguard.jar @ chibipaintapplet.pro -verbose
+	java -jar proguard/lib/proguard.jar @ chibipaint.pro -verbose
 
 bootstrap.jar: bin/bootstrap/*
 	jar -cf bootstrap.jar -C bin/ bootstrap/
@@ -50,8 +48,17 @@ clean:
 	rm -f chibipaint.jar
 	rm -f chibipaint.in.jar
 	rm -f chibipaint.out.jar
+	rm -f chibi.jar.pack.gz
+	rm -f splash.jar.pack.gz
+	rm -f chibipaint.jar.pack.gz
+
+%.jar.pack.gz : %.jar
+	pack200 -E9 $@ $<
 	
-install:
+install: chibi.jar chibi.jar.pack.gz splash.jar splash.jar.pack.gz chibipaint.jar chibipaint.jar.pack.gz
 	cp chibi.jar ../trunk/public_html/oekaki/chibi/
 	cp splash.jar ../trunk/public_html/oekaki/chibi/
 	cp chibipaint.jar ../trunk/public_html/oekaki/chibi/	
+	cp chibi.jar.pack.gz ../trunk/public_html/oekaki/chibi/
+	cp splash.jar.pack.gz ../trunk/public_html/oekaki/chibi/
+	cp chibipaint.jar.pack.gz ../trunk/public_html/oekaki/chibi/	

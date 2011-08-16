@@ -2,10 +2,8 @@ package javax.jnlp;
 
 import java.io.InputStream;
 
-public class FileContents {
+public interface FileContents {
 
-	public InputStream getInputStream() {
-		return null;
-	}
+	public InputStream getInputStream();
 
 }

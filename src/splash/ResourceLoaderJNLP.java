@@ -28,9 +28,11 @@ public class ResourceLoaderJNLP implements DownloadServiceListener, IResourceLoa
 	/* (non-Javadoc)
 	 * @see splash.IResourceLoader#queuePart(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public void queuePart(String fileName, String partName, String friendlyName) {
+	public boolean queuePart(String fileName, String partName, String friendlyName) {
 		parts.add(partName);
 		friendlyNames.put(fileName, friendlyName);
+		
+		return true;
 	}
 
 	/* (non-Javadoc)

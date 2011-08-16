@@ -1,15 +1,12 @@
--injars chibi.in.jar
--outjars chibi.out.jar
+-injars chibipaint.in.jar
+-outjars chibipaint.out.jar
 
--libraryjars 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\rt.jar'; 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\javaws.jar'; 'bootstrap.jar'
+-libraryjars 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\rt.jar'
 
 -verbose
 
--dontoptimize
-
-# Keep - Applications. Keep all application classes that have a main method.
--keepclasseswithmembers public class * {
-    public static void main(java.lang.String[]);
+-keep public class bootstrap.IChibiApplet {
+	public boolean hasUnsavedChanges();
 }
 
 # Keep - Applets. Keep all extensions of java.applet.Applet.

@@ -146,6 +146,9 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 					} catch (Exception ex) {
 						loadingGUI.setMessage(ex.getMessage());
 						ex.printStackTrace();
+					} catch (OutOfMemoryError ex) {
+						loadingGUI.setMessage("Couldn't start because Java ran out of memory!");
+						ex.printStackTrace();
 					}
 				}
 			});
@@ -190,8 +193,11 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 
 				setContentPane(loadingGUI);
 
-				loader.queuePart("chibi.jar", "chibi", "Chibi Paint");
-				loader.start();
+				if (loader.queuePart("chibi.jar", "chibi", "Chibi Paint")) {
+					loader.start();
+				} else {
+					loadingDone();
+				}
 			}
 		});
 	}
@@ -201,9 +207,8 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 	}
 
 	public Loader() {
-
 		try {
-			ServiceManager.lookup("javax.jnlp.BasicService");
+			ServiceManager.lookup("javax.jnlp.DownloadService");
 
 			System.out.println("Loading by JNLP");
 			loader = new ResourceLoaderJNLP(Loader.this);

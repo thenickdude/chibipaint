@@ -4,7 +4,7 @@ import java.net.URL;
 
 public interface IResourceLoader {
 
-	public abstract void queuePart(String fileName, String partName, String friendlyName);
+	public abstract boolean queuePart(String fileName, String partName, String friendlyName);
 
 	public abstract void queueResource(URL url, String friendlyName);
 

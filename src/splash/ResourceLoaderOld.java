@@ -89,8 +89,8 @@ public class ResourceLoaderOld implements IResourceLoader {
 			}
 	}
 
-	public void queuePart(String fileName, String partName, String friendlyName) {
-		listener.loadingDone();
+	public boolean queuePart(String fileName, String partName, String friendlyName) {
+		return false;
 	}
 	
 	public Resource removeResource(URL url) {
