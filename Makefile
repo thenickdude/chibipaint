@@ -1,5 +1,5 @@
 CHIBI_IMAGES = gfx/images/icons.png gfx/images/smallicons.gif gfx/images/textures32.png
-CHIBI_BIN = bin/chibipaint/ bin/chibitest/
+CHIBI_BIN = bin/chibipaint/*
 
 JAVA_14_PATH = C:\Program Files (x86)\Java\j2re1.4.2_19
 
@@ -13,6 +13,7 @@ chibi.jar: chibi.out.jar
 #	mv chibi.out.jar chibi.jar
 	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibi.out.jar -destjar chibi.jar -classpath "${JAVA_14_PATH}\lib\rt.jar;${JAVA_14_PATH}\lib\jce.jar;${JAVA_14_PATH}\lib\jsse.jar;${JAVA_14_PATH}\javaws\javaws.jar;bootstrap.jar" 
 
+# Fallback applet JAR which doesn't use JNLP launch:
 chibipaint.jar: chibipaint.out.jar
 	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibipaint.out.jar -destjar chibipaint.jar -classpath "${JAVA_14_PATH}\lib\rt.jar;${JAVA_14_PATH}\lib\jce.jar;${JAVA_14_PATH}\lib\jsse.jar" 
 

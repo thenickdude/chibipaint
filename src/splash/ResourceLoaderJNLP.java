@@ -66,9 +66,7 @@ public class ResourceLoaderJNLP implements DownloadServiceListener, IResourceLoa
 					for (Resource resource : resources.values()) {
 						HttpURLConnection connection = (HttpURLConnection) resource.url.openConnection();
 						try {
-							connection.setUseCaches(false); // Bypassing the
-															// cache
-															// is important
+							connection.setUseCaches(false); // Bypassing the cache is important
 
 							ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
 
