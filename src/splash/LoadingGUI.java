@@ -3,18 +3,16 @@ package splash;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 import javax.swing.JComponent;
-import javax.swing.Timer;
 
 public class LoadingGUI extends JComponent {
 
@@ -25,23 +23,17 @@ public class LoadingGUI extends JComponent {
 
 	private String message = null;
 
-	private static final Color[] hlight = { new Color(41, 71, 110), new Color(50, 79, 116), new Color(62, 90, 124),
-			new Color(76, 101, 134), new Color(93, 116, 145), new Color(110, 131, 158), new Color(129, 146, 169),
-			new Color(148, 163, 183), new Color(167, 179, 195), new Color(186, 195, 208), new Color(204, 210, 220),
-			new Color(220, 225, 230), new Color(234, 236, 241), new Color(245, 247, 249) };
-
-	private static final int BARRADIUS = hlight.length;
-
-	private static final int TEXTMARGIN = 8;
-
 	private volatile boolean imagesReady = false;
 	
 	private Image cup, lid, lines, text;
 	private BufferedImage shading, highlights, smoothie;
 	private BufferedImage smoothieComposite;
 
-	private int smoothieOffset = 0;
+	
+	private static final int MAXSMOOTHIEOFFSET = 170;
 
+	private Font statusFont;
+	
 	/**
 	 * Only call from within the Swing event dispatcher thread!
 	 * 
@@ -66,10 +58,6 @@ public class LoadingGUI extends JComponent {
 
 	private String getMessage() {
 		return message;
-	}
-
-	private double getProgress() {
-		return progress;
 	}
 	
 	private static BufferedImage imageToBuffered(Image src) {
@@ -138,7 +126,7 @@ public class LoadingGUI extends JComponent {
 		tracker.addImage(shading_comp, 4);
 		tracker.addImage(smoothie_comp, 5);
 		tracker.addImage(text, 6);
-		
+				
 		new Thread(new Runnable() {
 			
 			public void run() {
@@ -161,21 +149,6 @@ public class LoadingGUI extends JComponent {
 					
 					smoothieComposite = new BufferedImage(smoothie.getWidth(null), smoothie.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 				}
-				
-				final Timer timer = new javax.swing.Timer(5, null);
-				
-				final long startTime = System.currentTimeMillis();
-				
-				timer.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						smoothieOffset = (int) ((System.currentTimeMillis() - startTime) / 50);
-						repaint();
-						
-						timer.restart();
-					}
-				});
-				
-				timer.start();
 				
 				repaint();
 		    }
@@ -209,8 +182,8 @@ public class LoadingGUI extends JComponent {
 			Graphics2D cupCompG = (Graphics2D) cupComposite.getGraphics();
 			{
 				cupCompG.drawImage(cup, 0, 0, this);
-				
-				shiftImageDownAndMaskWithOriginalTransparency(smoothie, smoothieComposite, smoothieOffset);
+								
+				shiftImageDownAndMaskWithOriginalTransparency(smoothie, smoothieComposite, (int) Math.round(progress * MAXSMOOTHIEOFFSET));
 				
 				cupCompG.drawImage(smoothieComposite, 0, 0, this);
 				
@@ -233,7 +206,7 @@ public class LoadingGUI extends JComponent {
 					
 			g2d.drawImage(lines, centerX - imgWidth / 2, centerY - imgHeight /2, this);
 
-			centerY += imgHeight / 2 + 20;
+			centerY += imgHeight / 2 + 2;
 		}
 
 		int messageWidth = 0;
@@ -246,27 +219,15 @@ public class LoadingGUI extends JComponent {
 			messageHeight = g2d.getFontMetrics().getHeight();
 		}
 
-		int lastX = Math.round((float) (getProgress() * getWidth()));
-
-		for (int y = centerY - BARRADIUS + 1; y <= centerY + BARRADIUS - 1; y++) {
-
-			g2d.setColor(hlight[Math.abs(y - centerY)]);
-			g2d.drawLine(0, y, lastX, y);
-
-			int c = 255 - (BARRADIUS - Math.abs(y - centerY)) * 7;
-			g2d.setColor(new Color(c, c, c));
-			g2d.drawLine(lastX + 1, y, getWidth() - 1, y);
-
-			if (message != null) {
-				if (messageWidth > getWidth() - lastX - 2 * TEXTMARGIN) {
-					g2d.setColor(Color.white);
-					g2d.drawString(message, lastX - messageWidth - TEXTMARGIN, centerY + messageHeight / 2 - 2);
-				} else {
-					g2d.setColor(Color.black);
-					g2d.drawString(message, lastX + TEXTMARGIN, centerY + messageHeight / 2 - 2);
-				}
-
+		if (message != null) {
+			g2d.setColor(Color.black);
+			
+			if (statusFont == null) {
+				statusFont = getFont().deriveFont(16);
 			}
+			
+			g2d.setFont(statusFont);
+			g2d.drawString(message, centerX - messageWidth / 2, centerY + messageHeight);
 		}
 
 		g2d.dispose();

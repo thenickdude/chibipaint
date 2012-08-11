@@ -3,7 +3,7 @@ CHIBI_BIN = bin/chibipaint/*
 
 JAVA_14_PATH = C:\Program Files (x86)\Java\j2re1.4.2_19
 
-all: splash.jar chibi.jar chibipaint.jar
+all: splash.jar chibi.jar cpcombined.jar
 
 splash.jar: splash.out.jar
 #	mv splash.out.jar splash.jar
@@ -14,8 +14,8 @@ chibi.jar: chibi.out.jar
 	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibi.out.jar -destjar chibi.jar -classpath "${JAVA_14_PATH}\lib\rt.jar;${JAVA_14_PATH}\lib\jce.jar;${JAVA_14_PATH}\lib\jsse.jar;${JAVA_14_PATH}\javaws\javaws.jar;bootstrap.jar" 
 
 # Fallback applet JAR which doesn't use JNLP launch:
-chibipaint.jar: chibipaint.out.jar
-	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibipaint.out.jar -destjar chibipaint.jar -classpath "${JAVA_14_PATH}\lib\rt.jar;${JAVA_14_PATH}\lib\jce.jar;${JAVA_14_PATH}\lib\jsse.jar" 
+cpcombined.jar: cpcombined.out.jar
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar cpcombined.out.jar -destjar cpcombined.jar -classpath "${JAVA_14_PATH}\lib\rt.jar;${JAVA_14_PATH}\lib\jce.jar;${JAVA_14_PATH}\lib\jsse.jar" 
 
 splash.out.jar: bootstrap.jar bin/splash/*
 	jar -cf splash.in.jar -C bin/ splash/
@@ -28,12 +28,12 @@ chibi.out.jar: bootstrap.jar ${CHIBI_IMAGES} ${CHIBI_BIN}
 #	mv chibi.in.jar chibi.out.jar
 	java -jar proguard/lib/proguard.jar @ chibi.pro -verbose
 
-chibipaint.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
-	jar -cf chibipaint.in.jar -C bin/ chibipaint/
-	jar -uf chibipaint.in.jar -C bin/ images/
-	jar -uf chibipaint.in.jar -C bin/ splash/
-	jar -uf chibipaint.in.jar -C bin/ bootstrap/
-	jar -uf chibipaint.in.jar -C bin/ javax/
+cpcombined.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
+	jar -cf cpcombined.in.jar -C bin/ chibipaint/
+	jar -uf cpcombined.in.jar -C bin/ images/
+	jar -uf cpcombined.in.jar -C bin/ splash/
+	jar -uf cpcombined.in.jar -C bin/ bootstrap/
+	jar -uf cpcombined.in.jar -C bin/ javax/
 	java -jar proguard/lib/proguard.jar @ chibipaint.pro -verbose
 
 bootstrap.jar: bin/bootstrap/*
@@ -46,20 +46,20 @@ clean:
 	rm -f chibi.jar
 	rm -f chibi.in.jar
 	rm -f chibi.out.jar
-	rm -f chibipaint.jar
-	rm -f chibipaint.in.jar
-	rm -f chibipaint.out.jar
+	rm -f cpcombined.jar
+	rm -f cpcombined.in.jar
+	rm -f cpcombined.out.jar
 	rm -f chibi.jar.pack.gz
 	rm -f splash.jar.pack.gz
-	rm -f chibipaint.jar.pack.gz
+	rm -f cpcombined.jar.pack.gz
 
 %.jar.pack.gz : %.jar
 	pack200 -E9 $@ $<
 	
-install: chibi.jar chibi.jar.pack.gz splash.jar splash.jar.pack.gz chibipaint.jar chibipaint.jar.pack.gz
+install: chibi.jar chibi.jar.pack.gz splash.jar splash.jar.pack.gz cpcombined.jar cpcombined.jar.pack.gz
 	cp chibi.jar ../trunk/public_html/oekaki/chibi/
 	cp splash.jar ../trunk/public_html/oekaki/chibi/
-	cp chibipaint.jar ../trunk/public_html/oekaki/chibi/	
+	cp cpcombined.jar ../trunk/public_html/oekaki/chibi/	
 	cp chibi.jar.pack.gz ../trunk/public_html/oekaki/chibi/
 	cp splash.jar.pack.gz ../trunk/public_html/oekaki/chibi/
-	cp chibipaint.jar.pack.gz ../trunk/public_html/oekaki/chibi/	
+	cp cpcombined.jar.pack.gz ../trunk/public_html/oekaki/chibi/	

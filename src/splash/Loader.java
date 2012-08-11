@@ -58,7 +58,7 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 
 					layersUrl = new URL(getCodeBase(), chibiParam);
 
-					loader.queueResource(layersUrl, "Drawing layers");
+					loader.queueResource(layersUrl, "drawing layers");
 
 					loader.start();
 				} else {
@@ -68,7 +68,7 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 
 						flatUrl = new URL(getCodeBase(), flatParam);
 
-						loader.queueResource(flatUrl, "Drawing");
+						loader.queueResource(flatUrl, "drawing");
 
 						loader.start();
 					} else {
@@ -100,7 +100,7 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 					e.printStackTrace();
 					return;
 				}
-				loader.queueResource(swatchesUrl, "Swatches");
+				loader.queueResource(swatchesUrl, "swatches");
 				loader.start();
 			} else {
 				loadingDone();
@@ -116,10 +116,7 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 		}
 	}
 
-	private void startPainter() {
-		if (1==1)
-			return;
-		
+	private void startPainter() {	
 		loadingGUI.setMessage("Starting...");
 		loadingGUI.setProgress(1);
 		System.err.println("Starting...");

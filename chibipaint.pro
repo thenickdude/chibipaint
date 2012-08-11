@@ -1,5 +1,5 @@
--injars chibipaint.in.jar
--outjars chibipaint.out.jar
+-injars cpcombined.in.jar
+-outjars cpcombined.out.jar
 
 -libraryjars 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\rt.jar'
 
