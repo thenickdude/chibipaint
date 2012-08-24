@@ -1,7 +1,8 @@
--injars splash.in.jar; bootstrap.jar
+-injars splash.in.jar
+-injars bootstrap.jar
 -outjars splash.out.jar
 
--libraryjars 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\rt.jar'; 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\javaws.jar'
+-libraryjars /System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar
 
 -verbose
 

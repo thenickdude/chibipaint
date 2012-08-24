@@ -1,21 +1,21 @@
 CHIBI_IMAGES = gfx/images/icons.png gfx/images/smallicons.gif gfx/images/textures32.png
 CHIBI_BIN = bin/chibipaint/*
 
-JAVA_14_PATH = C:\Program Files (x86)\Java\j2re1.4.2_19
+JAVA_14_PATH = /System/Library/Frameworks/JavaVM.Framework/Versions/1.4
 
 all: splash.jar chibi.jar cpcombined.jar
 
 splash.jar: splash.out.jar
 #	mv splash.out.jar splash.jar
-	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar splash.out.jar -destjar splash.jar -classpath "${JAVA_14_PATH}\lib\rt.jar;${JAVA_14_PATH}\lib\jce.jar;${JAVA_14_PATH}\lib\jsse.jar;${JAVA_14_PATH}\javaws\javaws.jar;bootstrap.jar" 
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar splash.out.jar -destjar splash.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar" 
 
 chibi.jar: chibi.out.jar
 #	mv chibi.out.jar chibi.jar
-	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibi.out.jar -destjar chibi.jar -classpath "${JAVA_14_PATH}\lib\rt.jar;${JAVA_14_PATH}\lib\jce.jar;${JAVA_14_PATH}\lib\jsse.jar;${JAVA_14_PATH}\javaws\javaws.jar;bootstrap.jar" 
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibi.out.jar -destjar chibi.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar" 
 
 # Fallback applet JAR which doesn't use JNLP launch:
 cpcombined.jar: cpcombined.out.jar
-	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar cpcombined.out.jar -destjar cpcombined.jar -classpath "${JAVA_14_PATH}\lib\rt.jar;${JAVA_14_PATH}\lib\jce.jar;${JAVA_14_PATH}\lib\jsse.jar" 
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar cpcombined.out.jar -destjar cpcombined.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar" 
 
 splash.out.jar: bootstrap.jar bin/splash/*
 	jar -cf splash.in.jar -C bin/ splash/

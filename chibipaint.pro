@@ -1,7 +1,7 @@
 -injars cpcombined.in.jar
 -outjars cpcombined.out.jar
 
--libraryjars 'C:\Program Files (x86)\Java\jdk1.5.0_12\jre\lib\rt.jar'
+-libraryjars /System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar
 
 -verbose
 
