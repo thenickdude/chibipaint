@@ -65,11 +65,19 @@ class CPSlider extends JComponent implements MouseListener, MouseMotionListener 
 			}
 		} else {
 			g.fillRect(0, 0, value * d.width / valueRange, d.height);
+			
+			g.setColor(Color.WHITE);
+			g.drawString(title, 2, 14);
+	
+			Shape oldClip = g.getClip();
+			
+			g.setClip(value * d.width / valueRange, 0, d.width, d.height);
+					
+			g.setColor(Color.BLACK);
+			g.drawString(title, 2, 14);
+			
+			g.setClip(oldClip);
 		}
-
-		g.setColor(Color.white);
-		g.setXORMode(Color.black);
-		g.drawString(title, 2, 14);
 	}
 
 	public void onValueChange() {
