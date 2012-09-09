@@ -85,11 +85,18 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 		{
 			buttonPanel.setPreferredSize(new Dimension(19, 50));
 
-			btnSettings = new CPIconButton(icons, 16, 16, 2, 1);
-			{
-				btnSettings.addCPActionListener(this);
+			try {
+				ServiceManager.lookup("javax.jnlp.FileSaveService");
 
-				buttonPanel.add(btnSettings);
+				//Only show the load/save button if we have JNLP support enabled
+				btnSettings = new CPIconButton(icons, 16, 16, 2, 1);
+				{
+					btnSettings.addCPActionListener(this);
+
+					buttonPanel.add(btnSettings);
+				}
+
+			} catch (UnavailableServiceException e) {
 			}
 
 			btnAdd = new CPIconButton(icons, 16, 16, 0, 1);
@@ -291,6 +298,10 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 		swatchPanel.add(swatch);
 
 		swatch.revalidate();
+	}
+	
+	public boolean getResizable() {
+		return true;
 	}
 
 	public int[] getSwatches() {

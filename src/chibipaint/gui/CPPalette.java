@@ -44,4 +44,8 @@ public class CPPalette extends JComponent {
 	public ICPPaletteContainer getContainer() {
 		return container;
 	}
+
+	public boolean getResizable() {
+		return false;
+	}
 }

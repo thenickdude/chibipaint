@@ -74,10 +74,13 @@ public class CPPaletteManager implements ContainerListener {
 			super("", true, true, false, false); // resizable/closable frame
 			putClientProperty("JInternalFrame.isPalette", Boolean.TRUE);
 			addPalette(palette);
+			setIconifiable(false);
+			setMaximizable(false);
 			setVisible(true);
 		}
 
 		public void addPalette(CPPalette palette) {
+			setResizable(palette.getResizable()); 
 			getContentPane().add(palette);
 			setTitle(palette.title);
 			palette.setContainer(this);
@@ -297,14 +300,14 @@ public class CPPaletteManager implements ContainerListener {
 		palStroke.getContainer().setLocation(palMisc.getContainer().getX() + palMisc.getWidth() + 10, 0);
 
 		palTextures.getContainer().setLocation(palColor.getX() + palColor.getWidth() + 4,
-				windowHeight - palTextures.getHeight() - 15);
+				windowHeight - palTextures.getHeight() - 20);
 		palTextures.getContainer().setSize(Math.min(palLayers.getContainer().getX() - palTextures.getContainer().getX(), 480), palTextures.getContainer().getHeight());
 
 		palColor.getContainer()
 				.setLocation(
 						0,
 						Math.max(palTool.getContainer().getY() + palTool.getHeight() + 15,
-								windowHeight - palColor.getHeight()));
+								windowHeight - palColor.getHeight() - 20));
 	}
 
 }

@@ -180,6 +180,10 @@ public class CPLayersPalette extends CPPalette implements CPArtwork.ICPArtworkLi
 
 	public void updateRegion(CPArtwork artwork, CPRect region) {
 	}
+	
+	public boolean getResizable() {
+		return true;
+	}
 
 	public void layerChange(CPArtwork artwork) {
 		if (artwork.getActiveLayer().getAlpha() != alphaSlider.value) {

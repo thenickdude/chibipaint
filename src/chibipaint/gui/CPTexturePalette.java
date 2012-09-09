@@ -203,6 +203,10 @@ public class CPTexturePalette extends CPPalette {
 		return createImage(new MemoryImageSource(width, height, buffer, 0, width));
 	}
 
+	public boolean getResizable() {
+		return true;
+	}
+	
 	class CPTextureButton extends JButton {
 
 		private static final int width = 32;
