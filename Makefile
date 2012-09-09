@@ -9,11 +9,9 @@ test.jar: test.out.jar
 	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar test.out.jar -destjar test.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar" 
 
 splash.jar: splash.out.jar
-#	mv splash.out.jar splash.jar
 	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar splash.out.jar -destjar splash.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar" 
 
 chibi.jar: chibi.out.jar
-#	mv chibi.out.jar chibi.jar
 	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibi.out.jar -destjar chibi.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar" 
 
 # Fallback applet JAR which doesn't use JNLP launch:
@@ -26,13 +24,11 @@ test.out.jar: bin/test/*
 
 splash.out.jar: bootstrap.jar bin/splash/*
 	jar -cf splash.in.jar -C bin/ splash/
-#	mv splash.in.jar splash.out.jar
 	java -jar proguard/lib/proguard.jar @ splash.pro -verbose
 	
 chibi.out.jar: bootstrap.jar ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -cf chibi.in.jar -C bin/ chibipaint/
 	jar -uf chibi.in.jar -C bin/ images/
-#	mv chibi.in.jar chibi.out.jar
 	java -jar proguard/lib/proguard.jar @ chibi.pro -verbose
 
 cpcombined.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
