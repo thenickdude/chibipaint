@@ -30,6 +30,11 @@ import chibipaint.*;
 
 public class CPToolPalette extends CPPalette implements ActionListener {
 
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(85, 325);
+	}
+	
 	public CPToolPalette(CPController controller) {
 		super(controller);
 

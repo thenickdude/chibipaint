@@ -71,16 +71,13 @@ public class CPPaletteManager implements ContainerListener {
 		private List<CPPalette> list = new Vector<CPPalette>();
 
 		public CPPaletteFrame(CPPalette palette) {
-			super("", true, true, false, false); // resizable/closable frame
+			super("", palette.getResizable(), true, false, false); // resizable/closable frame
 			putClientProperty("JInternalFrame.isPalette", Boolean.TRUE);
 			addPalette(palette);
-			setIconifiable(false);
-			setMaximizable(false);
 			setVisible(true);
 		}
 
 		public void addPalette(CPPalette palette) {
-			setResizable(palette.getResizable()); 
 			getContentPane().add(palette);
 			setTitle(palette.title);
 			palette.setContainer(this);
@@ -114,8 +111,10 @@ public class CPPaletteManager implements ContainerListener {
 			CPPaletteFrame frame = new CPPaletteFrame(palColor);
 			paletteFrames.add(frame);
 
+			frame.getContentPane().setPreferredSize(new Dimension(166, 162));
+			
 			frame.pack();
-			frame.setSize(175, 175);
+
 			desktop.add(frame);
 		}
 
@@ -160,10 +159,8 @@ public class CPPaletteManager implements ContainerListener {
 		}
 
 		// Tool Palette
-
 		palTool = new CPToolPalette(controller);
 		{
-			palTool.setSize(new Dimension(90, 1));
 			palettes.put("tool", palTool);
 
 			CPPaletteFrame frame = new CPPaletteFrame(palTool);
@@ -209,8 +206,10 @@ public class CPPaletteManager implements ContainerListener {
 			CPPaletteFrame frame = new CPPaletteFrame(palTextures);
 			paletteFrames.add(frame);
 
+			frame.getContentPane().setPreferredSize(new Dimension(400, 105));
+			
 			frame.pack();
-			frame.setSize(400, 110);
+
 			desktop.add(frame);
 		}
 	}
@@ -282,9 +281,9 @@ public class CPPaletteManager implements ContainerListener {
 		int windowWidth = jdp.getWidth();
 		int windowHeight = jdp.getHeight();
 
-		palBrush.getContainer().setLocation(windowWidth - palBrush.getWidth() - 20, 0);
+		palBrush.getContainer().setLocation(windowWidth - palBrush.getContainer().getWidth() - 20, 0);
 
-		int bottomOfBrush = palBrush.getY() + palBrush.getHeight();
+		int bottomOfBrush = palBrush.getY() + palBrush.getContainer().getHeight();
 
 		palLayers.getContainer().setLocation(palBrush.getContainer().getX(),
 				windowHeight - bottomOfBrush > 300 ? bottomOfBrush + 15 : bottomOfBrush);
@@ -293,21 +292,21 @@ public class CPPaletteManager implements ContainerListener {
 
 		palTool.getContainer().setLocation(0, 0);
 
-		palSwatches.getContainer().setLocation(palBrush.getContainer().getX() - palSwatches.getWidth() - 10, 0);
+		palSwatches.getContainer().setLocation(palBrush.getContainer().getX() - palSwatches.getContainer().getWidth() - 10, 0);
 
-		palMisc.getContainer().setLocation(palTool.getX() + palTool.getWidth() + 10, 0);
+		palMisc.getContainer().setLocation(palTool.getX() + palTool.getContainer().getWidth() + 10, 0);
 
-		palStroke.getContainer().setLocation(palMisc.getContainer().getX() + palMisc.getWidth() + 10, 0);
+		palStroke.getContainer().setLocation(palMisc.getContainer().getX() + palMisc.getContainer().getWidth() + 10, 0);
 
-		palTextures.getContainer().setLocation(palColor.getX() + palColor.getWidth() + 4,
-				windowHeight - palTextures.getHeight() - 20);
 		palTextures.getContainer().setSize(Math.min(palLayers.getContainer().getX() - palTextures.getContainer().getX(), 480), palTextures.getContainer().getHeight());
+		palTextures.getContainer().setLocation(palColor.getX() + palColor.getContainer().getWidth() + 4,
+				windowHeight - palTextures.getContainer().getHeight());
 
 		palColor.getContainer()
 				.setLocation(
 						0,
-						Math.max(palTool.getContainer().getY() + palTool.getHeight() + 15,
-								windowHeight - palColor.getHeight() - 20));
+						Math.max(palTool.getContainer().getY() + palTool.getContainer().getHeight(),
+								windowHeight - palColor.getContainer().getHeight()));
 	}
 
 }
