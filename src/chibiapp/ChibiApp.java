@@ -23,11 +23,11 @@ package chibiapp;
 
 import java.awt.Dimension;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
 import chibipaint.CPController;
-import chibipaint.engine.*;
-import chibipaint.gui.*;
+import chibipaint.engine.CPArtwork;
+import chibipaint.gui.CPMainGUI;
 
 public class ChibiApp extends JFrame {
 
@@ -51,6 +51,7 @@ public class ChibiApp extends JFrame {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(900, 600);
+		setPreferredSize(new Dimension(900, 600));
 
 		pack();
 		setVisible(true);
