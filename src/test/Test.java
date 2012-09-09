@@ -68,6 +68,7 @@ public class Test extends JApplet {
 			cs = (ClipboardService) ServiceManager.lookup("javax.jnlp.ClipboardService");
 		} catch (UnavailableServiceException e) {
 			cs = null;
+			System.err.println("No clipboard available: " + renderThrowable(e));
 		}
 
 		if (cs != null) {
