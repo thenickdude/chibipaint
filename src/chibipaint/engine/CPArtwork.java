@@ -35,7 +35,7 @@ public class CPArtwork {
 	
 	public int width, height;
 
-	Vector<CPLayer> layers;
+	public Vector<CPLayer> layers;
 	CPLayer curLayer;
 	int activeLayer;
 
