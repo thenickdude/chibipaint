@@ -27,6 +27,7 @@ import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
+
 import chibipaint.*;
 import chibipaint.engine.*;
 
@@ -68,7 +69,11 @@ public class CPTexturePalette extends CPPalette {
 			texturesPanel.add(button);
 		}
 
-		add(texturesPanel.wrapInScrollPane(), BorderLayout.CENTER);
+		JScrollPane scrollPane = texturesPanel.wrapInScrollPane();
+
+		scrollPane.setBackground(texturesPanel.getBackground());
+		
+		add(scrollPane, BorderLayout.CENTER);
 	}
 
 	void makeProceduralTextures() {

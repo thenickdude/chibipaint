@@ -46,7 +46,21 @@ public class CPScrollableFlowPanel extends JPanel implements Scrollable {
 	
 	public JScrollPane wrapInScrollPane(boolean forceVert) {
 		return new JScrollPane(this, forceVert ? JScrollPane.VERTICAL_SCROLLBAR_ALWAYS : JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER) {
+			
+			/* Workaround for Java Bug that causes JScrollPane not to paint its background colour:
+			 * 
+			 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4119459
+			 */
+		      protected JViewport createViewport() {
+                  return new JViewport(){
+                      public void paint(Graphics g){                            
+                          super.setOpaque(true);
+                          super.paintChildren(g);
+                      }
+                  };
+              }
+		};
 	}
 	
 	public JScrollPane wrapInScrollPane() {
