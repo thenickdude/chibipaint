@@ -191,6 +191,7 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 				if (loader.queuePart("chibi.jar", "chibi", "drawing tools")) {
 					loader.start();
 				} else {
+					//Skip straight to the "done downloading JARs" step
 					loadingDone();
 				}
 			}

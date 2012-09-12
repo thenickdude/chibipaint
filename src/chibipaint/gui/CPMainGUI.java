@@ -71,7 +71,7 @@ public class CPMainGUI {
 		createCanvasGUI(jdp);		mainPanel.add(jdp, BorderLayout.CENTER);
 
 		JPanel statusBar = new CPStatusBar(controller);
-//		mainPanel.add(statusBar, BorderLayout.PAGE_END);
+		mainPanel.add(statusBar, BorderLayout.PAGE_END);
 
 		// jdp.addContainerListener(this);
 	}

@@ -38,6 +38,7 @@ public class CPToolPalette extends CPPalette implements ActionListener {
 	public CPToolPalette(CPController controller) {
 		super(controller);
 
+		setPreferredSize(new Dimension(85, 325));
 		ToolTipManager.sharedInstance().setInitialDelay(600);
 
 		title = "Tools";

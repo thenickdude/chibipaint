@@ -69,12 +69,13 @@ public class CPPaletteManager implements ContainerListener {
 		private static final long serialVersionUID = 1L;
 
 		private List<CPPalette> list = new Vector<CPPalette>();
-
+		
 		public CPPaletteFrame(CPPalette palette) {
 			super("", palette.getResizable(), true, false, false); // resizable/closable frame
 			putClientProperty("JInternalFrame.isPalette", Boolean.TRUE);
 			addPalette(palette);
 			setVisible(true);
+			setMinimumSize(null);
 		}
 
 		public void addPalette(CPPalette palette) {
@@ -164,8 +165,9 @@ public class CPPaletteManager implements ContainerListener {
 			palettes.put("tool", palTool);
 
 			CPPaletteFrame frame = new CPPaletteFrame(palTool);
+			
 			frame.pack();
-
+			
 			paletteFrames.add(frame);
 			desktop.add(frame);
 		}
@@ -281,17 +283,20 @@ public class CPPaletteManager implements ContainerListener {
 		int windowWidth = jdp.getWidth();
 		int windowHeight = jdp.getHeight();
 
-		palBrush.getContainer().setLocation(windowWidth - palBrush.getContainer().getWidth() - 20, 0);
+		palBrush.getContainer().setLocation(windowWidth - palBrush.getContainer().getWidth() - 15, 0);
 
 		int bottomOfBrush = palBrush.getY() + palBrush.getContainer().getHeight();
 
 		palLayers.getContainer().setLocation(palBrush.getContainer().getX(),
-				windowHeight - bottomOfBrush > 300 ? bottomOfBrush + 15 : bottomOfBrush);
+				windowHeight - bottomOfBrush > 300 ? bottomOfBrush + 5 : bottomOfBrush);
 
-		palLayers.getContainer().setSize(palLayers.getContainer().getWidth(), windowHeight - palLayers.getContainer().getY());
+		palLayers.getContainer().setSize(palBrush.getContainer().getWidth(), windowHeight - palLayers.getContainer().getY());
 
 		palTool.getContainer().setLocation(0, 0);
 
+		palTool.setSize(50,100);
+		System.out.println(palTool.getSize().width);
+		
 		palSwatches.getContainer().setLocation(palBrush.getContainer().getX() - palSwatches.getContainer().getWidth() - 10, 0);
 
 		palMisc.getContainer().setLocation(palTool.getX() + palTool.getContainer().getWidth() + 10, 0);
