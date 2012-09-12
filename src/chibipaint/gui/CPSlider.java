@@ -38,7 +38,7 @@ class CPSlider extends JComponent implements MouseListener, MouseMotionListener 
 	boolean centerMode = false;
 
 	public CPSlider(int valueRange) {
-		setBackground(Color.white);
+		setBackground(Color.WHITE);
 
 		this.valueRange = valueRange;
 		maxValue = valueRange;
@@ -53,31 +53,45 @@ class CPSlider extends JComponent implements MouseListener, MouseMotionListener 
 	public void paint(Graphics g) {
 		Dimension d = getSize();
 
-		g.setColor(Color.white);
+		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, d.width, d.height);
 
-		g.setColor(Color.black);
+		Shape oldClip = g.getClip();
+		
+		g.setColor(Color.BLACK);
 		if (centerMode) {
 			if (value >= valueRange /2) {
+				g.drawString(title, 2, 14);
+
 				g.fillRect(d.width / 2, 0, (value - valueRange/2) * d.width / valueRange, d.height);
+				
+				g.setColor(Color.WHITE);
+				
+				g.setClip(d.width / 2, 0, (value - valueRange/2) * d.width / valueRange, d.height);
+				g.drawString(title, 2, 14);
 			} else {
+				g.drawString(title, 2, 14);
+
 				g.fillRect(value * d.width / valueRange, 0, (valueRange/2 - value) * d.width / valueRange, d.height);
+
+				g.setColor(Color.WHITE);
+				
+				g.setClip(value * d.width / valueRange, 0, (valueRange/2 - value) * d.width / valueRange, d.height);
+				g.drawString(title, 2, 14);
 			}
 		} else {
 			g.fillRect(0, 0, value * d.width / valueRange, d.height);
 			
 			g.setColor(Color.WHITE);
 			g.drawString(title, 2, 14);
-	
-			Shape oldClip = g.getClip();
-			
+				
 			g.setClip(value * d.width / valueRange, 0, d.width, d.height);
 					
 			g.setColor(Color.BLACK);
 			g.drawString(title, 2, 14);
-			
-			g.setClip(oldClip);
 		}
+
+		g.setClip(oldClip);
 	}
 
 	public void onValueChange() {
