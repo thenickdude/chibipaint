@@ -172,6 +172,19 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 					"Your drawing could not be loaded, please try again later.\nThe error returned was:\n" + message);
 			break;
 		case JARS:
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					loadingGUI.setMessage("Error loading the drawing tools, please refresh to try again.\n(" + message + ")");
+				}
+			});
+			break;
+		case SWATCHES:
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					loadingGUI.setMessage("Your color swatches could not be loaded, please try again later.\nThe error returned was:\n" + message);
+				}
+			});
+			break;			
 		default:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {

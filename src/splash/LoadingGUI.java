@@ -209,15 +209,7 @@ public class LoadingGUI extends JComponent {
 			centerY += imgHeight / 2 + 2;
 		}
 
-		int messageWidth = 0;
-		int messageHeight = 0;
-
 		String message = getMessage();
-
-		if (message != null) {
-			messageWidth = g2d.getFontMetrics().stringWidth(message);
-			messageHeight = g2d.getFontMetrics().getHeight();
-		}
 
 		if (message != null) {
 			g2d.setColor(Color.black);
@@ -227,7 +219,15 @@ public class LoadingGUI extends JComponent {
 			}
 			
 			g2d.setFont(statusFont);
-			g2d.drawString(message, centerX - messageWidth / 2, centerY + messageHeight);
+			
+			int messageHeight = g2d.getFontMetrics().getHeight();
+
+			for (String line : message.split("\n")) {
+				int lineWidth = g2d.getFontMetrics().stringWidth(line);
+				
+				centerY += messageHeight;
+				g2d.drawString(line, centerX - lineWidth / 2, centerY);
+			}
 		}
 
 		g2d.dispose();

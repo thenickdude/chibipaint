@@ -23,7 +23,7 @@ public class ResourceLoaderJNLP implements DownloadServiceListener, IResourceLoa
 	private DownloadService downloadService;
 	private LoadingListener listener;
 
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	/* (non-Javadoc)
 	 * @see splash.IResourceLoader#queuePart(java.lang.String, java.lang.String, java.lang.String)
@@ -158,19 +158,13 @@ public class ResourceLoaderJNLP implements DownloadServiceListener, IResourceLoa
 	}
 
 	public void validating(java.net.URL url, java.lang.String version, long entry, long total, int overallPercent) {
-
 		if (url == null) {
 			listener.loadingProgress("Verifying...", null);
 			return;
 		}
 
-		String fn = getURLFilename(url);
-
-		if (overallPercent == -1)
-			listener.loadingProgress("Verifying " + friendlyNames.get(fn) + "...", null);
-		else
-			listener.loadingProgress("Verifying " + friendlyNames.get(fn) + " (" + overallPercent + "%)...",
-					new Double((double) overallPercent / 100));
+		listener.loadingProgress("Loading " + friendlyNames.get(getURLFilename(url)) + " (100%)...",
+				new Double(100));
 	}
 
 	public Resource removeResource(URL url) {

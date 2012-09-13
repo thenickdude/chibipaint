@@ -13,7 +13,7 @@ public class ResourceLoaderOld implements IResourceLoader {
 
 	private LoadingListener listener;
 
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 
 	public void queueResource(URL url, String friendlyName) {
 		resources.put(url, new Resource(url, friendlyName));
