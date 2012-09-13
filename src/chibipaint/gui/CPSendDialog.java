@@ -15,6 +15,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
@@ -205,8 +207,16 @@ public class CPSendDialog extends JDialog implements ActionListener {
 					connection.setRequestProperty("Content-Length", Integer.toString(data.length));
 					connection.setRequestProperty("User-Agent", "ChibiPaint Oekaki (" + System.getProperty("os.name")
 							+ "; " + System.getProperty("os.version") + ")");
+					
+					try {
+						//This method only available from JVM 1.5, so check if it is available so we can skip it on 1.4:
+						Method setFixedLengthStreamingMode = HttpURLConnection.class.getMethod("setFixedLengthStreamingMode", int.class);
+						setFixedLengthStreamingMode.invoke(connection, data.length);
+					} catch (Throwable e) {
+						e.printStackTrace();
+					}
 
-					DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(connection.getOutputStream()));
+					OutputStream outputStream = connection.getOutputStream();
 					try {
 						/*
 						 * Now the upload of the request body begins.
@@ -223,8 +233,8 @@ public class CPSendDialog extends JDialog implements ActionListener {
 							/* Last chunk can be smaller than the others */
 							int this_chunk = Math.min(data.length - chunk_pos, CHUNK_SIZE);
 
-							dos.write(data, chunk_pos, this_chunk);
-							dos.flush();
+							outputStream.write(data, chunk_pos, this_chunk);
+							outputStream.flush();
 
 							final int progress_pos = chunk_pos + this_chunk;
 
@@ -238,7 +248,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 
 						}
 					} finally {
-						dos.close();
+						outputStream.close();
 					}
 
 					if (cancel) {
