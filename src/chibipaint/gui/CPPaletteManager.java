@@ -111,8 +111,6 @@ public class CPPaletteManager implements ContainerListener {
 
 			CPPaletteFrame frame = new CPPaletteFrame(palColor);
 			paletteFrames.add(frame);
-
-			frame.getContentPane().setPreferredSize(new Dimension(166, 162));
 			
 			frame.pack();
 
@@ -207,8 +205,6 @@ public class CPPaletteManager implements ContainerListener {
 
 			CPPaletteFrame frame = new CPPaletteFrame(palTextures);
 			paletteFrames.add(frame);
-
-			frame.getContentPane().setPreferredSize(new Dimension(400, 105));
 			
 			frame.pack();
 
@@ -282,6 +278,8 @@ public class CPPaletteManager implements ContainerListener {
 	public void arrangePalettes() {
 		int windowWidth = jdp.getWidth();
 		int windowHeight = jdp.getHeight();
+		
+		boolean widthToSpare = windowWidth - palTool.getSize().width - palMisc.getWidth() - palStroke.getWidth() - palColor.getWidth() - palBrush.getWidth() - 15 > 0;
 
 		palBrush.getContainer().setLocation(windowWidth - palBrush.getContainer().getWidth() - 15, 0);
 
@@ -293,15 +291,14 @@ public class CPPaletteManager implements ContainerListener {
 		palLayers.getContainer().setSize(palBrush.getContainer().getWidth(), windowHeight - palLayers.getContainer().getY());
 
 		palTool.getContainer().setLocation(0, 0);
-
-		palTool.setSize(50,100);
-		System.out.println(palTool.getSize().width);
 		
-		palSwatches.getContainer().setLocation(palBrush.getContainer().getX() - palSwatches.getContainer().getWidth() - 10, 0);
-
-		palMisc.getContainer().setLocation(palTool.getX() + palTool.getContainer().getWidth() + 10, 0);
-
-		palStroke.getContainer().setLocation(palMisc.getContainer().getX() + palMisc.getContainer().getWidth() + 10, 0);
+		palMisc.getContainer().setLocation(palTool.getX() + palTool.getContainer().getWidth() + (widthToSpare ? 5 : 1), 0);
+		if (widthToSpare) {
+			palStroke.getContainer().setLocation(palMisc.getContainer().getX() + palMisc.getContainer().getWidth() + (widthToSpare ? 5 : 1), 0);
+		} else {
+			palStroke.getContainer().setLocation(palMisc.getContainer().getX(), palMisc.getContainer().getY() + palMisc.getContainer().getHeight() + 1);
+		}
+		palSwatches.getContainer().setLocation(palBrush.getContainer().getX() - palSwatches.getContainer().getWidth() - (widthToSpare ? 5 : 1), 0);
 
 		palTextures.getContainer().setSize(Math.min(palLayers.getContainer().getX() - palTextures.getContainer().getX(), 480), palTextures.getContainer().getHeight());
 		palTextures.getContainer().setLocation(palColor.getX() + palColor.getContainer().getWidth() + 4,

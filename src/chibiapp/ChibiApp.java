@@ -51,12 +51,16 @@ public class ChibiApp extends JFrame {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(900, 600);
-		setPreferredSize(new Dimension(900, 600));
 
 		pack();
 		setVisible(true);
 
 		mainGUI.arrangePalettes();
+	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(900, 600);
 	}
 
 	public static void main(String[] args) {

@@ -36,39 +36,39 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 public final class BlendComposite implements Composite {
-    public enum BlendingMode {
-        NORMAL,
-        AVERAGE,
-        MULTIPLY,
-        SCREEN,
-        DARKEN,
-        LIGHTEN,
-        OVERLAY,
-        HARD_LIGHT,
-        SOFT_LIGHT,
-        DIFFERENCE,
-        NEGATION,
-        EXCLUSION,
-        COLOR_DODGE,
-        INVERSE_COLOR_DODGE,
-        SOFT_DODGE,
-        COLOR_BURN,
-        INVERSE_COLOR_BURN,
-        SOFT_BURN,
-        REFLECT,
-        GLOW,
-        FREEZE,
-        HEAT,
-        ADD,
-        SUBTRACT,
-        STAMP,
-        RED,
-        GREEN,
-        BLUE,
-        HUE,
-        SATURATION,
-        COLOR,
-        LUMINOSITY
+    public interface BlendingMode {
+        int NORMAL = 0;
+        int AVERAGE = 1;
+        int MULTIPLY = 2;
+        int SCREEN = 3;
+        int DARKEN = 4;
+        int LIGHTEN = 5;
+        int OVERLAY = 6;
+        int HARD_LIGHT = 7;
+        int SOFT_LIGHT = 8;
+        int DIFFERENCE = 9;
+        int NEGATION = 10;
+        int EXCLUSION = 11;
+        int COLOR_DODGE = 12;
+        int INVERSE_COLOR_DODGE = 13;
+        int SOFT_DODGE = 14;
+        int COLOR_BURN = 15;
+        int INVERSE_COLOR_BURN = 16;
+        int SOFT_BURN = 17;
+        int REFLECT = 18;
+        int GLOW = 19;
+        int FREEZE = 20;
+        int HEAT = 21;
+        int ADD = 22;
+        int SUBTRACT = 23;
+        int STAMP = 24;
+        int RED = 25;
+        int GREEN = 26;
+        int BLUE = 27;
+        int HUE = 28;
+        int SATURATION = 29;
+        int COLOR = 30;
+        int LUMINOSITY = 31;
     }
 
     public static final BlendComposite Normal = new BlendComposite(BlendingMode.NORMAL);
@@ -105,26 +105,26 @@ public final class BlendComposite implements Composite {
     public static final BlendComposite Luminosity = new BlendComposite(BlendingMode.LUMINOSITY);
 
     private float alpha;
-    private BlendingMode mode;
+    private int mode;
 
-    private BlendComposite(BlendingMode mode) {
+    private BlendComposite(int mode) {
         this(mode, 1.0f);
     }
 
-    private BlendComposite(BlendingMode mode, float alpha) {
+    private BlendComposite(int mode, float alpha) {
         this.mode = mode;
         setAlpha(alpha);
     }
 
-    public static BlendComposite getInstance(BlendingMode mode) {
+    public static BlendComposite getInstance(int mode) {
         return new BlendComposite(mode);
     }
 
-    public static BlendComposite getInstance(BlendingMode mode, float alpha) {
+    public static BlendComposite getInstance(int mode, float alpha) {
         return new BlendComposite(mode, alpha);
     }
 
-    public BlendComposite derive(BlendingMode mode) {
+    public BlendComposite derive(int mode) {
         return this.mode == mode ? this : new BlendComposite(mode, getAlpha());
     }
 
@@ -136,7 +136,7 @@ public final class BlendComposite implements Composite {
         return alpha;
     }
 
-    public BlendingMode getMode() {
+    public int getMode() {
         return mode;
     }
 
@@ -151,7 +151,7 @@ public final class BlendComposite implements Composite {
 
     @Override
     public int hashCode() {
-        return Float.floatToIntBits(alpha) * 31 + mode.ordinal();
+        return Float.floatToIntBits(alpha) * 31 + mode;
     }
 
     @Override
@@ -348,14 +348,14 @@ public final class BlendComposite implements Composite {
 
         public static Blender getBlenderFor(BlendComposite composite) {
             switch (composite.getMode()) {
-                case NORMAL:
+                case BlendingMode.NORMAL:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
                             return src;
                         }
                     };
-                case ADD:
+                case BlendingMode.ADD:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -367,7 +367,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case AVERAGE:
+                case BlendingMode.AVERAGE:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -379,7 +379,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case BLUE:
+                case BlendingMode.BLUE:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -391,7 +391,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case COLOR:
+                case BlendingMode.COLOR:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -407,7 +407,7 @@ public final class BlendComposite implements Composite {
                             return result;
                         }
                     };
-                case COLOR_BURN:
+                case BlendingMode.COLOR_BURN:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -422,7 +422,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case COLOR_DODGE:
+                case BlendingMode.COLOR_DODGE:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -437,7 +437,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case DARKEN:
+                case BlendingMode.DARKEN:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -449,7 +449,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case DIFFERENCE:
+                case BlendingMode.DIFFERENCE:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -461,7 +461,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case EXCLUSION:
+                case BlendingMode.EXCLUSION:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -473,7 +473,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case FREEZE:
+                case BlendingMode.FREEZE:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -485,7 +485,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case GLOW:
+                case BlendingMode.GLOW:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -497,7 +497,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case GREEN:
+                case BlendingMode.GREEN:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -509,7 +509,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case HARD_LIGHT:
+                case BlendingMode.HARD_LIGHT:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -524,7 +524,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case HEAT:
+                case BlendingMode.HEAT:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -536,7 +536,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case HUE:
+                case BlendingMode.HUE:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -552,7 +552,7 @@ public final class BlendComposite implements Composite {
                             return result;
                         }
                     };
-                case INVERSE_COLOR_BURN:
+                case BlendingMode.INVERSE_COLOR_BURN:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -567,7 +567,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case INVERSE_COLOR_DODGE:
+                case BlendingMode.INVERSE_COLOR_DODGE:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -582,7 +582,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case LIGHTEN:
+                case BlendingMode.LIGHTEN:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -594,7 +594,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case LUMINOSITY:
+                case BlendingMode.LUMINOSITY:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -610,7 +610,7 @@ public final class BlendComposite implements Composite {
                             return result;
                         }
                     };
-                case MULTIPLY:
+                case BlendingMode.MULTIPLY:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -622,7 +622,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case NEGATION:
+                case BlendingMode.NEGATION:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -634,7 +634,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case OVERLAY:
+                case BlendingMode.OVERLAY:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -649,7 +649,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case RED:
+                case BlendingMode.RED:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -661,7 +661,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case REFLECT:
+                case BlendingMode.REFLECT:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -673,7 +673,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case SATURATION:
+                case BlendingMode.SATURATION:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -689,7 +689,7 @@ public final class BlendComposite implements Composite {
                             return result;
                         }
                     };
-                case SCREEN:
+                case BlendingMode.SCREEN:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -701,7 +701,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case SOFT_BURN:
+                case BlendingMode.SOFT_BURN:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -722,7 +722,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case SOFT_DODGE:
+                case BlendingMode.SOFT_DODGE:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -743,9 +743,9 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case SOFT_LIGHT:
+                case BlendingMode.SOFT_LIGHT:
                     break;
-                case STAMP:
+                case BlendingMode.STAMP:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -757,7 +757,7 @@ public final class BlendComposite implements Composite {
                             };
                         }
                     };
-                case SUBTRACT:
+                case BlendingMode.SUBTRACT:
                     return new Blender() {
                         @Override
                         public int[] blend(int[] src, int[] dst) {
@@ -771,7 +771,7 @@ public final class BlendComposite implements Composite {
                     };
             }
             throw new IllegalArgumentException("Blender not implement for " +
-                                               composite.getMode().name());
+                                               composite.getMode());
         }
     }
 }

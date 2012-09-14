@@ -5,31 +5,39 @@ JAVA_14_PATH = /System/Library/Frameworks/JavaVM.Framework/Versions/1.4
 
 all: splash.jar chibi.jar cpcombined.jar test.jar
 
+# Retrotranslate the result of Proguard so we can support 1.4.2:
 test.jar: test.out.jar
+#	mv test.out.jar test.jar
 	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar test.out.jar -destjar test.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar" 
 
 splash.jar: splash.out.jar
-	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar splash.out.jar -destjar splash.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar" 
+#	mv splash.out.jar splash.jar
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar splash.out.jar -destjar splash.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar"
 
 chibi.jar: chibi.out.jar
-	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibi.out.jar -destjar chibi.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar" 
+#	mv chibi.out.jar chibi.jar
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibi.out.jar -destjar chibi.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar"
 
 # Fallback applet JAR which doesn't use JNLP launch:
 cpcombined.jar: cpcombined.out.jar
+#	mv cpcombined.out.jar cpcombined.jar
 	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar cpcombined.out.jar -destjar cpcombined.jar -classpath "${JAVA_14_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar" 
 
+# Create JARs and apply proguard to optimize and save space: 
 test.out.jar: bin/test/*
 	jar -cf test.in.jar -C bin/ test/
 	java -jar proguard/lib/proguard.jar @ test.pro -verbose
 
 splash.out.jar: bootstrap.jar bin/splash/*
 	jar -cf splash.in.jar -C bin/ splash/
-	java -jar proguard/lib/proguard.jar @ splash.pro -verbose
+	mv splash.in.jar splash.out.jar
+	#java -jar proguard/lib/proguard.jar @ splash.pro -verbose
 	
 chibi.out.jar: bootstrap.jar ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -cf chibi.in.jar -C bin/ chibipaint/
 	jar -uf chibi.in.jar -C bin/ images/
-	java -jar proguard/lib/proguard.jar @ chibi.pro -verbose
+	mv chibi.in.jar chibi.out.jar
+	#java -jar proguard/lib/proguard.jar @ chibi.pro -verbose
 
 cpcombined.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -cf cpcombined.in.jar -C bin/ chibipaint/
@@ -37,7 +45,8 @@ cpcombined.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -uf cpcombined.in.jar -C bin/ splash/
 	jar -uf cpcombined.in.jar -C bin/ bootstrap/
 	jar -uf cpcombined.in.jar -C bin/ javax/
-	java -jar proguard/lib/proguard.jar @ chibipaint.pro -verbose
+	mv cpcombined.in.jar cpcombined.out.jar
+	#java -jar proguard/lib/proguard.jar @ chibipaint.pro -verbose
 
 bootstrap.jar: bin/bootstrap/*
 	jar -cf bootstrap.jar -C bin/ bootstrap/

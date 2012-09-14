@@ -53,7 +53,6 @@ public class CPColorPalette extends CPPalette implements
 		add(colorSlider);
 
 		colorShow = new CPColorShow(controller);
-		colorShow.setPreferredSize(new Dimension(160, 20));
 		add(colorShow);
 
 		controller.addColorListener(this);
@@ -63,6 +62,11 @@ public class CPColorPalette extends CPPalette implements
 		curColor.copyFrom(color);
 
 		colorSlider.setHue(curColor.getHue());
+	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(166, 162);
 	}
 }
 
@@ -293,6 +297,11 @@ class CPColorShow extends JComponent implements MouseListener, ICPColorListener 
 		addMouseListener(this);
 
 		controller.addColorListener(this);
+	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(160, 20);
 	}
 
 	public void update(Graphics g) {

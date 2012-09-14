@@ -75,6 +75,11 @@ public class CPTexturePalette extends CPPalette {
 		
 		add(scrollPane, BorderLayout.CENTER);
 	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(400, 105);
+	}
 
 	void makeProceduralTextures() {
 		CPGreyBmp texture = new CPGreyBmp(2, 2);
@@ -325,6 +330,7 @@ public class CPTexturePalette extends CPPalette {
 			slBrightness.centerMode = true;
 			slBrightness.setPreferredSize(new Dimension(100, 16));
 			slBrightness.setValue(100);
+			slBrightness.setFont(cbMirror.getFont());
 
 			Box b = Box.createHorizontalBox();
 			b.add(slBrightness);
@@ -341,6 +347,7 @@ public class CPTexturePalette extends CPPalette {
 			slContrast.centerMode = true;
 			slContrast.setPreferredSize(new Dimension(20, 16));
 			slContrast.setValue(100);
+			slContrast.setFont(cbMirror.getFont());
 
 			b = Box.createHorizontalBox();
 			b.add(slContrast);

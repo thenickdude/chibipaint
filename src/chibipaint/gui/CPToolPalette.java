@@ -32,7 +32,7 @@ public class CPToolPalette extends CPPalette implements ActionListener {
 
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(85, 325);
+		return new Dimension(85, 320);
 	}
 	
 	public CPToolPalette(CPController controller) {
