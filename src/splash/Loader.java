@@ -1,7 +1,14 @@
 package splash;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -21,10 +28,14 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 
 	private URL layersUrl, flatUrl, swatchesUrl;
 
+	private static final String TEST_LAYERS = "Test layers";
+	private static final String TEST_FLAT_IMAGE = "Test flat image";
+	
 	private static final int JARS = 0;
 	private static final int LAYERS_FILE = 1;
 	private static final int FLAT_FILE = 2;
 	private static final int SWATCHES = 3;
+	private static final int UPLOAD_TEST = 4;
 
 	private int loadStage;
 
@@ -44,6 +55,90 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 					loadingGUI.setProgress(loaded);
 			}
 		});
+	}
+	
+	private void doUploadTest(URL testURL) {
+		try {
+			/* Render our request into a buffer */
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			DataOutputStream bos = new DataOutputStream(buffer);
+
+			final String boundary = "---------------------------309542943615284";
+
+			bos.writeBytes("--" + boundary + "\r\n");
+			bos.writeBytes("Content-Disposition: form-data; name=\"picture\"; filename=\"chibipaint.png\"\r\n");
+			bos.writeBytes("Content-Type: image/png\r\n\r\n");
+			bos.writeBytes(TEST_FLAT_IMAGE);
+			bos.writeBytes("\r\n");
+
+			bos.writeBytes("--" + boundary + "\r\n");
+			bos.writeBytes("Content-Disposition: form-data; name=\"chibifile\"; filename=\"chibipaint.chi\"\r\n");
+			bos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
+			bos.writeBytes(TEST_LAYERS);
+			bos.writeBytes("\r\n");
+
+			bos.writeBytes("--" + boundary + "--\r\n");
+
+			bos.flush();
+
+			final byte[] data = buffer.toByteArray();
+			buffer = null;
+
+			HttpURLConnection connection = (HttpURLConnection) testURL.openConnection();
+
+			connection.setDoOutput(true);
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Type", "multipart/form-data, boundary=" + boundary);
+			connection.setRequestProperty("Content-Length", Integer.toString(data.length));
+			connection.setRequestProperty("User-Agent", "ChibiPaint Oekaki (" + System.getProperty("os.name") + "; "
+					+ System.getProperty("os.version") + ")");
+
+			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(connection.getOutputStream()));
+			try {
+				/*
+				 * Now the upload of the request body begins.
+				 * 
+				 * Write the data in chunks so we can give a progress bar
+				 */
+				final int CHUNK_SIZE = 8 * 1024;
+
+				for (int chunk_pos = 0; chunk_pos < data.length; chunk_pos += CHUNK_SIZE) {
+					/* Last chunk can be smaller than the others */
+					int this_chunk = Math.min(data.length - chunk_pos, CHUNK_SIZE);
+
+					dos.write(data, chunk_pos, this_chunk);
+					dos.flush();
+				}
+			} finally {
+				dos.close();
+			}
+
+			/*
+			 * Read the answer from the server and verifies it's OK
+			 */
+			BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+			try {
+				String line;
+				String response = "";
+				while ((line = rd.readLine()) != null && line.length() > 0) {
+					response += line + "\n";
+				}
+
+				if (!response.startsWith("CHIBIOK")) {
+					throw new RuntimeException("Server replied: " + response);
+				}
+			} finally {
+				rd.close();
+			}
+			
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					loadingDone();
+				}
+			});
+		} catch (Throwable e) {
+			loadingFail("Failed to connect to the Chicken Smooothie server!\nThe message was:\n" + e.getMessage());
+		}
 	}
 
 	public void loadingDone() {
@@ -75,12 +170,10 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 						// Nothing to load
 						loadStage = FLAT_FILE;
 						loadingDone();
-						return;
 					}
 				}
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
-				return;
 			}
 			break;
 
@@ -108,11 +201,28 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 
 			break;
 		case SWATCHES:
+			loadStage = UPLOAD_TEST;
+
+			loadingProgress("Checking your connection to Chicken Smoothie...", new Double(100.0));
+			
+			final String testParam = getParameter("testUrl");
+				new Thread(new Runnable() {
+					public void run() {
+						try {
+							doUploadTest(new URL(getCodeBase(), testParam));
+						} catch (MalformedURLException e) {
+							e.printStackTrace();
+						}
+					}
+				}).start();
+			break;
+		case UPLOAD_TEST:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					startPainter();
 				}
 			});
+			break;
 		}
 	}
 
