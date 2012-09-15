@@ -24,6 +24,7 @@ public class LoadingGUI extends JComponent {
 	private String message = null;
 
 	private volatile boolean imagesReady = false;
+	private volatile boolean showImages = true;
 	
 	private Image cup, lid, lines, text;
 	private BufferedImage shading, highlights, smoothie;
@@ -42,6 +43,11 @@ public class LoadingGUI extends JComponent {
 	 */
 	public void setMessage(String message) {
 		this.message = message;
+		repaint();
+	}
+	
+	public void setShowImages(boolean showImages) {
+		this.showImages = showImages;
 		repaint();
 	}
 
@@ -171,7 +177,7 @@ public class LoadingGUI extends JComponent {
 		centerX = getWidth() / 2;
 		centerY = getHeight() / 2 - 40;
 
-		if (imagesReady) {
+		if (imagesReady && showImages) {
 			int imgWidth = text.getWidth(null);
 			int imgHeight = text.getHeight(null);
 			

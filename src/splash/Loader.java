@@ -34,11 +34,12 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 	private static final String TEST_LAYERS = "Test layers";
 	private static final String TEST_FLAT_IMAGE = "Test flat image";
 	
-	private static final int JARS = 0;
-	private static final int LAYERS_FILE = 1;
-	private static final int FLAT_FILE = 2;
-	private static final int SWATCHES = 3;
-	private static final int UPLOAD_TEST = 4;
+	private static final int INIT = 0;
+	private static final int JARS = 1;
+	private static final int LAYERS_FILE = 2;
+	private static final int FLAT_FILE = 3;
+	private static final int SWATCHES = 4;
+	private static final int UPLOAD_TEST = 5;
 
 	private int loadStage;
 
@@ -296,6 +297,14 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 			JOptionPane.showMessageDialog(getContentPane(),
 					"Your drawing could not be loaded, please try again later.\nThe error returned was:\n" + message);
 			break;
+		case INIT:
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					loadingGUI.setMessage(message);
+					loadingGUI.setShowImages(false);
+				}
+			});
+			break;
 		case JARS:
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
@@ -324,15 +333,22 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				loadStage = JARS;
+				loadStage = INIT;
 
 				setContentPane(loadingGUI);
 
-				if (loader.queuePart("chibi.jar", "chibi", "drawing tools")) {
-					loader.start();
+				String javaVersion = System.getProperty("java.version");
+				
+				if (javaVersion.startsWith("1.4.")) {
+					loadingFail("Your version of Java is too old (you need at least 1.5)\nPlease visit www.java.com to upgrade!");
 				} else {
-					//Skip straight to the "done downloading JARs" step
-					loadingDone();
+					loadStage = JARS;
+					if (loader.queuePart("chibi.jar", "chibi", "drawing tools")) {
+						loader.start();
+					} else {
+						//Skip straight to the "done downloading JARs" step
+						loadingDone();
+					}
 				}
 			}
 		});
