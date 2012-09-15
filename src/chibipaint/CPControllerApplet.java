@@ -126,11 +126,13 @@ public class CPControllerApplet extends CPController {
 				
 				/* As editing this drawing later will use the layers, we don't need a high-quality
 				 * flat version. Save it as a JPEG.
+				 * 
+				 * WRONG! We need a PNG because people want to use the flat image transparency!!!
 				 */
-				flatData = getImageAsJPG(canvas.img);
+			//	flatData = getImageAsJPG(canvas.img);
 				
 				//If we're unable to encode jpegs, fall back
-				if (flatData == null)
+			//	if (flatData == null)
 					flatData = getImageAsPNG(canvas.img);
 			}
 				
@@ -148,7 +150,7 @@ public class CPControllerApplet extends CPController {
 				swatchData = null;
 			}
 
-			CPSendDialog sendDialog = new CPSendDialog(chibipaint.mainGUI.getGUI(), this, new URL(applet.getCodeBase(),
+			CPSendDialog sendDialog = new CPSendDialog( chibipaint.mainGUI.getGUI(), this, new URL(applet.getCodeBase(),
 					postUrl), flatData, layersData, swatchData, exitUrl == null || exitUrl.length() == 0);
 
 			sendDialog.sendImage();

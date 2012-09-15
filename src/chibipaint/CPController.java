@@ -21,21 +21,34 @@
 
 package chibipaint;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
-import javax.imageio.*;
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
-import javax.imageio.stream.ImageOutputStream;
-import javax.swing.*;
+import javax.imageio.ImageIO;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 
-import chibipaint.engine.*;
-import chibipaint.gui.*;
-import chibipaint.util.*;
+import chibipaint.engine.CPArtwork;
+import chibipaint.engine.CPBrushInfo;
+import chibipaint.gui.CPCanvas;
+import chibipaint.gui.CPMainGUI;
+import chibipaint.util.CPColor;
+import chibipaint.util.CPRect;
 
 public abstract class CPController implements ActionListener {
 
@@ -544,7 +557,7 @@ public abstract class CPController implements ActionListener {
 	 * @return The JPEG file, or null if the image could not be saved.
 	 * @throws IOException
 	 */
-	byte[] getImageAsJPG(Image img) throws IOException {
+	/*byte[] getImageAsJPG(Image img) throws IOException {
 		BufferedImage bi = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
 		Graphics bg = bi.getGraphics();
 		bg.drawImage(img, 0, 0, null);
@@ -575,7 +588,7 @@ public abstract class CPController implements ActionListener {
         imageStream.close();
         
 		return writeBuffer.toByteArray();
-	}
+	}*/
 	
 	public Image loadImage(String imageName) {
 		Image img = imageCache.get(imageName);
