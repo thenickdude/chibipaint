@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -18,7 +17,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
-import java.net.Socket;
 import java.net.URL;
 
 import javax.swing.BorderFactory;
@@ -189,32 +187,39 @@ public class CPSendDialog extends JDialog implements ActionListener {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					SwingUtilities.invokeAndWait(new Runnable() {
-						public void run() {
-							progress.setMinimum(0);
-							progress.setMaximum(data.length);
-							progress.setValue(0);
-							progress.setIndeterminate(false);
-							lblStatus.setText("Saving drawing...");
-						}
-					});
-
 					HttpURLConnection connection = (HttpURLConnection) postUrl.openConnection();
-
+					connection.setDoInput(true);
 					connection.setDoOutput(true);
+					connection.setUseCaches(false);
 					connection.setRequestMethod("POST");
+					connection.setRequestProperty("Connection", "close");
 					connection.setRequestProperty("Content-Type", "multipart/form-data, boundary=" + boundary);
 					connection.setRequestProperty("Content-Length", Integer.toString(data.length));
 					connection.setRequestProperty("User-Agent", "ChibiPaint Oekaki (" + System.getProperty("os.name")
 							+ "; " + System.getProperty("os.version") + ")");
 					
+					boolean haveProgress = false;
+					
 					try {
 						//This method only available from JVM 1.5, so check if it is available so we can skip it on 1.4:
 						Method setFixedLengthStreamingMode = HttpURLConnection.class.getMethod("setFixedLengthStreamingMode", int.class);
 						setFixedLengthStreamingMode.invoke(connection, data.length);
+						haveProgress = true;
 					} catch (Throwable e) {
 						e.printStackTrace();
 					}
+					
+					final boolean finalHaveProgress = haveProgress;
+					
+					SwingUtilities.invokeAndWait(new Runnable() {
+						public void run() {
+							progress.setMinimum(0);
+							progress.setMaximum(data.length);
+							progress.setValue(0);
+							progress.setIndeterminate(!finalHaveProgress);
+							lblStatus.setText("Saving drawing, please wait...");
+						}
+					});
 
 					OutputStream outputStream = connection.getOutputStream();
 					try {
@@ -224,7 +229,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 						 * Write the data in chunks so we can give a progress
 						 * bar
 						 */
-						final int CHUNK_SIZE = 8 * 1024;
+						final int CHUNK_SIZE = haveProgress ? 8 * 1024 : 64 * 1024;
 
 						for (int chunk_pos = 0; chunk_pos < data.length; chunk_pos += CHUNK_SIZE) {
 							if (cancel)
@@ -234,20 +239,22 @@ public class CPSendDialog extends JDialog implements ActionListener {
 							int this_chunk = Math.min(data.length - chunk_pos, CHUNK_SIZE);
 
 							outputStream.write(data, chunk_pos, this_chunk);
-							outputStream.flush();
 
-							final int progress_pos = chunk_pos + this_chunk;
+							if (haveProgress) {
+								final int progress_pos = chunk_pos + this_chunk;
+								outputStream.flush();
 
-							SwingUtilities.invokeLater(new Runnable() {
-								public void run() {
-									lblStatus.setText("Saving drawing... (" + (progress_pos / 1024) + "kB/"
-											+ (data.length / 1024) + "kB done)");
-									progress.setValue(progress_pos);
-								}
-							});
-
+								SwingUtilities.invokeLater(new Runnable() {
+									public void run() {
+										lblStatus.setText("Saving drawing... (" + (progress_pos / 1024) + "kB/"
+												+ (data.length / 1024) + "kB done)");
+										progress.setValue(progress_pos);
+									}
+								});
+							}
 						}
 					} finally {
+						outputStream.flush();
 						outputStream.close();
 					}
 
@@ -263,6 +270,9 @@ public class CPSendDialog extends JDialog implements ActionListener {
 						return;
 					}
 
+					
+					System.out.println("Reading response from server...");
+					
 					/*
 					 * Read the answer from the server and verifies it's OK
 					 */
@@ -271,7 +281,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 					try {
 						String line;
 						String response = "";
-						while ((line = rd.readLine()) != null && line.length() > 0) {
+						while ((line = rd.readLine()) != null) {
 							response += line + "\n";
 						}
 

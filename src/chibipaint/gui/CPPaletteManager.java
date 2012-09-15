@@ -21,13 +21,17 @@
 
 package chibipaint.gui;
 
-import java.awt.Dimension;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
-import javax.swing.*;
+import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
 
-import chibipaint.*;
+import chibipaint.CPController;
 
 public class CPPaletteManager implements ContainerListener {
 
