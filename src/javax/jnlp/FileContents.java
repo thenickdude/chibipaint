@@ -6,4 +6,6 @@ public interface FileContents {
 
 	public InputStream getInputStream();
 
+	public String getName();
+	
 }
