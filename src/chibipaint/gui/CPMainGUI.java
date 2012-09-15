@@ -513,4 +513,8 @@ public class CPMainGUI {
 	public void arrangePalettes() {
 		paletteManager.arrangePalettes();
 	}
+
+	public void constrainPalettes() {
+		paletteManager.constrainPalettes();
+	}
 }

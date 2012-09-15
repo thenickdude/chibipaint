@@ -201,6 +201,8 @@ public class ChibiApplet implements IChibiApplet {
 			applet.setJMenuBar(mainGUI.getMenuBar());
 			applet.validate();
 		}
+		
+		mainGUI.constrainPalettes();
 	}
 
 	public class CPFloatingFrame extends JFrame {

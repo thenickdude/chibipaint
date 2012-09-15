@@ -279,6 +279,46 @@ public class CPPaletteManager implements ContainerListener {
 		}
 	}
 
+	/**
+	 * Pop palettes that are currently outside the visible area back into view.
+	 */
+	public void constrainPalettes() {
+		int windowWidth = jdp.getWidth();
+		int windowHeight = jdp.getHeight();
+
+		for (CPPalette palette : palettes.values()) {
+			ICPPaletteContainer container = palette.getContainer();
+			
+			/* Move palettes that are more than half out of the frame back into it */
+			if (container.getX() + container.getWidth() / 2 > windowWidth) {
+				container.setLocation(windowWidth - container.getWidth(), container.getY());
+			}
+
+			if (container.getY() + container.getHeight() / 2 > windowHeight) {
+				container.setLocation(container.getX(), windowHeight - container.getHeight());
+			}
+		}
+		
+		//Move small palettes to the front so that they aren't completely hidden
+		((JInternalFrame) palSwatches.container).moveToFront();
+		
+		//Special handling for the swatches palette being under the brush palette:
+		boolean widthToSpare = windowWidth - palTool.getSize().width - palMisc.getWidth() - palStroke.getWidth() - palColor.getWidth() - palBrush.getWidth() - 15 > 0;
+
+		if (palSwatches.getContainer().getX() + palSwatches.getContainer().getWidth() == 
+				palBrush.getContainer().getX() + palBrush.getContainer().getWidth() &&
+				Math.abs(palSwatches.getContainer().getY() - palBrush.getContainer().getY()) < 20) {
+			palSwatches.getContainer().setLocation(palBrush.getContainer().getX() - palSwatches.getContainer().getWidth() - (widthToSpare ? 5 : 1), 0);
+		}
+		
+		//Special handling for layers palette being too damn tall:
+		if (palLayers.getContainer().getY() + palLayers.getContainer().getHeight() > windowHeight)
+			palLayers.getContainer().setSize(palLayers.getContainer().getWidth(), Math.max(windowHeight - palLayers.getContainer().getY(), 200));
+	}
+	
+	/**
+	 * Rearrange the palettes from scratch into a useful arrangement.
+	 */
 	public void arrangePalettes() {
 		int windowWidth = jdp.getWidth();
 		int windowHeight = jdp.getHeight();
