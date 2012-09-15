@@ -7,7 +7,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -48,13 +51,20 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 	public void loadingProgress(final String message, final Double loaded) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				System.out.println(System.currentTimeMillis() + " - " + message);
+				//System.out.println(System.currentTimeMillis() + " - " + message);
 
 				loadingGUI.setMessage(message);
 				if (loaded != null)
 					loadingGUI.setProgress(loaded);
 			}
 		});
+	}
+	
+	private static String renderThrowable(Throwable aThrowable) {
+		StringWriter result = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(result);
+		aThrowable.printStackTrace(printWriter);
+		return result.toString();
 	}
 	
 	private void doUploadTest(URL testURL) {
@@ -85,50 +95,54 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 			buffer = null;
 
 			HttpURLConnection connection = (HttpURLConnection) testURL.openConnection();
-
-			connection.setDoOutput(true);
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-Type", "multipart/form-data, boundary=" + boundary);
-			connection.setRequestProperty("Content-Length", Integer.toString(data.length));
-			connection.setRequestProperty("User-Agent", "ChibiPaint Oekaki (" + System.getProperty("os.name") + "; "
-					+ System.getProperty("os.version") + ")");
-
-			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(connection.getOutputStream()));
 			try {
+				connection.setDoOutput(true);
+				connection.setRequestMethod("POST");
+				connection.setRequestProperty("Connection", "close");
+				connection.setRequestProperty("Content-Type", "multipart/form-data, boundary=" + boundary);
+				connection.setRequestProperty("Content-Length", Integer.toString(data.length));
+				connection.setRequestProperty("User-Agent", "ChibiPaint Oekaki (" + System.getProperty("os.name") + "; "
+						+ System.getProperty("os.version") + ")");
+	
+				DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(connection.getOutputStream()));
+				try {
+					/*
+					 * Now the upload of the request body begins.
+					 * 
+					 * Write the data in chunks so we can give a progress bar
+					 */
+					final int CHUNK_SIZE = 8 * 1024;
+	
+					for (int chunk_pos = 0; chunk_pos < data.length; chunk_pos += CHUNK_SIZE) {
+						/* Last chunk can be smaller than the others */
+						int this_chunk = Math.min(data.length - chunk_pos, CHUNK_SIZE);
+	
+						dos.write(data, chunk_pos, this_chunk);
+						dos.flush();
+					}
+				} finally {
+					dos.close();
+				}
+	
 				/*
-				 * Now the upload of the request body begins.
-				 * 
-				 * Write the data in chunks so we can give a progress bar
+				 * Read the answer from the server and verifies it's OK
 				 */
-				final int CHUNK_SIZE = 8 * 1024;
-
-				for (int chunk_pos = 0; chunk_pos < data.length; chunk_pos += CHUNK_SIZE) {
-					/* Last chunk can be smaller than the others */
-					int this_chunk = Math.min(data.length - chunk_pos, CHUNK_SIZE);
-
-					dos.write(data, chunk_pos, this_chunk);
-					dos.flush();
+				BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+				try {
+					String line;
+					String response = "";
+					while ((line = rd.readLine()) != null) {
+						response += line + "\n";
+					}
+	
+					if (!response.startsWith("CHIBIOK")) {
+						throw new RuntimeException("Server replied: " + response);
+					}
+				} finally {
+					rd.close();
 				}
 			} finally {
-				dos.close();
-			}
-
-			/*
-			 * Read the answer from the server and verifies it's OK
-			 */
-			BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
-			try {
-				String line;
-				String response = "";
-				while ((line = rd.readLine()) != null && line.length() > 0) {
-					response += line + "\n";
-				}
-
-				if (!response.startsWith("CHIBIOK")) {
-					throw new RuntimeException("Server replied: " + response);
-				}
-			} finally {
-				rd.close();
+				connection.disconnect();
 			}
 			
 			SwingUtilities.invokeLater(new Runnable() {
@@ -137,7 +151,7 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 				}
 			});
 		} catch (Throwable e) {
-			loadingFail("Failed to connect to the Chicken Smooothie server!\nThe message was:\n" + e.getMessage());
+			loadingFail("Failed to connect to the Chicken Smooothie server!\nThe message was:\n" + renderThrowable(e));
 		}
 	}
 
@@ -251,8 +265,9 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 					layers != null && layers.contents != null ? new ByteArrayInputStream(layers.contents) : null,
 					flat != null && flat.contents != null ? new ByteArrayInputStream(flat.contents) : null,
 					swatches != null && swatches.contents != null ? new ByteArrayInputStream(swatches.contents) : null);
-		} catch (OutOfMemoryError ex) {
-			loadingGUI.setMessage("Couldn't start because Java ran out of memory!");
+		} catch (InvocationTargetException ex) {
+			if (ex.getCause() != null && ex.getCause() instanceof OutOfMemoryError)
+				loadingGUI.setMessage("Couldn't start because Java ran out of memory!");
 			ex.printStackTrace();
 		} catch (Exception ex) {
 			loadingGUI.setMessage(ex.getMessage());
@@ -305,6 +320,8 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 	}
 
 	public void init() {
+		chibipaint = null;
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				loadStage = JARS;
