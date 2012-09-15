@@ -22,6 +22,7 @@
 package chibipaint;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
@@ -173,7 +174,7 @@ public class ChibiApplet implements IChibiApplet {
 			JFrame.setDefaultLookAndFeelDecorated(false);
 			floatingFrame = new CPFloatingFrame();
 			floatingFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			floatingFrame.setSize(800, 600);
+			mainGUI.getGUI().setPreferredSize(new Dimension(Math.max(mainGUI.getGUI().getWidth(), 800), Math.max(mainGUI.getGUI().getHeight(), 600)));
 
 			applet.setContentPane(floatingPlaceholder);
 			applet.setJMenuBar(null);
@@ -183,7 +184,7 @@ public class ChibiApplet implements IChibiApplet {
 			floatingFrame.setContentPane(mainGUI.getGUI());
 			floatingFrame.setJMenuBar(mainGUI.getMenuBar());
 			floatingFrame.setVisible(true);
-			floatingFrame.validate();
+			floatingFrame.pack();
 
 			controller.setFloatingFrame(floatingFrame);
 		} else {
