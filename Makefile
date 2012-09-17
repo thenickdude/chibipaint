@@ -30,14 +30,14 @@ test.out.jar: bin/test/*
 
 splash.out.jar: bootstrap.jar bin/splash/*
 	jar -cf splash.in.jar -C bin/ splash/
-	mv splash.in.jar splash.out.jar
-	#java -jar proguard/lib/proguard.jar @ splash.pro -verbose
+	#mv splash.in.jar splash.out.jar
+	java -jar proguard/lib/proguard.jar @ splash.pro -verbose
 	
 chibi.out.jar: bootstrap.jar ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -cf chibi.in.jar -C bin/ chibipaint/
 	jar -uf chibi.in.jar -C bin/ images/
-	mv chibi.in.jar chibi.out.jar
-	#java -jar proguard/lib/proguard.jar @ chibi.pro -verbose
+	#mv chibi.in.jar chibi.out.jar
+	java -jar proguard/lib/proguard.jar @ chibi.pro -verbose
 
 cpcombined.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -cf cpcombined.in.jar -C bin/ chibipaint/
@@ -45,8 +45,8 @@ cpcombined.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
 	jar -uf cpcombined.in.jar -C bin/ splash/
 	jar -uf cpcombined.in.jar -C bin/ bootstrap/
 	jar -uf cpcombined.in.jar -C bin/ javax/
-	mv cpcombined.in.jar cpcombined.out.jar
-	#java -jar proguard/lib/proguard.jar @ chibipaint.pro -verbose
+	#mv cpcombined.in.jar cpcombined.out.jar
+	java -jar proguard/lib/proguard.jar @ chibipaint.pro -verbose
 
 bootstrap.jar: bin/bootstrap/*
 	jar -cf bootstrap.jar -C bin/ bootstrap/
