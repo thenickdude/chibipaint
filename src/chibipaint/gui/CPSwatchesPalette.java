@@ -29,6 +29,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.ByteArrayInputStream;
@@ -163,18 +164,9 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 		}
 
 		public void mousePressed(MouseEvent e) {
-		}
-
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		public void mouseExited(MouseEvent e) {
-		}
-
-		public void mouseClicked(MouseEvent e) {
-			if (e.getButton() == MouseEvent.BUTTON1 && color != null) {
+			if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0 && color != null) {
 				controller.setCurColor(color);
-			} else if (e.getButton() == MouseEvent.BUTTON3) {
+			} else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
 				JPopupMenu menu = new JPopupMenu();
 
 				JMenuItem mnuRemove = new JMenuItem("Remove");
@@ -202,6 +194,15 @@ public class CPSwatchesPalette extends CPPalette implements ActionListener {
 
 				menu.show(this, e.getX(), e.getY());
 			}
+		}
+
+		public void mouseEntered(MouseEvent e) {
+		}
+
+		public void mouseExited(MouseEvent e) {
+		}
+
+		public void mouseClicked(MouseEvent e) {
 		}
 
 		public void mouseReleased(MouseEvent e) {
