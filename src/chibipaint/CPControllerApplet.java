@@ -108,50 +108,39 @@ public class CPControllerApplet extends CPController {
 			// FIXME: verify canvas.img is
 			// always updated
 
-			byte[] flatData, layersData, swatchData;
-
 			ByteArrayOutputStream bufferStream;
 
-			if (isSimpleDrawing()) {
-				// Don't need to send layers, just send the flat version
-				layersData = null;
-				flatData = getImageAsPNG(canvas.img);
-			} else {
+			MultipartRequest request = new MultipartRequest();
+			
+			request.addPart("picture", "chibipaint.png", "image/png", getImageAsPNG(canvas.img));
+
+			if (!isSimpleDrawing()) {
 				// We must send layers
 				bufferStream = new ByteArrayOutputStream(1024);
 
 				CPChibiFile.write(bufferStream, artwork);
 				
-				layersData = bufferStream.toByteArray();
-				
-				/* As editing this drawing later will use the layers, we don't need a high-quality
-				 * flat version. Save it as a JPEG.
-				 * 
-				 * WRONG! We need a PNG because people want to use the flat image transparency!!!
-				 */
-			//	flatData = getImageAsJPG(canvas.img);
-				
-				//If we're unable to encode jpegs, fall back
-			//	if (flatData == null)
-					flatData = getImageAsPNG(canvas.img);
+				request.addPart("chibifile", "chibipaint.chi", "application/octet-stream", bufferStream.toByteArray());
+
+				bufferStream = null;
 			}
-				
+
 			CPSwatchesPalette swatchesPal = chibipaint.mainGUI.getSwatchesPalette();
 
-			bufferStream = new ByteArrayOutputStream(1024);
-
 			if (swatchesPal.isModified()) {
+				bufferStream = new ByteArrayOutputStream(1024);
 				int[] swatches = swatchesPal.getSwatches();
 				AdobeColorTable.write(bufferStream, swatches);
 				
-				swatchData = bufferStream.toByteArray();
-			} else {
-				//Swatches unchanged
-				swatchData = null;
+				request.addPart("swatches", "chibipaint.aco", "application/octet-stream", bufferStream.toByteArray());
+				
+				bufferStream = null;
 			}
+			
+			chibipaint.
 
-			CPSendDialog sendDialog = new CPSendDialog( chibipaint.mainGUI.getGUI(), this, new URL(applet.getCodeBase(),
-					postUrl), flatData, layersData, swatchData, exitUrl == null || exitUrl.length() == 0);
+			CPSendDialog sendDialog = new CPSendDialog(chibipaint.mainGUI.getGUI(), this, new URL(applet.getCodeBase(),
+					postUrl), request, exitUrl == null || exitUrl.length() == 0);
 
 			sendDialog.sendImage();
 		} catch (Exception e) {

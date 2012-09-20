@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -31,19 +32,21 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import chibipaint.engine.MultipartRequest;
+
 public class CPSendDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private JProgressBar progress;
+	private JProgressBar barProgress;
 	private JButton btnCancel;
 	private JLabel lblStatus;
 
 	/** URL to post the images to */
 	private URL postUrl;
 
-	/** Image data to send to server */
-	private byte[] flatData, layersData, swatchData;
+	/** Request to send to server */
+	private MultipartRequest postData;
 
 	private Component parent;
 
@@ -69,12 +72,10 @@ public class CPSendDialog extends JDialog implements ActionListener {
 	 *            True if the image has already been posted to the forum and we
 	 *            shouldn't offer to "leave without posting"
 	 */
-	public CPSendDialog(Component parent, ActionListener notifyCompleted, URL postUrl, byte[] flatData,
-			byte[] layersData, byte[] swatchData, boolean alreadyPosted) {
+	public CPSendDialog(Component parent, ActionListener notifyCompleted, URL postUrl, MultipartRequest postData,
+			boolean alreadyPosted) {
 		this.postUrl = postUrl;
-		this.flatData = flatData;
-		this.layersData = layersData;
-		this.swatchData = swatchData;
+		this.postData = postData;
 		this.parent = parent;
 		this.notifyCompleted = notifyCompleted;
 		this.alreadyPosted = alreadyPosted;
@@ -98,11 +99,11 @@ public class CPSendDialog extends JDialog implements ActionListener {
 			mainPane.add(lblStatus);
 			mainPane.add(Box.createVerticalGlue());
 
-			progress = new JProgressBar();
+			barProgress = new JProgressBar();
 			{
-				progress.setIndeterminate(true);
+				barProgress.setIndeterminate(true);
 			}
-			mainPane.add(progress);
+			mainPane.add(barProgress);
 			mainPane.add(Box.createVerticalGlue());
 			mainPane.setPreferredSize(new Dimension(400, 80));
 		}
@@ -136,52 +137,13 @@ public class CPSendDialog extends JDialog implements ActionListener {
 	 * Swing event thread.
 	 */
 	public void sendImage() throws IOException {
-		/*
-		 * Do the quick parts in this thread (preparing the message to be sent)
-		 */
 		pack();
 		setLocationRelativeTo(parent);
 
 		setVisible(true);
-
-		/* Render our request into a buffer */
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		DataOutputStream bos = new DataOutputStream(buffer);
-
-		final String boundary = "---------------------------309542943615284";
-
-		bos.writeBytes("--" + boundary + "\r\n");
-		bos.writeBytes("Content-Disposition: form-data; name=\"picture\"; filename=\"chibipaint.png\"\r\n");
-		bos.writeBytes("Content-Type: image/png\r\n\r\n");
-		bos.write(flatData, 0, flatData.length);
-		bos.writeBytes("\r\n");
-
-		if (layersData != null) {
-			bos.writeBytes("--" + boundary + "\r\n");
-			bos.writeBytes("Content-Disposition: form-data; name=\"chibifile\"; filename=\"chibipaint.chi\"\r\n");
-			bos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
-			bos.write(layersData, 0, layersData.length);
-			bos.writeBytes("\r\n");
-		}
-
-		//Swatches
-		if (swatchData != null) {
-			bos.writeBytes("--" + boundary + "\r\n");
-			bos.writeBytes("Content-Disposition: form-data; name=\"swatches\"; filename=\"chibipaint.aco\"\r\n");
-			bos.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
-			bos.write(swatchData, 0, swatchData.length);
-			bos.writeBytes("\r\n");
-		}
 		
-		bos.writeBytes("--" + boundary + "--\r\n");
-
-		bos.flush();
-
-		final byte[] data = buffer.toByteArray();
-		buffer = null;
-
 		/*
-		 * Now do the parts that might block (server communication) in a child
+		 * Do the parts that might block (server communication) in a child
 		 * thread so that we don't block the GUI.
 		 */
 		new Thread(new Runnable() {
@@ -193,8 +155,9 @@ public class CPSendDialog extends JDialog implements ActionListener {
 					connection.setUseCaches(false);
 					connection.setRequestMethod("POST");
 					connection.setRequestProperty("Connection", "close");
-					connection.setRequestProperty("Content-Type", "multipart/form-data, boundary=" + boundary);
-					connection.setRequestProperty("Content-Length", Integer.toString(data.length));
+					connection.setRequestProperty("Content-Type", "multipart/form-data, boundary=" + postData.getBoundary());
+					final int requestLength = postData.getRequestLength();
+					connection.setRequestProperty("Content-Length", Integer.toString(requestLength));
 					connection.setRequestProperty("User-Agent", "ChibiPaint Oekaki (" + System.getProperty("os.name")
 							+ "; " + System.getProperty("os.version") + ")");
 					
@@ -203,7 +166,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 					try {
 						//This method only available from JVM 1.5, so check if it is available so we can skip it on 1.4:
 						Method setFixedLengthStreamingMode = HttpURLConnection.class.getMethod("setFixedLengthStreamingMode", int.class);
-						setFixedLengthStreamingMode.invoke(connection, data.length);
+						setFixedLengthStreamingMode.invoke(connection, requestLength);
 						haveProgress = true;
 					} catch (Throwable e) {
 						e.printStackTrace();
@@ -213,10 +176,10 @@ public class CPSendDialog extends JDialog implements ActionListener {
 					
 					SwingUtilities.invokeAndWait(new Runnable() {
 						public void run() {
-							progress.setMinimum(0);
-							progress.setMaximum(data.length);
-							progress.setValue(0);
-							progress.setIndeterminate(!finalHaveProgress);
+							barProgress.setMinimum(0);
+							barProgress.setMaximum(requestLength);
+							barProgress.setValue(0);
+							barProgress.setIndeterminate(!finalHaveProgress);
 							lblStatus.setText("Saving drawing, please wait...");
 						}
 					});
@@ -230,25 +193,28 @@ public class CPSendDialog extends JDialog implements ActionListener {
 						 * bar
 						 */
 						final int CHUNK_SIZE = haveProgress ? 8 * 1024 : 64 * 1024;
-
-						for (int chunk_pos = 0; chunk_pos < data.length; chunk_pos += CHUNK_SIZE) {
+						byte[] chunk = new byte[CHUNK_SIZE];
+						int bytesRead, progress = 0;
+						
+						InputStream postDataStream = postData.getInputStream();
+						
+						while ((bytesRead = postDataStream.read(chunk)) != -1) {
 							if (cancel)
 								break;
 
-							/* Last chunk can be smaller than the others */
-							int this_chunk = Math.min(data.length - chunk_pos, CHUNK_SIZE);
-
-							outputStream.write(data, chunk_pos, this_chunk);
+							outputStream.write(chunk, 0, bytesRead);
+							
+							progress += bytesRead;
 
 							if (haveProgress) {
-								final int progress_pos = chunk_pos + this_chunk;
+								final int final_progress = progress;
 								outputStream.flush();
 
 								SwingUtilities.invokeLater(new Runnable() {
 									public void run() {
-										lblStatus.setText("Saving drawing... (" + (progress_pos / 1024) + "kB/"
-												+ (data.length / 1024) + "kB done)");
-										progress.setValue(progress_pos);
+										lblStatus.setText("Saving drawing... (" + (final_progress / 1024) + "kB/"
+												+ (requestLength / 1024) + "kB done)");
+										barProgress.setValue(final_progress);
 									}
 								});
 							}
@@ -261,7 +227,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 					if (cancel) {
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
-								progress.setVisible(false);
+								barProgress.setVisible(false);
 								lblStatus.setText("Save cancelled");
 								btnCancel.setText("Close");
 								btnCancel.setActionCommand("close");
@@ -339,8 +305,8 @@ public class CPSendDialog extends JDialog implements ActionListener {
 				} catch (final Exception e) {
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
-							progress.setIndeterminate(false);
-							progress.setValue(0);
+							barProgress.setIndeterminate(false);
+							barProgress.setValue(0);
 							lblStatus.setText("<html>Error, your drawing has not been saved!</html>");
 
 							JOptionPane.showMessageDialog(CPSendDialog.this,
