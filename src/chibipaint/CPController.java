@@ -23,9 +23,11 @@ package chibipaint;
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -535,15 +537,50 @@ public abstract class CPController implements ActionListener {
 		}
 	}
 
-	byte[] getImageAsPNG(Image img) throws IOException {
+	// Rotate image in increments of 90 degrees. Rotate must be non-negative
+	static BufferedImage rotate90(Image input, int imageType, int rotate) {
+		BufferedImage result;
+
+		int width = input.getWidth(null), height = input.getHeight(null);
+		
+		if (rotate % 2 == 0) {
+			result = new BufferedImage(width, height, imageType);
+		} else {
+			result = new BufferedImage(height, width, imageType);
+		}
+
+		Graphics2D graphics = (Graphics2D) result.getGraphics();
+
+		switch (rotate % 4) {
+		case 1:
+			// 90 degree clockwise:
+			graphics.setTransform(AffineTransform.getRotateInstance(Math.PI / 2));
+			graphics.drawImage(input, 0, -height, null);
+			break;
+		case 2:
+			graphics.setTransform(AffineTransform.getRotateInstance(Math.PI));
+			graphics.drawImage(input, -width, -height, null);
+			break;
+		case 3:
+			// 90 degree counter-clockwise:
+			graphics.setTransform(AffineTransform.getRotateInstance(-Math.PI / 2));
+			graphics.drawImage(input, -width, 0, null);
+			break;
+		case 0:
+		default:
+			graphics.drawImage(input, 0, 0, null);
+		}
+
+		graphics.dispose();
+		
+		return result;
+	}
+
+	byte[] getImageAsPNG(Image img, int rotation) throws IOException {
 		int imageType = artwork.hasAlpha() ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
 
-		// FIXME: Wouldn't it be better to use a BufferedImage and avoid this anyway?
-		BufferedImage bi = new BufferedImage(img.getWidth(null), img.getHeight(null), imageType);
-		Graphics bg = bi.getGraphics();
-		bg.drawImage(img, 0, 0, null);
-		bg.dispose();
-
+		BufferedImage bi = rotate90(img, imageType, rotation);
+		
 		ByteArrayOutputStream pngFileStream = new ByteArrayOutputStream(1024);
 		ImageIO.write(bi, "png", pngFileStream);
 		
