@@ -472,6 +472,11 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 		updateTransform();
 	}
 
+	/**
+	 * Get canvas rotation in radians.
+	 * 
+	 * @return
+	 */
 	public float getRotation() {
 		return canvasRotation;
 	}
@@ -531,15 +536,19 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 	}
 
 	public void zoom100() {
-		resetRotation();
+		//resetRotation();
 		zoomOnCenter(1);
 		centerCanvas();
 	}
 
 	public void centerCanvas() {
 		Dimension d = getSize();
-		setOffset((d.width - (int) (artwork.width * getZoom())) / 2,
-				(d.height - (int) (artwork.height * getZoom())) / 2);
+		
+		//Adjust the current offset to bring the center of the artwork to the center of the canvas
+		Point2D.Float artworkCenter = coordToDisplay(new Point2D.Float(artwork.width / 2.f, artwork.height / 2.f));
+		
+		setOffset(Math.round(offsetX + d.width / 2.f - artworkCenter.x),
+				Math.round(offsetY + d.height / 2.f - artworkCenter.y));
 		repaint();
 	}
 
@@ -1411,8 +1420,37 @@ public class CPCanvas extends JComponent implements MouseListener, MouseMotionLi
 			repaint();
 		}
 
+		/**
+		 * When the mouse is released after rotation, we might want to snap our angle to the nearest 90 degree mark.
+		 */
+		private void finishRotation() {
+			double ROTATE_SNAP_DEGREES = 5;
+			
+			double nearest90 = Math.round(canvasRotation / (Math.PI / 2)) * Math.PI / 2;
+			
+			if (Math.abs(canvasRotation - nearest90) < ROTATE_SNAP_DEGREES / 180 * Math.PI) {
+				float deltaAngle = (float) (nearest90 - initAngle);
+				
+				Dimension d = getSize();
+				
+				Point2D.Float center = new Point2D.Float(d.width / 2.f, d.height / 2.f);
+
+				AffineTransform rotTrans = new AffineTransform();
+				rotTrans.rotate(deltaAngle, center.x, center.y);
+
+				rotTrans.concatenate(initTransform);
+
+				setRotation(initAngle + deltaAngle);
+				setOffset((int) rotTrans.getTranslateX(), (int) rotTrans.getTranslateY());
+				
+				repaint();
+			}
+		}
+		
 		public void mouseReleased(MouseEvent e) {
-			if (!dragged) {
+			if (dragged) {
+				finishRotation();
+			} else {
 				resetRotation();
 			}
 
