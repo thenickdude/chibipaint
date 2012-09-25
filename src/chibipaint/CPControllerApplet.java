@@ -99,6 +99,13 @@ public class CPControllerApplet extends CPController {
 		super.actionPerformed(e);
 	}
 
+	private static String renderThrowable(Throwable aThrowable) {
+		StringWriter result = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(result);
+		aThrowable.printStackTrace(printWriter);
+		return result.toString();
+	}
+	
 	/**
 	 * Send the oekaki to the server
 	 */
@@ -110,9 +117,18 @@ public class CPControllerApplet extends CPController {
 
 			ByteArrayOutputStream bufferStream;
 
+			int rotation = (int) Math.round(canvas.getRotation() / Math.PI * 2);
+
+			//Just in case:
+			rotation %= 4;
+			
+			//We want [0..3] as output
+			if (rotation < 0)
+				rotation += 4;
+			
 			MultipartRequest request = new MultipartRequest();
 			
-			request.addPart("picture", "chibipaint.png", "image/png", getImageAsPNG(canvas.img));
+			request.addPart("picture", "chibipaint.png", "image/png", getImageAsPNG(canvas.img, rotation));
 
 			if (!isSimpleDrawing()) {
 				// We must send layers
@@ -123,6 +139,11 @@ public class CPControllerApplet extends CPController {
 				request.addPart("chibifile", "chibipaint.chi", "application/octet-stream", bufferStream.toByteArray());
 
 				bufferStream = null;
+				
+				if (rotation != 0) {
+					//Oekaki will have to rotate the layers on load when we edit this drawing
+					request.addPart("rotation", null, "text/plain", Integer.toString(rotation).getBytes());
+				}
 			}
 
 			CPSwatchesPalette swatchesPal = chibipaint.mainGUI.getSwatchesPalette();
@@ -136,15 +157,13 @@ public class CPControllerApplet extends CPController {
 				
 				bufferStream = null;
 			}
-			
-			chibipaint.
 
 			CPSendDialog sendDialog = new CPSendDialog(chibipaint.mainGUI.getGUI(), this, new URL(applet.getCodeBase(),
 					postUrl), request, exitUrl == null || exitUrl.length() == 0);
 
 			sendDialog.sendImage();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(getDialogParent(), "Error while sending the oekaki..." + e.getMessage(),
+			JOptionPane.showMessageDialog(getDialogParent(), "Error while sending the oekaki, your drawing has not been saved!\n" + renderThrowable(e),
 					"Error", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
