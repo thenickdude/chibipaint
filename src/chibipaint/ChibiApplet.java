@@ -56,9 +56,11 @@ public class ChibiApplet implements IChibiApplet {
 	public ChibiApplet(JApplet applet, InputStream layers, InputStream flat, InputStream swatchStream) {
 		this.applet = applet;
 
-		controller = new CPControllerApplet(this, applet);
-		controller.setArtwork(createArtwork(layers, flat));
+		CPArtwork artwork = createArtwork(layers, flat);
 
+		controller = new CPControllerApplet(this, applet);
+		controller.setArtwork(artwork);
+		
 		// FIXME: set a default tool so that we can start drawing
 		controller.setTool(CPController.T_PEN);
 
@@ -66,9 +68,27 @@ public class ChibiApplet implements IChibiApplet {
 
 		mainGUI = new CPMainGUI(controller);
 
-		int[] swatches = AdobeColorTable.read(swatchStream);
-		if (swatches != null) {
-			mainGUI.getSwatchesPalette().setSwatches(swatches);
+		try {
+			int[] swatches = AdobeColorTable.read(swatchStream);
+			if (swatches != null) {
+				mainGUI.getSwatchesPalette().setSwatches(swatches);
+			}
+		} catch (Exception e) {
+			//We won't consider an error here to be fatal to loading.
+			e.printStackTrace();
+		}
+		
+		if (applet.getParameter("rotation") != null) {
+			try {
+				int amount = Integer.parseInt(applet.getParameter("rotation"));
+				
+				if (amount != 0) {
+					controller.canvas.setRotation((float) (amount * Math.PI / 2));
+				}
+			} catch (Exception e) {
+				//We won't consider an error here to be fatal to loading.
+				e.printStackTrace();
+			}
 		}
 
 		applet.setContentPane(mainGUI.getGUI());
