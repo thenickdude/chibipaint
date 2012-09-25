@@ -92,7 +92,7 @@ class InputStreamInputStream extends InputStream {
 
 public class MultipartRequest {
 
-	private ArrayList<MultipartItem> parts;
+	private ArrayList<MultipartItem> parts = new ArrayList<MultipartItem>();
 
 	private final String boundary = "-----------------------ilmfewq3012rh42943615284";
 	private final String footer = "\r\n--" + boundary + "--\r\n";
