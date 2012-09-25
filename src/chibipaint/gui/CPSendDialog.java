@@ -10,8 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -192,7 +190,7 @@ public class CPSendDialog extends JDialog implements ActionListener {
 						 * Write the data in chunks so we can give a progress
 						 * bar
 						 */
-						final int CHUNK_SIZE = haveProgress ? 8 * 1024 : 64 * 1024;
+						final int CHUNK_SIZE = haveProgress ? 16 * 1024 : 64 * 1024;
 						byte[] chunk = new byte[CHUNK_SIZE];
 						int bytesRead, progress = 0;
 						
