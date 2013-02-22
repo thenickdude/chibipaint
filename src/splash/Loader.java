@@ -53,10 +53,11 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				//System.out.println(System.currentTimeMillis() + " - " + message);
-
-				loadingGUI.setMessage(message);
-				if (loaded != null)
-					loadingGUI.setProgress(loaded);
+				if (loadingGUI != null) {
+					loadingGUI.setMessage(message);
+					if (loaded != null)
+						loadingGUI.setProgress(loaded);
+				}
 			}
 		});
 	}
@@ -246,6 +247,8 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 		loadingGUI.setProgress(1);
 		System.err.println("Starting...");
 
+		loadingGUI.finished();
+		
 		Constructor<?> c;
 		try {
 			c = Class.forName("chibipaint.ChibiApplet").getConstructors()[0];
@@ -266,6 +269,9 @@ public class Loader extends JApplet implements LoadingListener, IChibiApplet {
 					layers != null && layers.contents != null ? new ByteArrayInputStream(layers.contents) : null,
 					flat != null && flat.contents != null ? new ByteArrayInputStream(flat.contents) : null,
 					swatches != null && swatches.contents != null ? new ByteArrayInputStream(swatches.contents) : null);
+			
+			//We won't be using this again so free up memory:
+			loadingGUI = null;
 		} catch (InvocationTargetException ex) {
 			if (ex.getCause() != null && ex.getCause() instanceof OutOfMemoryError)
 				loadingGUI.setMessage("Couldn't start because Java ran out of memory!");

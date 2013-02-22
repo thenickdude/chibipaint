@@ -22,11 +22,16 @@
 package chibiapp;
 
 import java.awt.Dimension;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 import javax.swing.JFrame;
 
 import chibipaint.CPController;
 import chibipaint.engine.CPArtwork;
+import chibipaint.engine.CPChibiFile;
 import chibipaint.gui.CPMainGUI;
 
 public class ChibiApp extends JFrame {
@@ -34,12 +39,22 @@ public class ChibiApp extends JFrame {
 	CPControllerApplication controller;
 	CPMainGUI mainGUI;
 
-	public ChibiApp() {
+	public ChibiApp(File loadImage) {
 		super("ChibiPaint");
 
 		controller = new CPControllerApplication(this);
 
-		controller.setArtwork(new CPArtwork(600, 400));
+		if (loadImage != null) {
+			try {
+				controller.setArtwork(CPChibiFile.read(new BufferedInputStream(new FileInputStream(loadImage))));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} 
+		
+		if (controller.artwork == null) {
+			controller.setArtwork(new CPArtwork(600, 400));
+		}
 
 		// FIXME: set a default tool so that we can start drawing
 		controller.setTool(CPController.T_PEN);
@@ -63,11 +78,11 @@ public class ChibiApp extends JFrame {
 		return new Dimension(900, 600);
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				new ChibiApp();
+				new ChibiApp(args.length >= 1 ? new File(args[0]) : null);
 			}
 		});
 	}

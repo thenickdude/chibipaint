@@ -25,6 +25,7 @@ public class LoadingGUI extends JComponent {
 
 	private volatile boolean imagesReady = false;
 	private volatile boolean showImages = true;
+	private volatile boolean finished = false;
 	
 	private Image cup, lid, lines, text;
 	private BufferedImage shading, highlights, smoothie;
@@ -34,6 +35,8 @@ public class LoadingGUI extends JComponent {
 	private static final int MAXSMOOTHIEOFFSET = 170;
 
 	private Font statusFont;
+
+	private BufferedImage cupComposite;
 	
 	/**
 	 * Only call from within the Swing event dispatcher thread!
@@ -80,17 +83,17 @@ public class LoadingGUI extends JComponent {
 	 * Shift the given source image downwards by a certain number of pixels, then intersect it with its transparency
 	 * mask from its original position.
 	 * 
-	 * @param image
+	 * @param source
 	 * @param result
 	 * @param shiftImageDown
 	 */
-	private static void shiftImageDownAndMaskWithOriginalTransparency(BufferedImage image, BufferedImage result, int shiftImageDown) {
-	    int width = image.getWidth();
-	    int height = image.getHeight();
+	private static void shiftImageDownAndMaskWithOriginalTransparency(BufferedImage source, BufferedImage result, int shiftImageDown) {
+	    int width = source.getWidth();
+	    int height = source.getHeight();
 	    int[] imagePixels;
 
-	    if (shiftImageDown < image.getHeight()) {
-			imagePixels = image.getRGB(0, 0, width, height, null, 0, width);
+	    if (shiftImageDown < source.getHeight()) {
+			imagePixels = source.getRGB(0, 0, width, height, null, 0, width);
 	
 		    for (int i = imagePixels.length - 1; i >= shiftImageDown * width; i--)
 		    {
@@ -118,19 +121,19 @@ public class LoadingGUI extends JComponent {
 		cup = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("cup.png"));
 		lid = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("lid.png"));
 		lines = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("lines.png"));
-		final Image shading_comp = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("shading.png"));
-		final Image highlights_comp = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("highlights.png"));
-		final Image smoothie_comp = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("smoothie.png"));
+		final Image shading_compressed = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("shading.png"));
+		final Image highlights_compressed = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("highlights.png"));
+		final Image smoothie_compressed = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("smoothie.png"));
 		text = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("text.png"));
 		
 		final MediaTracker tracker = new MediaTracker(this);
 		
 		tracker.addImage(cup, 0);
-		tracker.addImage(highlights_comp, 1);
+		tracker.addImage(highlights_compressed, 1);
 		tracker.addImage(lid, 2);
 		tracker.addImage(lines, 3);
-		tracker.addImage(shading_comp, 4);
-		tracker.addImage(smoothie_comp, 5);
+		tracker.addImage(shading_compressed, 4);
+		tracker.addImage(smoothie_compressed, 5);
 		tracker.addImage(text, 6);
 				
 		new Thread(new Runnable() {
@@ -145,13 +148,13 @@ public class LoadingGUI extends JComponent {
 				
 				if (imagesReady) {
 					/* 
-					 * Highlights are in a compressed format that our compositor can't handle, so convert
+					 * Highlights are in a 8-bit per pixel format that our compositor can't handle, so convert
 					 * those now to ARGB.
 					 */
 					
-					shading = imageToBuffered(shading_comp);
-					highlights = imageToBuffered(highlights_comp);
-					smoothie = imageToBuffered(smoothie_comp);
+					shading = imageToBuffered(shading_compressed);
+					highlights = imageToBuffered(highlights_compressed);
+					smoothie = imageToBuffered(smoothie_compressed);
 					
 					smoothieComposite = new BufferedImage(smoothie.getWidth(null), smoothie.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 				}
@@ -183,32 +186,15 @@ public class LoadingGUI extends JComponent {
 			
 			g2d.drawImage(text, centerX - imgWidth / 2, centerY - imgHeight /2, this);
 			
-			BufferedImage cupComposite = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
-			
-			Graphics2D cupCompG = (Graphics2D) cupComposite.getGraphics();
-			{
-				cupCompG.drawImage(cup, 0, 0, this);
-								
-				shiftImageDownAndMaskWithOriginalTransparency(smoothie, smoothieComposite, (int) Math.round(progress * MAXSMOOTHIEOFFSET));
-				
-				cupCompG.drawImage(smoothieComposite, 0, 0, this);
-				
-				cupCompG.drawImage(lid, 0, 0, this);
+			buildCupComposite(imgWidth, imgHeight, progress);
 
-				cupCompG.setComposite(BlendComposite.Screen);
-				cupCompG.drawImage(highlights, 0, 0, this);
-
-				cupCompG.setComposite(BlendComposite.Multiply);
-				cupCompG.drawImage(shading, 0, 0, this);				
-			}
-
-			Composite mainNormalComposite = g2d.getComposite();
+			Composite regularAlphaComposite = g2d.getComposite();
 
 			//The whole cup composite is slightly transparent
 			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.88f));
 			g2d.drawImage(cupComposite, centerX - imgWidth / 2, centerY - imgHeight /2, this);
 			
-			g2d.setComposite(mainNormalComposite);
+			g2d.setComposite(regularAlphaComposite);
 					
 			g2d.drawImage(lines, centerX - imgWidth / 2, centerY - imgHeight /2, this);
 
@@ -237,5 +223,58 @@ public class LoadingGUI extends JComponent {
 		}
 
 		g2d.dispose();
+	}
+
+	private BufferedImage buildCupComposite(int imgWidth, int imgHeight, double progress) {
+		if (cupComposite == null) {
+			cupComposite = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
+		}
+		
+		if (!finished) {
+			Graphics2D cupCompG = (Graphics2D) cupComposite.getGraphics();
+			try {
+				cupCompG.drawImage(cup, 0, 0, this);
+								
+				shiftImageDownAndMaskWithOriginalTransparency(smoothie, smoothieComposite, (int) Math.round(progress * MAXSMOOTHIEOFFSET));
+				
+				cupCompG.drawImage(smoothieComposite, 0, 0, this);
+				
+				cupCompG.drawImage(lid, 0, 0, this);
+	
+				cupCompG.setComposite(BlendComposite.Screen);
+				cupCompG.drawImage(highlights, 0, 0, this);
+	
+				cupCompG.setComposite(BlendComposite.Multiply);
+				cupCompG.drawImage(shading, 0, 0, this);				
+			} finally {
+				cupCompG.dispose();
+			}
+		}
+		
+		return cupComposite;
+	}
+
+	/**
+	 * Loading is done, so the percentage bar won't move after this.
+	 */
+	public void finished() {
+		if (!finished) {
+			int imgWidth = text.getWidth(null);
+			int imgHeight = text.getHeight(null);
+			
+			buildCupComposite(imgWidth, imgHeight, 1.0);
+			finished = true;
+			
+			/* 
+			 * Since the image won't change, this is the final composite and we won't have to recomposite.
+			 * Discard the components which go into that composite.
+			 */
+			cup = null;
+			smoothie = null;
+			smoothieComposite = null;
+			lid = null;
+			highlights = null;
+			shading = null;
+		}
 	}
 }

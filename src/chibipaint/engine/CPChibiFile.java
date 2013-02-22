@@ -133,16 +133,21 @@ public class CPChibiFile {
 			CPArtwork a = new CPArtwork(header.width, header.height);
 			a.layers.remove(0); // FIXME: it would be better not to have created it in the first place
 
-			while (true) {
-				chunk = new CPChibiChunk(iis);
-
-				if (chunk.is(ZEND)) {
-					break;
-				} else if (chunk.is(LAYR)) {
-					readLayer(iis, chunk, a);
-				} else {
-					realSkip(iis, chunk.chunkSize);
+			try {	
+				while (true) {
+					chunk = new CPChibiChunk(iis);
+	
+					if (chunk.is(ZEND)) {
+						break;
+					} else if (chunk.is(LAYR)) {
+						readLayer(iis, chunk, a);
+					} else {
+						realSkip(iis, chunk.chunkSize);
+					}
 				}
+			} catch (Exception e) {
+				//Attempt to load corrupted CHI files by ignoring unexpected EOF
+				e.printStackTrace();
 			}
 
 			a.setActiveLayer(a.getTopmostVisibleLayer());
@@ -241,7 +246,7 @@ public class CPChibiFile {
 
 		public CPChibiChunk(InputStream is) throws IOException {
 			realRead(is, chunkType, 4);
-			chunkSize = readInt(is);
+			chunkSize = Math.max(readInt(is), 0);
 		}
 
 		private boolean is(byte[] chunkType) {
