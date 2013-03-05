@@ -27,11 +27,11 @@ import java.util.zip.*;
 
 public class CPChibiFile {
 
-	protected static final byte CHIB[] = { 67, 72, 73, 66 };
-	protected static final byte IOEK[] = { 73, 79, 69, 75 };
 	protected static final byte HEAD[] = { 72, 69, 65, 68 };
 	protected static final byte LAYR[] = { 76, 65, 89, 82 };
 	protected static final byte ZEND[] = { 90, 69, 78, 68 };
+
+	public static final byte[] CHI_MAGIC = { 67, 72, 73, 66, 73, 79, 69, 75 }; /* CHIBIOEK */
 
 	static public boolean write(OutputStream os, CPArtwork a) {
 		try {
@@ -44,8 +44,8 @@ public class CPChibiFile {
 
 			writeHeader(dos, a);
 
-			for (Object l : a.layers) {
-				writeLayer(dos, (CPLayer) l);
+			for (CPLayer l : a.layers) {
+				writeLayer(dos, l);
 			}
 
 			writeEnd(dos);
@@ -77,8 +77,7 @@ public class CPChibiFile {
 	}
 
 	static public void writeMagic(OutputStream os) throws IOException {
-		os.write(CHIB);
-		os.write(IOEK);
+		os.write(CHI_MAGIC);
 	}
 
 	static public void writeEnd(OutputStream os) throws IOException {
@@ -119,7 +118,7 @@ public class CPChibiFile {
 				return null; // not a ChibiPaint file
 			}
 
-			InflaterInputStream iis = new InflaterInputStream(is);
+			InputStream iis = new InflaterInputStream(is);
 			CPChibiChunk chunk = new CPChibiChunk(iis);
 			if (!chunk.is(HEAD)) {
 				return null; // not a valid file
@@ -132,7 +131,9 @@ public class CPChibiFile {
 
 			CPArtwork a = new CPArtwork(header.width, header.height);
 			a.layers.remove(0); // FIXME: it would be better not to have created it in the first place
-
+			
+			int chunkNum = 0;
+			
 			try {	
 				while (true) {
 					chunk = new CPChibiChunk(iis);
@@ -142,8 +143,11 @@ public class CPChibiFile {
 					} else if (chunk.is(LAYR)) {
 						readLayer(iis, chunk, a);
 					} else {
+						System.err.println("Chunk #" + chunkNum + " has unknown chunk type, attempting to skip...");
 						realSkip(iis, chunk.chunkSize);
 					}
+					
+					chunkNum++;
 				}
 			} catch (Exception e) {
 				//Attempt to load corrupted CHI files by ignoring unexpected EOF
@@ -197,46 +201,39 @@ public class CPChibiFile {
 		return is.read() << 24 | is.read() << 16 | is.read() << 8 | is.read();
 	}
 
-	static void realSkip(InputStream is, long bytesToSkip) throws IOException {
-		long skipped = 0, value;
-		while (skipped < bytesToSkip) {
-			value = is.read();
-			if (value < 0) {
-				throw new RuntimeException("EOF!");
+	static void realSkip(InputStream is, long bytesToSkip) throws IOException {		
+		while (bytesToSkip > 0) {
+			long bytesSkipped = is.skip(bytesToSkip);
+			
+			if (bytesSkipped <= 0) {
+				throw new IOException("Unexpected EOF");
 			}
 
-			skipped++;
-			skipped += is.skip(bytesToSkip - skipped);
+			bytesToSkip -= bytesSkipped;
 		}
 	}
 
 	static void realRead(InputStream is, byte[] buffer, int bytesToRead) throws IOException {
-		int read = 0, value;
-		while (read < bytesToRead) {
-			value = is.read();
-			if (value < 0) {
-				throw new RuntimeException("EOF!");
+		int readTotal = 0;
+		
+		while (bytesToRead > 0) {
+			int bytesRead = is.read(buffer, readTotal, bytesToRead);
+			
+			if (bytesRead == -1) {
+				throw new IOException("Unexpected EOF");
 			}
 
-			buffer[read++] = (byte) value;
-			read += is.read(buffer, read, bytesToRead - read);
+			readTotal += bytesRead;
+			bytesToRead -= bytesRead;
 		}
 	}
 
 	static public boolean readMagic(InputStream is) throws IOException {
-		byte[] buffer = new byte[4];
+		byte[] buffer = new byte[CHI_MAGIC.length];
 
-		realRead(is, buffer, 4);
-		if (!Arrays.equals(buffer, CHIB)) {
-			return false;
-		}
+		realRead(is, buffer, buffer.length);
 
-		realRead(is, buffer, 4);
-		if (!Arrays.equals(buffer, IOEK)) {
-			return false;
-		}
-
-		return true;
+		return Arrays.equals(buffer, CHI_MAGIC);
 	}
 
 	static class CPChibiChunk {
