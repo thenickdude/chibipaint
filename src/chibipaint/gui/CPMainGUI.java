@@ -104,6 +104,13 @@ public class CPMainGUI {
 			menuItem.setActionCommand("CPSend");
 			menuItem.addActionListener(listener);
 			menu.add(menuItem);
+		} else {
+			menuItem = new JMenuItem("Save Oekaki", KeyEvent.VK_S);
+			menuItem.getAccessibleContext().setAccessibleDescription(
+					"Saves the oekaki to disk");
+			menuItem.setActionCommand("CPSave");
+			menuItem.addActionListener(listener);
+			menu.add(menuItem);			
 		}
 
 		//

@@ -576,7 +576,7 @@ public abstract class CPController implements ActionListener {
 		return result;
 	}
 
-	byte[] getImageAsPNG(Image img, int rotation) throws IOException {
+	protected byte[] getImageAsPNG(Image img, int rotation) throws IOException {
 		int imageType = artwork.hasAlpha() ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
 
 		BufferedImage bi = rotate90(img, imageType, rotation);
@@ -717,5 +717,13 @@ public abstract class CPController implements ActionListener {
 
 	protected void setHasUnsavedChanges(boolean hasUnsaved) {
 		artwork.setHasUnsavedChanges(hasUnsaved);		
+	}
+
+	/**
+	 * Returns true if this drawing can be exactly represented as a simple transparent PNG
+	 * (i.e. doesn't have multiple layers, and base layer is 100% opaque). 
+	 */
+	protected boolean isSimpleDrawing() {
+		return artwork.getLayers().length == 1 && artwork.getLayer(0).getAlpha() == 100;
 	}
 }

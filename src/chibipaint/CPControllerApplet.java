@@ -169,14 +169,6 @@ public class CPControllerApplet extends CPController {
 		}
 	}
 
-	/**
-	 * Returns true if this drawing can be exactly represented as a simple transparent PNG
-	 * (i.e. doesn't have multiple layers, and base layer is 100% opaque). 
-	 */
-	private boolean isSimpleDrawing() {
-		return artwork.getLayers().length == 1 && artwork.getLayer(0).getAlpha() == 100;
-	}
-
 	public void goToExitUrl() {
 		if (exitUrl != null && exitUrl.length() > 0) {
 			try {
