@@ -224,10 +224,10 @@ public class CPBrushPalette extends CPPalette implements CPController.ICPToolLis
 		}
 	}
 
-	class CPBrushPreview extends JComponent implements MouseListener, MouseMotionListener, CPController.ICPToolListener {
+	private class CPBrushPreview extends JComponent implements MouseListener, MouseMotionListener, CPController.ICPToolListener {
 
-		int w, h;
-		int size;
+		private int w, h;
+		private int size;
 
 		public CPBrushPreview() {
 			w = h = 64;
@@ -291,7 +291,7 @@ public class CPBrushPalette extends CPPalette implements CPController.ICPToolLis
 		}
 	}
 
-	class CPAlphaSlider extends CPSlider {
+	private class CPAlphaSlider extends CPSlider {
 
 		public CPAlphaSlider() {
 			super(255);
@@ -304,7 +304,7 @@ public class CPBrushPalette extends CPPalette implements CPController.ICPToolLis
 		}
 	}
 
-	class CPSizeSlider extends CPSlider {
+	private class CPSizeSlider extends CPSlider {
 
 		public CPSizeSlider() {
 			super(200);
@@ -317,7 +317,7 @@ public class CPBrushPalette extends CPPalette implements CPController.ICPToolLis
 		}
 	}
 
-	class CPCheckBox extends JComponent implements MouseListener {
+	private static class CPCheckBox extends JComponent implements MouseListener {
 
 		boolean state = false;
 
@@ -361,7 +361,7 @@ public class CPBrushPalette extends CPPalette implements CPController.ICPToolLis
 		}
 	}
 
-	class CPAlphaCB extends CPCheckBox {
+	private class CPAlphaCB extends CPCheckBox {
 
 		public void onValueChange() {
 			controller.getBrushInfo().pressureAlpha = state;
@@ -369,7 +369,7 @@ public class CPBrushPalette extends CPPalette implements CPController.ICPToolLis
 		}
 	}
 
-	class CPSizeCB extends CPCheckBox {
+	private class CPSizeCB extends CPCheckBox {
 
 		public void onValueChange() {
 			controller.getBrushInfo().pressureSize = state;

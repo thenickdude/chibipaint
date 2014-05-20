@@ -38,7 +38,7 @@ public class CPTablet {
 	Object tablet;
 	Method mPoll, mGetPressure, mGetPressureExtent;
 
-	int pressure = 0, pressureExtent = 1;
+	private int pressure = 0, pressureExtent = 1;
 
 	public CPTablet() {
 		try {

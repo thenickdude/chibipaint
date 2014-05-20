@@ -32,19 +32,19 @@ import chibipaint.util.*;
 
 public class CPLayersPalette extends CPPalette implements CPArtwork.ICPArtworkListener, ActionListener, ItemListener {
 
-	int layerH = 32, eyeW = 24;
+	private int layerH = 32, eyeW = 24;
 
-	CPLayerWidget lw;
-	JScrollPane sp;
-	CPAlphaSlider alphaSlider;
-	JComboBox blendCombo;
+	private CPLayerWidget lw;
+	private JScrollPane sp;
+	private CPAlphaSlider alphaSlider;
+	private JComboBox blendCombo;
 
-	CPRenameField renameField;
+	private CPRenameField renameField;
 
-	JCheckBox cbSampleAllLayers;
-	JCheckBox cbLockAlpha;
+	private JCheckBox cbSampleAllLayers;
+	private JCheckBox cbLockAlpha;
 
-	String modeNames[] = { "Normal", "Multiply", "Add", "Screen", "Lighten", "Darken", "Subtract", "Dodge", "Burn",
+	private static String modeNames[] = { "Normal", "Multiply", "Add", "Screen", "Lighten", "Darken", "Subtract", "Dodge", "Burn",
 			"Overlay", "Hard Light", "Soft Light", "Vivid Light", "Linear Light", "Pin Light" };
 
 	public CPLayersPalette(CPController controller) {
@@ -161,7 +161,7 @@ public class CPLayersPalette extends CPPalette implements CPArtwork.ICPArtworkLi
 		}
 	}
 
-	public void showRenameControl(int layerNb) {
+	private void showRenameControl(int layerNb) {
 		Dimension d = lw.getSize();
 		CPArtwork artwork = controller.getArtwork();
 		Object[] layers = artwork.getLayers();
@@ -198,17 +198,17 @@ public class CPLayersPalette extends CPPalette implements CPArtwork.ICPArtworkLi
 		lw.revalidate();
 	}
 
-	class CPLayerWidget extends JComponent implements MouseListener, MouseMotionListener {
+	private class CPLayerWidget extends JComponent implements MouseListener, MouseMotionListener {
 
-		boolean layerDrag, layerDragReally;
-		int layerDragNb, layerDragY;
+		private boolean layerDrag, layerDragReally;
+		private int layerDragNb, layerDragY;
 
 		public CPLayerWidget() {
 			addMouseListener(this);
 			addMouseMotionListener(this);
 		}
 
-		public int getLayerNb(Point p) {
+		private int getLayerNb(Point p) {
 			Dimension d = getSize();
 			return (d.height - p.y) / layerH;
 		}
@@ -359,7 +359,7 @@ public class CPLayersPalette extends CPPalette implements CPArtwork.ICPArtworkLi
 		}
 	}
 
-	class CPAlphaSlider extends CPSlider {
+	private class CPAlphaSlider extends CPSlider {
 
 		public CPAlphaSlider() {
 			super(100);
@@ -373,9 +373,9 @@ public class CPLayersPalette extends CPPalette implements CPArtwork.ICPArtworkLi
 		}
 	}
 
-	class CPRenameField extends JTextField implements FocusListener, ActionListener {
+	private class CPRenameField extends JTextField implements FocusListener, ActionListener {
 
-		int layerNb;
+		private int layerNb;
 
 		public CPRenameField() {
 			setSize(new Dimension(100, 20));
@@ -402,7 +402,7 @@ public class CPLayersPalette extends CPPalette implements CPArtwork.ICPArtworkLi
 			renameAndHide();
 		}
 
-		public void renameAndHide() {
+		private void renameAndHide() {
 			CPArtwork artwork = controller.getArtwork();
 
 			if (layerNb >= 0 && layerNb < artwork.getLayersNb()) {

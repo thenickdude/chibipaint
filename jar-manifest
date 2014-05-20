@@ -1,0 +1,5 @@
+Permissions: sandbox
+Application-Name: Chicken Smoothie Oekaki
+Codebase: *.chickensmoothie.com
+Application-Library-Allowable-Codebase: *.chickensmoothie.com
+Caller-Allowable-Codebase: *.chickensmoothie.com 

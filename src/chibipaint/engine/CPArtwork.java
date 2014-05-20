@@ -36,15 +36,15 @@ public class CPArtwork {
 	public int width, height;
 
 	public Vector<CPLayer> layers;
-	CPLayer curLayer;
-	int activeLayer;
+	private CPLayer curLayer;
+	private int activeLayer;
 
-	CPRect curSelection = new CPRect();
+	private CPRect curSelection = new CPRect();
 
-	CPLayer fusion, undoBuffer, opacityBuffer;
-	CPRect fusionArea, undoArea, opacityArea;
+	private CPLayer fusion, undoBuffer, opacityBuffer;
+	private CPRect fusionArea, undoArea, opacityArea;
 
-	Random rnd = new Random();
+	private Random rnd = new Random();
 
 	public interface ICPArtworkListener {
 
@@ -69,17 +69,17 @@ public class CPArtwork {
 		}
 	};
 
-	CPClip clipboard = null;
+	private CPClip clipboard = null;
 
-	LinkedList<CPUndo> undoList, redoList;
+	private LinkedList<CPUndo> undoList, redoList;
 
 	private CPBrushInfo curBrush;
 
 	// FIXME: shouldn't be public
 	public CPBrushManager brushManager = new CPBrushManager();
 
-	float lastX, lastY, lastPressure;
-	int[] brushBuffer = null;
+	private float lastX, lastY, lastPressure;
+	private int[] brushBuffer = null;
 
 	private int maxUndo = 30;
 
@@ -87,18 +87,18 @@ public class CPArtwork {
 	// Current Engine Parameters
 	//
 
-	boolean sampleAllLayers = false;
-	boolean lockAlpha = false;
+	private boolean sampleAllLayers = false;
+	private boolean lockAlpha = false;
 
-	int curColor;
+	private int curColor;
 
-	CPBrushTool paintingModes[] = { new CPBrushToolSimpleBrush(), new CPBrushToolEraser(), new CPBrushToolDodge(),
+	private CPBrushTool paintingModes[] = { new CPBrushToolSimpleBrush(), new CPBrushToolEraser(), new CPBrushToolDodge(),
 			new CPBrushToolBurn(), new CPBrushToolWatercolor(), new CPBrushToolBlur(), new CPBrushToolSmudge(),
 			new CPBrushToolOil(), };
 
-	static final int BURN_CONSTANT = 260;
-	static final int BLUR_MIN = 64;
-	static final int BLUR_MAX = 1;
+	private static final int BURN_CONSTANT = 260;
+	private static final int BLUR_MIN = 64;
+	private static final int BLUR_MAX = 1;
 
 	public CPArtwork(int width, int height) {
 		this.width = width;
@@ -195,13 +195,13 @@ public class CPArtwork {
 		artworkListeners.addLast(listener);
 	}
 
-	public void callListenersUpdateRegion(CPRect region) {
+	private void callListenersUpdateRegion(CPRect region) {
 		for (ICPArtworkListener l : artworkListeners) {
 			l.updateRegion(this, region);
 		}
 	}
 
-	public void callListenersLayerChange() {
+	private void callListenersLayerChange() {
 		for (ICPArtworkListener l : artworkListeners) {
 			l.layerChange(this);
 		}
@@ -255,7 +255,7 @@ public class CPArtwork {
 		paintingModes[curBrush.paintMode].endStroke();
 	}
 
-	void mergeOpacityBuffer(int color, boolean clear) {
+	private void mergeOpacityBuffer(int color, boolean clear) {
 		if (!opacityArea.isEmpty()) {
 			if (curBrush.paintMode != CPBrushInfo.M_ERASE || !lockAlpha) {
 				paintingModes[curBrush.paintMode].mergeOpacityBuf(opacityArea, color);
@@ -276,7 +276,7 @@ public class CPArtwork {
 		}
 	}
 
-	void restoreAlpha(CPRect r) {
+	private void restoreAlpha(CPRect r) {
 		getActiveLayer().copyAlphaFrom(undoBuffer, r);
 	}
 
@@ -336,7 +336,7 @@ public class CPArtwork {
 			brushBuffer = null;
 		}
 
-		void paintDab(float x, float y, float pressure) {
+		private void paintDab(float x, float y, float pressure) {
 			curBrush.applyPressure(pressure);
 			if (curBrush.scattering > 0f) {
 				x += rnd.nextGaussian() * curBrush.curScattering / 4f;
@@ -348,7 +348,7 @@ public class CPArtwork {
 			paintDab(dab);
 		}
 
-		void paintDab(CPBrushDab dab) {
+		private void paintDab(CPBrushDab dab) {
 			CPRect srcRect = new CPRect(dab.width, dab.height);
 			CPRect dstRect = new CPRect(dab.width, dab.height);
 			dstRect.translate(dab.x, dab.y);
@@ -710,9 +710,15 @@ public class CPArtwork {
 			int newColor = wcColor.toInt();
 
 			// bleed
-			wcColor.mixWith(sampleColor((dstRect.left + dstRect.right) / 2, (dstRect.top + dstRect.bottom) / 2, Math
-					.max(1, Math.min(wxMaxSampleRadius, dstRect.getWidth() * 2 / 6)), Math.max(1, Math.min(
-					wxMaxSampleRadius, dstRect.getHeight() * 2 / 6))), curBrush.bleed);
+			wcColor.mixWith(
+				sampleColor(
+					(dstRect.left + dstRect.right) / 2, 
+					(dstRect.top + dstRect.bottom) / 2, 
+					Math.max(1, Math.min(wxMaxSampleRadius, dstRect.getWidth() * 2 / 6)), 
+					Math.max(1, Math.min(wxMaxSampleRadius, dstRect.getHeight() * 2 / 6))
+				),
+				curBrush.bleed
+			);
 
 			previousSamples.addLast(wcColor);
 			previousSamples.removeFirst();
@@ -724,7 +730,7 @@ public class CPArtwork {
 			}
 		}
 
-		void paintDirect(CPRect srcRect, CPRect dstRect, byte[] brush, int w, int alpha, int color1) {
+		private void paintDirect(CPRect srcRect, CPRect dstRect, byte[] brush, int w, int alpha, int color1) {
 			int[] opacityData = opacityBuffer.data;
 
 			int by = srcRect.top;
@@ -864,8 +870,7 @@ public class CPArtwork {
 			int by = srcRect.top;
 			for (int j = dstRect.top; j < dstRect.bottom; j++, by++) {
 				int srcOffset = srcRect.left + by * w;
-				int dstOffset = dstRect.left + j * width;
-				for (int i = dstRect.left; i < dstRect.right; i++, srcOffset++, dstOffset++) {
+				for (int i = dstRect.left; i < dstRect.right; i++, srcOffset++) {
 					int color2 = buffer[srcOffset];
 					int alpha2 = (color2 >>> 24);
 
@@ -1119,11 +1124,11 @@ public class CPArtwork {
 		undoList.addFirst(redo);
 	}
 
-	public boolean canUndo() {
+	private boolean canUndo() {
 		return !undoList.isEmpty();
 	}
 
-	public boolean canRedo() {
+	private boolean canRedo() {
 		return !redoList.isEmpty();
 	}
 
@@ -1247,12 +1252,12 @@ public class CPArtwork {
 		return (CPRect) curSelection.clone();
 	}
 
-	void setSelection(CPRect r) {
+	private void setSelection(CPRect r) {
 		curSelection.set(r);
 		curSelection.clip(getSize());
 	}
 
-	void emptySelection() {
+	private void emptySelection() {
 		curSelection.makeEmpty();
 	}
 
@@ -1260,12 +1265,12 @@ public class CPArtwork {
 	//
 	//
 
-	public void invalidateFusion(CPRect r) {
+	private void invalidateFusion(CPRect r) {
 		fusionArea.union(r);
 		callListenersUpdateRegion(r);
 	}
 
-	public void invalidateFusion() {
+	private void invalidateFusion() {
 		invalidateFusion(new CPRect(0, 0, width, height));
 	}
 
@@ -1550,9 +1555,9 @@ public class CPArtwork {
 	}
 
 	// temp awful hack
-	CPRect moveInitSelect = null;
-	int movePrevX, movePrevY, movePrevX2, movePrevY2;
-	boolean moveModeCopy, prevModeCopy;
+	private CPRect moveInitSelect = null;
+	private int movePrevX, movePrevY, movePrevX2, movePrevY2;
+	private boolean moveModeCopy, prevModeCopy;
 
 	public void move(int offsetX, int offsetY) {
 		CPRect srcRect;
@@ -1641,7 +1646,7 @@ public class CPArtwork {
 		}
 	}
 
-	public void pasteClip(boolean createUndo, CPClip clip) {
+	private void pasteClip(boolean createUndo, CPClip clip) {
 		if (createUndo) {
 			addUndo(new CPUndoPaste(clip, getActiveLayerNb(), getSelection()));
 		}
@@ -1690,11 +1695,11 @@ public class CPArtwork {
 	// ////////////////////////////////////////////////////
 	// Undo classes
 
-	class CPUndoPaint extends CPUndo {
+	private class CPUndoPaint extends CPUndo {
 
-		int layer;
-		CPRect rect;
-		int[] data;
+		private int layer;
+		private CPRect rect;
+		private int[] data;
 
 		public CPUndoPaint() {
 			layer = getActiveLayerNb();
@@ -1719,7 +1724,7 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoLayerVisible extends CPUndo {
+	private class CPUndoLayerVisible extends CPUndo {
 
 		int layer;
 		boolean oldVis, newVis;
@@ -1755,9 +1760,9 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoAddLayer extends CPUndo {
+	private class CPUndoAddLayer extends CPUndo {
 
-		int layer;
+		private int layer;
 
 		public CPUndoAddLayer(int layer) {
 			this.layer = layer;
@@ -1781,9 +1786,9 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoDuplicateLayer extends CPUndo {
+	private class CPUndoDuplicateLayer extends CPUndo {
 
-		int layer;
+		private int layer;
 
 		public CPUndoDuplicateLayer(int layer) {
 			this.layer = layer;
@@ -1812,10 +1817,10 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoRemoveLayer extends CPUndo {
+	private class CPUndoRemoveLayer extends CPUndo {
 
-		int layer;
-		CPLayer layerObj;
+		private int layer;
+		private CPLayer layerObj;
 
 		public CPUndoRemoveLayer(int layer, CPLayer layerObj) {
 			this.layer = layer;
@@ -1842,10 +1847,10 @@ public class CPArtwork {
 
 	}
 
-	class CPUndoMergeDownLayer extends CPUndo {
+	private class CPUndoMergeDownLayer extends CPUndo {
 
-		int layer;
-		CPLayer layerBottom, layerTop;
+		private int layer;
+		private CPLayer layerBottom, layerTop;
 
 		public CPUndoMergeDownLayer(int layer) {
 			this.layer = layer;
@@ -1879,10 +1884,10 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoMergeAllLayers extends CPUndo {
+	private class CPUndoMergeAllLayers extends CPUndo {
 
-		Vector<CPLayer> oldLayers;
-		int oldActiveLayer;
+		private Vector<CPLayer> oldLayers;
+		private int oldActiveLayer;
 
 		public CPUndoMergeAllLayers() {
 			oldLayers = (Vector<CPLayer>) layers.clone();
@@ -1906,9 +1911,9 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoMoveLayer extends CPUndo {
+	private class CPUndoMoveLayer extends CPUndo {
 
-		int from, to;
+		private int from, to;
 
 		public CPUndoMoveLayer(int from, int to) {
 			this.from = from;
@@ -1928,10 +1933,10 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoLayerAlpha extends CPUndo {
+	private class CPUndoLayerAlpha extends CPUndo {
 
-		int layer;
-		int from, to;
+		private int layer;
+		private int from, to;
 
 		public CPUndoLayerAlpha(int layer, int alpha) {
 			this.from = getLayer(layer).getAlpha();
@@ -1964,10 +1969,10 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoLayerMode extends CPUndo {
+	private class CPUndoLayerMode extends CPUndo {
 
-		int layer;
-		int from, to;
+		private int layer;
+		private int from, to;
 
 		public CPUndoLayerMode(int layer, int mode) {
 			this.from = getLayer(layer).getBlendMode();
@@ -2000,10 +2005,10 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoLayerRename extends CPUndo {
+	private class CPUndoLayerRename extends CPUndo {
 
-		int layer;
-		String from, to;
+		private int layer;
+		private String from, to;
 
 		public CPUndoLayerRename(int layer, String name) {
 			this.from = getLayer(layer).name;
@@ -2034,9 +2039,9 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoRectangleSelection extends CPUndo {
+	private class CPUndoRectangleSelection extends CPUndo {
 
-		CPRect from, to;
+		private CPRect from, to;
 
 		public CPUndoRectangleSelection(CPRect from, CPRect to) {
 			this.from = (CPRect) from.clone();
@@ -2061,7 +2066,7 @@ public class CPArtwork {
 	}
 
 	// used to encapsulate multiple undo operation as one
-	class CPMultiUndo extends CPUndo {
+	private class CPMultiUndo extends CPUndo {
 
 		CPUndo[] undoes;
 
@@ -2102,11 +2107,11 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoCut extends CPUndo {
+	private class CPUndoCut extends CPUndo {
 
-		CPColorBmp bmp;
-		int x, y, layer;
-		CPRect selection;
+		private CPColorBmp bmp;
+		private int x, y, layer;
+		private CPRect selection;
 
 		public CPUndoCut(CPColorBmp bmp, int x, int y, int layerNb, CPRect selection) {
 			this.bmp = bmp;
@@ -2137,11 +2142,11 @@ public class CPArtwork {
 		}
 	}
 
-	class CPUndoPaste extends CPUndo {
+	private class CPUndoPaste extends CPUndo {
 
-		CPClip clip;
-		int layer;
-		CPRect selection;
+		private CPClip clip;
+		private int layer;
+		private CPRect selection;
 
 		public CPUndoPaste(CPClip clip, int layerNb, CPRect selection) {
 			this.clip = clip;

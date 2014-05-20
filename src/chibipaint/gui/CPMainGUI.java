@@ -31,16 +31,16 @@ import chibipaint.*;
 
 public class CPMainGUI {
 
-	CPController controller;
-	CPPaletteManager paletteManager;
+	private CPController controller;
+	private CPPaletteManager paletteManager;
 
-	JMenuBar menuBar;
-	JPanel mainPanel;
-	JDesktopPane jdp;
-	JPanel bg;
+	private JMenuBar menuBar;
+	private JPanel mainPanel;
+	private JDesktopPane jdp;
+	private JPanel bg;
 
 	// FIXME: replace this hack by something better
-	Map<String, JCheckBoxMenuItem> paletteItems = new HashMap<String, JCheckBoxMenuItem>();
+	private Map<String, JCheckBoxMenuItem> paletteItems = new HashMap<String, JCheckBoxMenuItem>();
 
 	public CPMainGUI(CPController controller) {
 		this.controller = controller;

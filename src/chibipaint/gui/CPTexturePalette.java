@@ -81,7 +81,7 @@ public class CPTexturePalette extends CPPalette {
 		return new Dimension(400, 105);
 	}
 
-	void makeProceduralTextures() {
+	private void makeProceduralTextures() {
 		CPGreyBmp texture = new CPGreyBmp(2, 2);
 		texture.data[0] = (byte) 255;
 		texture.data[3] = (byte) 255;
@@ -105,7 +105,7 @@ public class CPTexturePalette extends CPPalette {
 		textures.add(makeCheckerBoardTexture(16));
 	}
 
-	void loadTextures(String textureFilename, int width, int height, int nb) {
+	private void loadTextures(String textureFilename, int width, int height, int nb) {
 		Image img = controller.loadImage(textureFilename);
 
 		// block until image is loaded
@@ -134,7 +134,7 @@ public class CPTexturePalette extends CPPalette {
 		}
 	}
 
-	CPGreyBmp makeDotTexture(int size) {
+	private CPGreyBmp makeDotTexture(int size) {
 		CPGreyBmp texture = new CPGreyBmp(size, size);
 		for (int i = 1; i < size * size; i++) {
 			texture.data[i] = (byte) 255;
@@ -142,7 +142,7 @@ public class CPTexturePalette extends CPPalette {
 		return texture;
 	}
 
-	CPGreyBmp makeCheckerBoardTexture(int size) {
+	private CPGreyBmp makeCheckerBoardTexture(int size) {
 		int textureSize = 2 * size;
 		CPGreyBmp texture = new CPGreyBmp(textureSize, textureSize);
 		for (int i = 0; i < textureSize; i++) {
@@ -153,7 +153,7 @@ public class CPTexturePalette extends CPPalette {
 		return texture;
 	}
 
-	CPGreyBmp makeVertLinesTexture(int lineSize, int size) {
+	private CPGreyBmp makeVertLinesTexture(int lineSize, int size) {
 		CPGreyBmp texture = new CPGreyBmp(size, size);
 		for (int i = 0; i < size * size; i++) {
 			if (i % size >= lineSize) {
@@ -163,7 +163,7 @@ public class CPTexturePalette extends CPPalette {
 		return texture;
 	}
 
-	CPGreyBmp makeHorizLinesTexture(int lineSize, int size) {
+	private CPGreyBmp makeHorizLinesTexture(int lineSize, int size) {
 		CPGreyBmp texture = new CPGreyBmp(size, size);
 		for (int i = 0; i < size * size; i++) {
 			if (i / size >= lineSize) {
@@ -178,7 +178,7 @@ public class CPTexturePalette extends CPPalette {
 		processTexture();
 	}
 
-	void processTexture() {
+	private void processTexture() {
 		if (selectedTexture != null) {
 			processedTexture = new CPGreyBmp(selectedTexture);
 
@@ -203,7 +203,7 @@ public class CPTexturePalette extends CPPalette {
 		}
 	}
 
-	Image createTextureImage(CPGreyBmp texture, int width, int height) {
+	private Image createTextureImage(CPGreyBmp texture, int width, int height) {
 		int[] buffer = new int[width * height];
 		for (int i = 0; i < width * height; i++) {
 			buffer[i] = texture.data[texture.getWidth() * (i / width % texture.getHeight())
@@ -217,7 +217,7 @@ public class CPTexturePalette extends CPPalette {
 		return true;
 	}
 	
-	class CPTextureButton extends JButton {
+	private class CPTextureButton extends JButton {
 
 		private static final int width = 32;
 		private static final int height = 32;

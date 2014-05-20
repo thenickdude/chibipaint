@@ -376,7 +376,7 @@ public class CPColorBmp extends CPBitmap {
 		}
 	}
 
-	public void multiplyAlpha(int[] buffer, int len) {
+	private void multiplyAlpha(int[] buffer, int len) {
 		for (int i = 0; i < len; i++) {
 			buffer[i] = buffer[i] & 0xff000000 | ((buffer[i] >>> 24) * (buffer[i] >>> 16 & 0xff) / 255) << 16
 					| ((buffer[i] >>> 24) * (buffer[i] >>> 8 & 0xff) / 255) << 8 | (buffer[i] >>> 24)
@@ -384,7 +384,7 @@ public class CPColorBmp extends CPBitmap {
 		}
 	}
 
-	public void separateAlpha(int[] buffer, int len) {
+	private void separateAlpha(int[] buffer, int len) {
 		for (int i = 0; i < len; i++) {
 			if ((buffer[i] & 0xff000000) != 0) {
 				buffer[i] = buffer[i] & 0xff000000
@@ -395,7 +395,7 @@ public class CPColorBmp extends CPBitmap {
 		}
 	}
 
-	public void boxBlurLine(int[] src, int dst[], int len, int radius) {
+	private void boxBlurLine(int[] src, int dst[], int len, int radius) {
 		int s, ta, tr, tg, tb;
 		s = ta = tr = tg = tb = 0;
 		int pix;
@@ -431,13 +431,13 @@ public class CPColorBmp extends CPBitmap {
 		}
 	}
 
-	public void copyColumnToArray(int x, int y, int len, int[] buffer) {
+	private void copyColumnToArray(int x, int y, int len, int[] buffer) {
 		for (int i = 0; i < len; i++) {
 			buffer[i] = data[x + (i + y) * width];
 		}
 	}
 
-	public void copyArrayToColumn(int x, int y, int len, int[] buffer) {
+	private void copyArrayToColumn(int x, int y, int len, int[] buffer) {
 		for (int i = 0; i < len; i++) {
 			data[x + (i + y) * width] = buffer[i];
 		}

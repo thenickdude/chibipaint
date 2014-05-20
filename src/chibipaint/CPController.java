@@ -511,7 +511,7 @@ public abstract class CPController implements ActionListener {
 		modeListeners.addLast(listener);
 	}
 
-	public void callModeListeners() {
+	private void callModeListeners() {
 		for (ICPModeListener l : modeListeners) {
 			l.modeChange(curMode);
 		}
@@ -527,18 +527,14 @@ public abstract class CPController implements ActionListener {
 		}
 	}
 
-	public void addCPEventListener(ICPEventListener listener) {
-		cpEventListeners.addLast(listener);
-	}
-
-	public void callCPEventListeners() {
+	private void callCPEventListeners() {
 		for (ICPEventListener l : cpEventListeners) {
 			l.cpEvent();
 		}
 	}
 
 	// Rotate image in increments of 90 degrees. Rotate must be non-negative
-	static BufferedImage rotate90(Image input, int imageType, int rotate) {
+	private static BufferedImage rotate90(Image input, int imageType, int rotate) {
 		BufferedImage result;
 
 		int width = input.getWidth(null), height = input.getHeight(null);
@@ -661,7 +657,7 @@ public abstract class CPController implements ActionListener {
 	//
 	// misc dialog boxes that shouldn't be here v___v
 
-	public void showBoxBlurDialog() {
+	private void showBoxBlurDialog() {
 		JPanel panel = new JPanel();
 
 		panel.add(new JLabel("Blur amount:"));
@@ -687,7 +683,7 @@ public abstract class CPController implements ActionListener {
 		}
 	}
 
-	public void showGridOptionsDialog() {
+	private void showGridOptionsDialog() {
 		JPanel panel = new JPanel();
 
 		panel.add(new JLabel("Grid Size:"));

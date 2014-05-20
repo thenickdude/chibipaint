@@ -28,12 +28,15 @@ import javax.swing.*;
 
 class CPSlider extends JComponent implements MouseListener, MouseMotionListener {
 
-	int value, valueRange;
+	public int value;
+	
+	private int valueRange;
 	int minValue = 0, maxValue;
+	
 	String title;
 
-	boolean dragNormal = false, dragPrecise = false;
-	int dragPreciseX;
+	private boolean dragNormal = false, dragPrecise = false;
+	private int dragPreciseX;
 
 	boolean centerMode = false;
 

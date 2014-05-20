@@ -1,0 +1,82 @@
+CHIBI_IMAGES = gfx/images/icons.png gfx/images/smallicons.gif gfx/images/textures32.png
+CHIBI_BIN = bin/chibipaint/*
+
+JAVA_LIB_PATH = /System/Library/Frameworks/JavaVM.Framework/Versions/CurrentJDK
+
+all: splash.jar chibi.jar app.jar test.jar
+
+# Retrotranslate the result of Proguard so we can support 1.4.2:
+test.jar: test.out.jar
+#	mv test.out.jar test.jar
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar test.out.jar -destjar test.jar -classpath "${JAVA_LIB_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar"
+	jarsigner -keystore code-signing/code-signing-nicholas-sherlock.jks -tsa http://timestamp.comodoca.com/rfc3161 -digestalg SHA1 test.jar 1 
+
+splash.jar: splash.out.jar
+#	mv splash.out.jar splash.jar
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar splash.out.jar -destjar splash.jar -classpath "${JAVA_LIB_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar"
+	jarsigner -keystore code-signing/code-signing-nicholas-sherlock.jks -tsa http://timestamp.comodoca.com/rfc3161 -digestalg SHA1 splash.jar 1
+
+chibi.jar: chibi.out.jar
+#	mv chibi.out.jar chibi.jar
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar chibi.out.jar -destjar chibi.jar -classpath "${JAVA_LIB_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar:/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar:bootstrap.jar"
+	jarsigner -keystore code-signing/code-signing-nicholas-sherlock.jks -tsa http://timestamp.comodoca.com/rfc3161 -digestalg SHA1 chibi.jar 1
+
+app.jar: app.out.jar
+#	mv app.out.jar app.jar
+	java -jar "retrotranslator/retrotranslator-transformer-1.2.9.jar" -srcjar app.out.jar -destjar app.jar -classpath "${JAVA_LIB_PATH}/Classes/classes.jar:${JAVA_14_PATH}/Classes/jce.jar:${JAVA_14_PATH}/Classes/jsse.jar" 
+	jarsigner -keystore code-signing/code-signing-nicholas-sherlock.jks -tsa http://timestamp.comodoca.com/rfc3161 -digestalg SHA1 app.jar 1
+
+# Create JARs and apply proguard to optimize and save space: 
+test.out.jar: bin/test/*
+	jar -cfm test.in.jar jar-manifest -C bin/ test/
+	java -jar proguard/lib/proguard.jar @ test.pro -verbose
+
+splash.out.jar: bootstrap.jar bin/splash/*
+	jar -cfm splash.in.jar jar-manifest -C bin/ splash/
+	#mv splash.in.jar splash.out.jar
+	java -jar proguard/lib/proguard.jar @ splash.pro -verbose
+	
+chibi.out.jar: bootstrap.jar ${CHIBI_IMAGES} ${CHIBI_BIN}
+	jar -cfm chibi.in.jar jar-manifest -C bin/ chibipaint/
+	jar -uf chibi.in.jar -C bin/ images/
+	#mv chibi.in.jar chibi.out.jar
+	java -jar proguard/lib/proguard.jar @ chibi.pro -verbose
+
+app.out.jar: ${CHIBI_IMAGES} ${CHIBI_BIN}
+	jar -cfm app.in.jar jar-manifest -C bin/ chibipaint/
+	jar -uf app.in.jar -C bin/ images/
+	jar -uf app.in.jar -C bin/ splash/
+	jar -uf app.in.jar -C bin/ bootstrap/
+	jar -uf app.in.jar -C bin/ javax/
+	#mv app.in.jar app.out.jar
+	java -jar proguard/lib/proguard.jar @ chibipaint.pro -verbose
+
+bootstrap.jar: bin/bootstrap/*
+	jar -cfm bootstrap.jar jar-manifest -C bin/ bootstrap/
+
+clean:
+	rm -f splash.jar
+	rm -f splash.in.jar
+	rm -f splash.out.jar
+	rm -f chibi.jar
+	rm -f chibi.in.jar
+	rm -f chibi.out.jar
+	rm -f test.jar
+	rm -f test.in.jar
+	rm -f test.out.jar
+	rm -f app.jar
+	rm -f app.in.jar
+	rm -f app.out.jar
+	rm -f chibi.jar.pack.gz
+	rm -f splash.jar.pack.gz
+
+%.jar.pack.gz : %.jar
+	pack200 -E9 $@ $<
+	
+install: chibi.jar chibi.jar.pack.gz splash.jar splash.jar.pack.gz test.jar test.jar.pack.gz
+	cp chibi.jar ../trunk/public_html/oekaki/chibi/
+	cp splash.jar ../trunk/public_html/oekaki/chibi/
+	cp app.jar ../trunk/public_html/oekaki/chibi/	
+	cp test.jar ../trunk/public_html/oekaki/chibi/	
+	#cp chibi.jar.pack.gz ../trunk/public_html/oekaki/chibi/
+	#cp splash.jar.pack.gz ../trunk/public_html/oekaki/chibi/
