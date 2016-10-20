@@ -1,0 +1,4 @@
+cd classes/; jar -cmf mainClass.txt ../chibi.jar chibipaint/ chibitest/; cd ..
+
+java -jar c:\\toolz\\proguard3.7\\lib\\proguard.jar @ chibipaint_test.pro -verbose
+rm chibi.jar

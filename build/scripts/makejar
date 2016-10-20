@@ -1,0 +1,26 @@
+cd ../../bin/
+pwd
+jar -mcf ../build/scripts/main-class.txt ../build/release/chibi.jar chibipaint/
+
+cd ../gfx/
+pwd
+jar -uf ../build/release/chibi.jar images/icons.png
+jar -uf ../build/release/chibi.jar images/smallicons.gif
+jar -uf ../build/release/chibi.jar images/textures32.png
+
+cd ../doc/
+pwd
+jar -uf ../build/release/chibi.jar readme.txt
+jar -uf ../build/release/chibi.jar license.txt
+
+cd ../build/release/
+pwd
+rm chibipaint15.jar
+rm chibipaint.jar
+java -jar c:\\toolz\\proguard3.7\\lib\\proguard.jar @ ../scripts/chibipaint.pro -verbose
+rm chibi.jar
+
+java -jar "c:\\toolz\\retrotranslator-1.2.3/retrotranslator-transformer-1.2.3.jar" -srcjar chibipaint15.jar -destjar chibipaint.jar
+
+cp chibipaint.jar ../../../../../webdev/codexus.com/oekaki/
+cp chibipaint.jar ../../../../../webdev/chibipaint.com/oekaki/
